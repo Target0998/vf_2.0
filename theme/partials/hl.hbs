@@ -1,0 +1,2 @@
+{{!-- Turns *text* in the previous element into a yellow highlight. Runs inline to avoid a flash. --}}
+<script>(function(e){if(e&&e.innerHTML.indexOf('*')>-1)e.innerHTML=e.innerHTML.replace(/\*([^*]+)\*/g,'<span class="hl">$1</span>');})(document.currentScript.previousElementSibling);</script>

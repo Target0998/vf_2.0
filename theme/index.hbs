@@ -1,0 +1,13 @@
+{{!< default}}
+{{!-- Fallback lista (ha nincs routes.yaml feltöltve). Ugyanúgy néz ki, mint a Napló. --}}
+{{> "naplo-head" title="Napló" lead="Hírek, történetek és beszámolók a kerecsendi mindennapokból."}}
+
+{{> "naplo-chips"}}
+
+<section class="post-grid" aria-label="Bejegyzések">
+    {{#foreach posts}}{{> "post-card"}}{{/foreach}}
+</section>
+
+{{> "pagination"}}
+
+{{> "cta-band"}}

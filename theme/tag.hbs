@@ -1,0 +1,14 @@
+{{!< default}}
+{{#tag}}
+    {{> "naplo-head" title=name lead=description}}
+{{/tag}}
+
+{{> "naplo-chips" active=tag.slug}}
+
+<section class="post-grid" aria-label="Bejegyzések">
+    {{#foreach posts}}{{> "post-card"}}{{/foreach}}
+</section>
+
+{{> "pagination"}}
+
+{{> "cta-band"}}

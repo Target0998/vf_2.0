@@ -1,0 +1,57 @@
+{{!--
+    Adománydoboz. Paraméterek:
+      variant="page"  → nagy változat a Támogatás oldalra (név, e-mail, hírlevél)
+      (a kis változat címe: Theme settings → donate_title)
+    Összegek és hatás-szövegek: Ghost Admin → Design → Theme settings. Működés: assets/js/main.js
+--}}
+<form class="donate{{#match variant "page"}} donate-lg{{/match}}" data-donate
+    data-api="{{@custom.donate_api_url}}"
+    data-default="{{#match @custom.donate_default "Egyszeri"}}once{{else}}monthly{{/match}}"
+    data-variant="{{#if variant}}{{variant}}{{else}}hero{{/if}}"
+    novalidate>
+
+    <div class="donate-head">
+        {{#unless variant}}<span class="donate-title">{{@custom.donate_title}}</span>{{/unless}}
+        <div class="seg" role="group" aria-label="Gyakoriság">
+            <button type="button" data-freq="once" aria-pressed="false">Egyszeri</button>
+            <button type="button" data-freq="monthly" aria-pressed="true">Havi</button>
+        </div>
+    </div>
+
+    <div class="amounts" role="group" aria-label="Összeg">
+        <button type="button" class="amount" aria-pressed="true" data-amount="{{@custom.tier_1_amount}}" data-impact="{{@custom.tier_1_impact}}">{{@custom.tier_1_amount}} Ft</button>
+        <button type="button" class="amount" aria-pressed="false" data-amount="{{@custom.tier_2_amount}}" data-impact="{{@custom.tier_2_impact}}">{{@custom.tier_2_amount}} Ft</button>
+        <button type="button" class="amount" aria-pressed="false" data-amount="{{@custom.tier_3_amount}}" data-impact="{{@custom.tier_3_impact}}">{{@custom.tier_3_amount}} Ft</button>
+        <button type="button" class="amount" aria-pressed="false" data-amount="custom">Egyéb</button>
+    </div>
+
+    <label class="amount-input" hidden>
+        <span class="visually-hidden">Összeg forintban</span>
+        <input type="text" inputmode="numeric" autocomplete="off" placeholder="Összeg" data-custom-amount>
+        <span aria-hidden="true">Ft</span>
+    </label>
+
+    <div class="impact" aria-live="polite">
+        <img src="{{asset "images/vf/logo-mark.svg"}}" alt="" width="26" height="26">
+        <span data-impact-text>Havonta {{@custom.tier_1_amount}} Ft: {{@custom.tier_1_impact}}, minden hónapban.</span>
+    </div>
+
+    {{#match variant "page"}}
+        <div class="donate-fields">
+            <label class="visually-hidden" for="donate-name">Neved</label>
+            <input class="input" id="donate-name" name="name" autocomplete="name" placeholder="Neved">
+            <label class="visually-hidden" for="donate-email">E-mail címed</label>
+            <input class="input" id="donate-email" name="email" type="email" autocomplete="email" placeholder="E-mail címed">
+            <label class="check"><input type="checkbox" name="newsletter" checked> Feliratkozom a Napló hírlevelére</label>
+        </div>
+    {{/match}}
+
+    <button type="submit" class="btn btn-primary btn-lg btn-block" data-cta>Támogatom havi {{@custom.tier_1_amount}} Ft-tal</button>
+    <span class="donate-cancel" data-monthly-only>A havi támogatást bármikor lemondhatod.</span>
+    <p class="donate-error" role="alert" hidden></p>
+
+    <div class="pay-note">
+        <span>Biztonságos kártyás fizetés · Stripe</span>
+        <span class="pay-badges"><span class="pay-badge">VISA</span><span class="pay-badge">Mastercard</span><span class="pay-badge">Apple Pay</span></span>
+    </div>
+</form>

@@ -1,0 +1,52 @@
+{{!< default}}
+{{!-- Támogatás (3c) – slug: tamogatas
+      Cím: az oldal címe (*csillag* = sárga kiemelés) · bevezető: Excerpt
+      „Miért havi?”: az oldal tartalma (első h2 = cím) + kiemelt kép
+      GYIK: rejtett oldalak #gyik címkével (cím = kérdés, tartalom = válasz) --}}
+{{#post}}
+<div class="on-dark">
+    {{> "header"}}
+    <section class="support-hero" id="main">
+        <div class="support-copy">
+            <h1 class="h1-64">{{title}}</h1>{{> "hl"}}
+            {{#if custom_excerpt}}<p class="lead">{{custom_excerpt}}</p>{{/if}}
+            <dl class="tier-list">
+                <div><dt>{{@custom.tier_1_amount}} Ft</dt><dd>{{@custom.tier_1_impact}}</dd></div>
+                <div><dt>{{@custom.tier_2_amount}} Ft</dt><dd>{{@custom.tier_2_impact}}</dd></div>
+                <div><dt>{{@custom.tier_3_amount}} Ft</dt><dd>{{@custom.tier_3_impact}}</dd></div>
+            </dl>
+        </div>
+        {{> "donate-box" variant="page"}}
+    </section>
+</div>
+
+<section class="section split why-monthly">
+    {{#if feature_image}}{{> "feature-img" class="why-img" sizes="(max-width: 1100px) 100vw, 650px"}}{{else}}{{> "photo" name="tabor-csoportkep" alt="" class="why-img" sizes="(max-width: 1100px) 100vw, 650px"}}{{/if}}
+    <div class="stack-22">
+        <span class="kicker">Miért havi?</span>
+        <div class="why-content">{{content}}</div>
+        {{> "goals"}}
+    </div>
+</section>
+{{/post}}
+
+{{> "help-tiles"}}
+
+<section class="section faq-section" aria-labelledby="faq-title">
+    <h2 id="faq-title">Gyakori kérdések</h2>
+    <div class="faq">
+        {{#get "pages" filter="tag:hash-gyik" order="published_at asc" limit="50"}}{{#if pages}}
+            {{#foreach pages}}
+                <details class="faq-item"{{#if @first}} open{{/if}}>
+                    <summary class="faq-q">{{title}}</summary>
+                    <div class="faq-a">{{content}}</div>
+                </details>
+            {{/foreach}}
+        {{else}}
+            <details class="faq-item" open><summary class="faq-q">Biztonságos a kártyás fizetés?</summary><div class="faq-a"><p>A fizetést a Stripe kezeli, kártyaadataid nem jutnak el hozzánk.</p></div></details>
+            <details class="faq-item"><summary class="faq-q">Hogyan mondhatom le a havi támogatást?</summary><div class="faq-a"><p>Az első adomány után kapott e-mailben található linken bármikor, egy kattintással.</p></div></details>
+            <details class="faq-item"><summary class="faq-q">Kapok igazolást az adományomról?</summary><div class="faq-a"><p>Minden fizetésről automatikus e-mailes nyugtát küldünk.</p></div></details>
+            <details class="faq-item"><summary class="faq-q">Mire fordítjátok az adományokat?</summary><div class="faq-a"><p>Gyerekprogramokra, táborokra és a családokkal dolgozó munkatársaink bérére. Beszámolóinkat az Átláthatóság oldalon találod.</p></div></details>
+        {{/if}}{{/get}}
+    </div>
+</section>

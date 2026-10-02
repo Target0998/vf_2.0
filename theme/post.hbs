@@ -1,0 +1,54 @@
+{{!< default}}
+{{!-- Bejegyzés – a rendszerből levezetve (nincs megrajzolva) --}}
+<div class="on-dark">
+    {{> "header"}}
+</div>
+
+{{#post}}
+<main id="main">
+    <article class="article {{post_class}}">
+        <header class="article-head">
+            {{> "post-meta"}}
+            <h1 class="article-title">{{title}}</h1>
+            {{#if custom_excerpt}}<p class="lead">{{custom_excerpt}}</p>{{/if}}
+        </header>
+
+        {{#if feature_image}}
+            <figure class="article-image">
+                {{> "feature-img" class="" sizes="(max-width: 800px) 100vw, 720px" eager=true}}
+                {{#if feature_image_caption}}<figcaption>{{feature_image_caption}}</figcaption>{{/if}}
+            </figure>
+        {{/if}}
+
+        <div class="gh-content">
+            {{content}}
+        </div>
+    </article>
+
+    <section class="band band-monthly band-post" aria-labelledby="monthly-title">
+        <img class="band-rays" src="{{asset "images/vf/logo-rays-light.svg"}}" alt="">
+        <div class="stack-20">
+            <span class="kicker kicker-plain">Havi támogatás</span>
+            <h2 id="monthly-title" class="h2-50">Szeretnéd, hogy legyen folytatás?</h2>
+        </div>
+        <div class="stack-28">
+            <p class="band-text">Havi {{@custom.tier_1_amount}} forinttal {{@custom.tier_1_impact}} biztosítod. Rendszeres adományod lehetővé teszi, hogy hosszútávra tervezzünk.</p>
+            <a class="btn btn-light" href="/tamogatas/">Havi támogató leszek</a>
+        </div>
+    </section>
+
+    {{#get "posts" filter="id:-{{id}}" limit="3" include="tags"}}
+        {{#if posts}}
+        <section class="section related" aria-labelledby="related-title">
+            <div class="section-head">
+                <h2 id="related-title">További bejegyzések</h2>
+                <a class="link-arrow" href="/naplo/">Minden bejegyzés →</a>
+            </div>
+            <div class="grid-3">
+                {{#foreach posts}}{{> "post-card"}}{{/foreach}}
+            </div>
+        </section>
+        {{/if}}
+    {{/get}}
+</main>
+{{/post}}

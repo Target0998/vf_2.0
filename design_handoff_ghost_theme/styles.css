@@ -1,0 +1,179 @@
+/* Világítani Fogok – design system. Tokens + component classes. Source of truth; see readme.md. */
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Hanken+Grotesk:wght@400;500;600;700&display=swap');
+
+:root {
+  /* Brand – the three logo colours */
+  --vf-logo-red: #E85830;
+  --vf-logo-teal: #38B8A0;
+  --vf-logo-yellow: #F8C818;
+
+  /* Roles */
+  --color-primary: #D2401F;        /* donate / main action */
+  --color-primary-hover: #B8361A;
+  --color-primary-active: #9E2E16;
+  --color-dark: #0E4A43;           /* hero + header ground */
+  --color-dark-2: #0B3A35;
+  --color-teal: #0F7D6E;           /* kicker, secondary accent text */
+  --color-teal-deep: #0B5C51;
+  --color-yellow: #F8C818;         /* highlight on dark, CTA on dark */
+  --color-yellow-hover: #E8B800;
+  --color-ochre: #B07C00;          /* yellow as text on light */
+  --color-ochre-deep: #7A5000;
+
+  /* Grounds & tints */
+  --color-bg: #FFFCF7;             /* page */
+  --color-surface: #FFFFFF;        /* donate box, inputs */
+  --color-sand: #F4EEE6;           /* neutral tile, seg track */
+  --color-butter: #FFF3D1;         /* napló cards, warm tile */
+  --color-butter-2: #FFF5D6;       /* impact note */
+  --color-mint: #E3F3EF;           /* 1% tile */
+  --color-blush: #FBE2D9;
+
+  /* Ink */
+  --color-text: #1F1A17;
+  --color-text-2: #4A433D;         /* body copy */
+  --color-muted: #6B625A;          /* meta, captions */
+  --color-on-dark: #FFFCF7;
+  --color-on-dark-2: #D5E4E1;      /* body copy on dark */
+  --color-on-dark-3: #BFD9D3;      /* meta on dark */
+  --color-line: #EDE4D8;
+  --color-line-2: #E2D8CB;
+
+  --font-heading: "Bricolage Grotesque", system-ui, sans-serif;
+  --font-body: "Hanken Grotesk", system-ui, sans-serif;
+
+  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px; --space-5: 20px;
+  --space-6: 24px; --space-8: 32px; --space-10: 40px; --space-12: 48px; --space-16: 64px; --space-22: 88px;
+
+  --radius-sm: 6px;    /* card brand chips */
+  --radius-md: 14px;   /* amount buttons, inputs, thumbs */
+  --radius-lg: 22px;   /* cards, photos */
+  --radius-xl: 28px;   /* hero photo, bands, donate box */
+  --radius-pill: 999px;
+
+  --shadow-sm: 0 2px 6px rgba(60,40,20,.08);
+  --shadow-md: 0 16px 40px rgba(60,40,20,.08);
+  --shadow-lg: 0 30px 60px rgba(0,0,0,.25);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; background: var(--color-bg); color: var(--color-text); font: 400 17px/1.55 var(--font-body); }
+h1, h2, h3, h4 { font-family: var(--font-heading); font-weight: 800; letter-spacing: -.02em; line-height: 1.05; margin: 0; text-wrap: balance; }
+h1 { font-size: 62px; letter-spacing: -.025em; line-height: 1.02; }
+h2 { font-size: 44px; }
+h3 { font-size: 26px; font-weight: 700; letter-spacing: 0; line-height: 1.15; }
+h4 { font-size: 21px; font-weight: 700; letter-spacing: 0; line-height: 1.2; }
+p { margin: 0; text-wrap: pretty; }
+a { color: inherit; text-decoration: none; }
+a:hover { opacity: .8; }
+img { display: block; max-width: 100%; }
+button { font: inherit; cursor: pointer; }
+:focus { outline: none; }
+:focus-visible { outline: 3px solid var(--color-yellow); outline-offset: 2px; }
+::selection { background: var(--color-butter); }
+
+.lead { font-size: 19px; line-height: 1.55; color: var(--color-text-2); }
+.kicker { font: 700 14px var(--font-body); letter-spacing: .1em; text-transform: uppercase; color: var(--color-teal); }
+.meta { font: 600 14px var(--font-body); color: var(--color-muted); }
+.hl { color: var(--color-yellow); }                       /* highlighted words in dark headings */
+.on-dark { background: var(--color-dark); color: var(--color-on-dark); }
+.on-dark .lead { color: var(--color-on-dark-2); }
+
+/* — buttons — */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: 2px solid transparent; border-radius: var(--radius-pill); padding: 13px 26px; font: 700 16px var(--font-body); color: var(--color-text); background: transparent; text-decoration: none; }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.btn-primary { background: var(--color-primary); color: #fff; }
+.btn-primary:hover { background: var(--color-primary-hover); opacity: 1; }
+.btn-primary:active { background: var(--color-primary-active); }
+.btn-accent { background: var(--color-yellow); color: var(--color-text); }
+.btn-accent:hover { background: var(--color-yellow-hover); opacity: 1; }
+.btn-outline { border-color: currentColor; }
+.btn-outline:hover { background: color-mix(in srgb, currentColor 8%, transparent); opacity: 1; }
+.btn-light { background: #fff; color: var(--color-text); }
+.btn-lg { padding: 18px 30px; font-size: 18px; }
+.btn-block { width: 100%; }
+.link-arrow { font: 700 16px var(--font-body); color: var(--color-primary); }
+
+/* — chips (Napló filters) & tags — */
+.chip { display: inline-flex; align-items: center; padding: 10px 20px; border-radius: var(--radius-pill); border: 1.5px solid var(--color-line-2); font: 600 15px var(--font-body); background: transparent; color: var(--color-text); }
+.chip[aria-pressed="true"] { background: var(--color-text); border-color: var(--color-text); color: #fff; font-weight: 700; }
+.tag { font: 700 13px var(--font-body); letter-spacing: .06em; text-transform: uppercase; }
+.tag-teal { color: var(--color-teal); } .tag-red { color: var(--color-primary); } .tag-ochre { color: var(--color-ochre-deep); }
+
+/* — donate box — */
+.donate { background: var(--color-surface); color: var(--color-text); border: 1px solid var(--color-line); border-radius: var(--radius-xl); padding: 28px; display: flex; flex-direction: column; gap: 18px; box-shadow: var(--shadow-md); }
+.donate-title { font: 800 24px/1.15 var(--font-heading); }
+.seg { display: inline-grid; grid-auto-flow: column; grid-auto-columns: 1fr; background: var(--color-sand); border-radius: var(--radius-pill); padding: 4px; }
+.seg button { border: 0; border-radius: var(--radius-pill); padding: 9px 18px; font: 700 15px var(--font-body); background: transparent; color: var(--color-text); }
+.seg button[aria-pressed="true"] { background: var(--color-dark); color: #fff; }
+.amounts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.amount { border: 2px solid var(--color-line-2); border-radius: var(--radius-md); padding: 15px 4px; background: #fff; color: var(--color-text); font: 700 17px var(--font-body); }
+.amount:hover { border-color: var(--color-dark); }
+.amount[aria-pressed="true"] { background: var(--color-dark); border-color: var(--color-dark); color: #fff; }
+.impact { display: flex; gap: 12px; align-items: flex-start; background: var(--color-butter-2); border-radius: var(--radius-md); padding: 13px 16px; font: 500 16px/1.4 var(--font-body); color: #5A4300; }
+.impact img { width: 26px; height: 26px; flex: none; }
+.pay-note { display: flex; justify-content: space-between; align-items: center; gap: 12px; font: 500 14px var(--font-body); color: var(--color-muted); }
+.pay-badge { border: 1px solid var(--color-line-2); border-radius: var(--radius-sm); padding: 2px 7px; font-weight: 700; }
+
+/* — forms — */
+.input { width: 100%; border: 1.5px solid var(--color-line-2); border-radius: var(--radius-md); padding: 15px 16px; font: 500 17px var(--font-body); color: var(--color-text); background: #fff; caret-color: var(--color-primary); }
+.input:hover { border-color: var(--color-muted); }
+.input:focus-visible { border-color: var(--color-dark); outline: 0; box-shadow: 0 0 0 3px var(--color-butter); }
+.check { display: flex; gap: 10px; align-items: center; font: 500 15px var(--font-body); color: var(--color-text-2); }
+.check input { width: 18px; height: 18px; accent-color: var(--color-dark); }
+
+/* — header — */
+.site-header { display: flex; align-items: center; justify-content: space-between; padding: 18px 64px; }
+.brand { display: flex; align-items: center; gap: 14px; }
+.brand img { width: 60px; height: 60px; }
+.brand-name { display: block; font: 800 23px/1.05 var(--font-heading); letter-spacing: -.01em; }
+.brand-sub { display: block; font: 500 13px var(--font-body); letter-spacing: .04em; color: var(--color-on-dark-3); }
+.site-nav { display: flex; align-items: center; gap: 30px; font: 600 16px var(--font-body); }
+.site-nav a[aria-current="page"] { color: var(--color-yellow); box-shadow: inset 0 -2px 0 var(--color-yellow); padding-bottom: 4px; }
+.lang { display: flex; gap: 6px; color: var(--color-on-dark-3); }
+.notice { display: flex; justify-content: center; gap: 16px; padding: 12px 64px; background: var(--color-yellow); color: var(--color-text); font: 500 16px var(--font-body); }
+
+/* — cards & tiles — */
+.photo { width: 100%; object-fit: cover; border-radius: var(--radius-lg); }
+.program { display: flex; flex-direction: column; gap: 16px; }
+.program .photo { height: 300px; }
+.program p { font-size: 17px; color: var(--color-text-2); }
+.post { display: flex; flex-direction: column; gap: 14px; }
+.post .photo { height: 260px; }
+.post-title { font: 700 24px/1.2 var(--font-heading); }
+.post-feature { display: grid; grid-template-columns: minmax(0,1.3fr) minmax(0,1fr); background: var(--color-butter); border-radius: var(--radius-xl); overflow: hidden; }
+.tile { border-radius: 24px; padding: 28px; display: flex; flex-direction: column; gap: 14px; background: var(--color-sand); }
+.tile-title { font: 700 24px var(--font-heading); }
+.tile p { font-size: 16px; color: var(--color-text-2); }
+.tile-mint { background: var(--color-mint); } .tile-butter { background: var(--color-butter); } .tile-blush { background: var(--color-blush); }
+.stat-num { font: 800 56px/1 var(--font-heading); }
+.stat-label { font: 500 17px/1.4 var(--font-body); color: var(--color-text-2); }
+.band { border-radius: var(--radius-xl); padding: 72px 64px; background: var(--color-primary); color: #fff; position: relative; overflow: hidden; }
+.band-dark { background: var(--color-dark); color: var(--color-on-dark); }
+
+/* — FAQ — */
+.faq { border-top: 2px solid var(--color-text); }
+.faq-item { border-bottom: 1px solid var(--color-line-2); }
+.faq-q { width: 100%; display: flex; justify-content: space-between; gap: 24px; background: none; border: 0; padding: 24px 0; text-align: left; font: 700 21px var(--font-heading); color: var(--color-text); }
+.faq-q::after { content: "+"; font: 600 26px var(--font-body); color: var(--color-primary); }
+.faq-item[open] .faq-q::after { content: "–"; }
+.faq-a { padding: 0 64px 24px 0; font-size: 18px; color: var(--color-text-2); }
+
+/* — table (Átláthatóság) — */
+.table { width: 100%; border-collapse: collapse; font-size: 16px; }
+.table th { text-align: left; font: 700 13px var(--font-body); letter-spacing: .08em; text-transform: uppercase; color: var(--color-muted); padding: 12px; border-bottom: 2px solid var(--color-text); }
+.table td { padding: 14px 12px; border-bottom: 1px solid var(--color-line); }
+.table tbody tr:hover { background: var(--color-sand); }
+
+/* — dialog — */
+.dialog-backdrop { position: fixed; inset: 0; display: grid; place-items: center; padding: 24px; background: rgba(14,74,67,.6); }
+.dialog { width: min(480px,100%); background: #fff; border-radius: var(--radius-xl); padding: 32px; display: flex; flex-direction: column; gap: 16px; box-shadow: var(--shadow-lg); }
+.dialog-title { font: 800 28px/1.1 var(--font-heading); }
+.dialog-actions { display: flex; justify-content: flex-end; gap: 10px; }
+
+/* — footer — */
+.site-footer { background: var(--color-text); color: #F4EEE6; padding: 56px 64px; display: grid; grid-template-columns: auto 1fr 1fr 1fr; gap: 56px; font: 400 16px/1.7 var(--font-body); }
+.footer-logo { width: 150px; height: 150px; border-radius: 50%; background: var(--color-bg); display: flex; align-items: center; justify-content: center; }
+.footer-logo img { width: 122px; height: 115px; }
+.footer-col { display: flex; flex-direction: column; }
+.footer-col b { color: #fff; margin-bottom: 6px; }

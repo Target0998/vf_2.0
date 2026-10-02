@@ -1,0 +1,29 @@
+{{!< default}}
+{{!-- Általános oldal: Galéria, Tevékenységünk, Kapcsolat, Átláthatóság, Adatvédelem… --}}
+{{#post}}
+<div class="on-dark">
+    {{> "header"}}
+    {{#match @page.show_title_and_feature_image}}
+    <div class="page-head">
+        <div class="page-head-copy">
+            <h1 class="h1-72">{{title}}</h1>{{> "hl"}}
+            {{#if custom_excerpt}}<p class="lead">{{custom_excerpt}}</p>{{/if}}
+        </div>
+        <img class="page-head-mark" src="{{asset "images/vf/logo-mark-hero.svg"}}" alt="">
+    </div>
+    {{/match}}
+</div>
+
+<main class="page-body" id="main">
+    {{#match @page.show_title_and_feature_image}}
+        {{#if feature_image}}
+            <figure class="article-image article-image-wide">
+                {{> "feature-img" class="" sizes="(max-width: 1100px) 100vw, 1100px" eager=true}}
+            </figure>
+        {{/if}}
+    {{/match}}
+    <div class="gh-content">
+        {{content}}
+    </div>
+</main>
+{{/post}}

@@ -1,0 +1,79 @@
+# Helyi fejlesztői környezet – Világítani Fogok Ghost téma
+#   docker compose up -d        → Ghost: http://localhost:2368  (admin: /ghost/)
+#   npm run seed                → admin fiók, téma aktiválása, mintatartalom
+#   Mailpit (e-mailek):           http://localhost:8025
+#   Adomány API:                  http://localhost:8787/health
+name: vf
+
+services:
+  db:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-vfroot}
+      MYSQL_DATABASE: ghost
+      MYSQL_USER: ghost
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-ghostpass}
+    volumes:
+      - db:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${MYSQL_ROOT_PASSWORD:-vfroot}"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  ghost:
+    image: ghost:6-alpine
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "2368:2368"
+    environment:
+      # development = templates are re-read on every request (no restart needed while editing the theme)
+      NODE_ENV: development
+      url: ${GHOST_URL:-http://localhost:2368}
+      database__client: mysql
+      database__connection__host: db
+      database__connection__user: ghost
+      database__connection__password: ${MYSQL_PASSWORD:-ghostpass}
+      database__connection__database: ghost
+      # all mail (magic links, newsletters) is captured by Mailpit
+      mail__transport: SMTP
+      mail__from: "Világítani Fogok <noreply@vilagitanifogok.hu>"
+      mail__options__host: mailpit
+      mail__options__port: 1025
+      mail__options__secure: "false"
+      # no "new device" e-mail verification for staff logins locally
+      security__staffDeviceVerification: "false"
+    volumes:
+      - ghost:/var/lib/ghost/content
+      - ./theme:/var/lib/ghost/content/themes/vilagitani-fogok
+      - ./ghost/routes.yaml:/var/lib/ghost/content/settings/routes.yaml
+
+  donate-api:
+    image: node:22-alpine
+    restart: unless-stopped
+    working_dir: /app
+    command: ["node", "--watch", "server.js"]
+    ports:
+      - "8787:8787"
+    environment:
+      PORT: 8787
+      SITE_URL: ${GHOST_URL:-http://localhost:2368}
+      ALLOWED_ORIGINS: ${GHOST_URL:-http://localhost:2368},http://127.0.0.1:2368
+      # empty = mock mode (redirects straight to /koszonjuk/). Put a Stripe *test* key in .env to try real Checkout.
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
+    volumes:
+      - ./donate-api:/app:ro
+
+  mailpit:
+    image: axllent/mailpit:latest
+    restart: unless-stopped
+    ports:
+      - "8025:8025"
+
+volumes:
+  db:
+  ghost:

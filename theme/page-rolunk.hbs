@@ -1,0 +1,65 @@
+{{!< default}}
+{{!-- Rólunk (3d) – slug: rolunk
+      Cím (*csillag* = sárga) · kiemelt kép = széles fotó · tartalom = Történetünk (az első bekezdés nagy)
+      Idővonal: #idovonal oldalak (cím = évszám, excerpt = leírás)
+      Küldetés: „rolunk-kuldetes” rejtett oldal (excerpt = nagy mondat, tartalom = bekezdések)
+      Értékeink: #ertek oldalak (cím + excerpt) --}}
+{{#post}}
+<div class="on-dark">
+    {{> "header"}}
+    <div class="about-head" id="main">
+        <h1 class="h1-72">{{title}}</h1>{{> "hl"}}
+        {{#if feature_image}}{{> "feature-img" class="about-img" sizes="(max-width: 1440px) 100vw, 1312px" eager=true}}{{else}}{{> "photo" name="csapat-fuben" alt="Önkénteseink körben a fűben" class="about-img" eager=true}}{{/if}}
+    </div>
+</div>
+
+<section class="section story">
+    <span class="kicker">Történetünk</span>
+    <div class="story-content">{{content}}</div>
+</section>
+{{/post}}
+
+<section class="timeline" aria-label="Idővonal">
+    {{#get "pages" filter="tag:hash-idovonal" order="published_at asc" limit="4"}}{{#if pages}}
+        {{#foreach pages}}<div class="timeline-item"><span class="timeline-num">{{title}}</span><span class="stat-label">{{custom_excerpt}}</span></div>{{/foreach}}
+    {{else}}
+        <div class="timeline-item"><span class="timeline-num">2003</span><span class="stat-label">az első nyári tábor, laza civil szerveződésként</span></div>
+        <div class="timeline-item"><span class="timeline-num">2018</span><span class="stat-label">bejegyzett egyesület lettünk</span></div>
+        <div class="timeline-item"><span class="timeline-num">2023</span><span class="stat-label">közhasznú egyesületként dolgozunk</span></div>
+        <div class="timeline-item"><span class="timeline-num">45</span><span class="stat-label">önkéntes és húsz segítő ma</span></div>
+    {{/if}}{{/get}}
+</section>
+
+<section class="band band-dark mission" aria-label="Küldetésünk">
+    <img class="mission-mark" src="{{asset "images/vf/logo-mark-hero.svg"}}" alt="">
+    {{#get "pages" filter="slug:rolunk-kuldetes" limit="1"}}{{#if pages}}
+        {{#foreach pages}}
+            <div class="stack-18"><span class="kicker kicker-yellow">Küldetésünk</span><p class="mission-statement">{{custom_excerpt}}</p></div>
+            <div class="mission-text">{{content}}</div>
+        {{/foreach}}
+    {{else}}
+        <div class="stack-18"><span class="kicker kicker-yellow">Küldetésünk</span><p class="mission-statement">A Kerecsenden nagy számban élő nehéz sorsú, magára hagyott emberek, különösen a gyerekek életesélyeinek növelése, közösségteremtés és a tágabb társadalom felelősségvállalásának növelése.</p></div>
+        <div class="mission-text"><p>Kerecsend Magyarország 300 legszegényebb települése közé tartozik. A gyerekekhez és családokhoz holisztikus szemlélettel fordulunk: a felmerülő kérdéseket összefüggésükben kezeljük, és szerteágazó kapcsolatokat építünk segítőszervezetek, intézmények és emberek között.</p><p>Mindezt azért, hogy mindannyian aktív, egyenrangú, alkotó és szabad tagjaivá váljunk a társadalomnak.</p></div>
+    {{/if}}{{/get}}
+</section>
+
+<section class="section values" aria-labelledby="values-title">
+    <h2 id="values-title">Értékeink</h2>
+    <div class="grid-3">
+        {{#get "pages" filter="tag:hash-ertek" order="published_at asc" limit="6"}}{{#if pages}}
+            {{#foreach pages}}<div class="value-tile"><span class="value-title">{{title}}</span><p>{{custom_excerpt}}</p></div>{{/foreach}}
+        {{else}}
+            <div class="value-tile"><span class="value-title">Átláthatóság</span><p>Takarékosan bánunk az adófizetők és a támogatók pénzével.</p></div>
+            <div class="value-tile"><span class="value-title">Rugalmasság</span><p class="placeholder">Pár mondatos kifejtés ide.</p></div>
+            <div class="value-tile"><span class="value-title">Tisztelet</span><p class="placeholder">Pár mondatos kifejtés ide.</p></div>
+            <div class="value-tile"><span class="value-title">Sokszínűség</span><p class="placeholder">Pár mondatos kifejtés ide.</p></div>
+            <div class="value-tile"><span class="value-title">Empátia</span><p class="placeholder">Pár mondatos kifejtés ide.</p></div>
+            <div class="value-tile"><span class="value-title">Felelősségvállalás</span><p class="placeholder">Pár mondatos kifejtés ide.</p></div>
+        {{/if}}{{/get}}
+    </div>
+</section>
+
+<section class="link-tiles">
+    <a class="link-tile" href="/atlathatosag/"><span class="stack-6"><span class="value-title">Átláthatóság</span><span>Beszámolók, közhasznúsági jelentések, alapdokumentumok.</span></span><span class="link-tile-arrow" aria-hidden="true">→</span></a>
+    <a class="link-tile link-tile-red" href="/kapcsolat/"><span class="stack-6"><span class="value-title">Csatlakoznál önkéntesként?</span><span>Táborok, hétvégi programok, mentorálás.</span></span><span class="link-tile-arrow" aria-hidden="true">→</span></a>
+</section>

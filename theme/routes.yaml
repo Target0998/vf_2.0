@@ -1,0 +1,13 @@
+# Ghost: Settings → Labs → Routes → Upload (élesben). Dockerben automatikusan be van csatolva.
+routes:
+  /:
+    template: home
+
+collections:
+  /naplo/:
+    permalink: /naplo/{slug}/
+    template: naplo
+
+taxonomies:
+  tag: /tag/{slug}/
+  author: /szerzo/{slug}/

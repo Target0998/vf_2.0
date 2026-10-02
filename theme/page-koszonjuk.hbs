@@ -1,0 +1,20 @@
+{{!< default}}
+{{!-- Köszönjük – slug: koszonjuk. Ide irányít vissza a Stripe Checkout sikeres fizetés után.
+      A ?a=<összeg>&f=monthly|once paraméterekből a main.js rakja össze az üzenetet. --}}
+{{#post}}
+<div class="on-dark thanks-wrap">
+    {{> "header"}}
+    <main class="thanks" id="main">
+        <div class="dialog" role="status">
+            <img src="{{asset "images/vf/logo-mark.svg"}}" alt="" width="64" height="64">
+            <h1 class="dialog-title">{{title}}</h1>
+            <p class="dialog-text" data-thanks-text>{{#if custom_excerpt}}{{custom_excerpt}}{{else}}Támogatásod rögzítettük. A visszaigazolást e-mailben küldjük.{{/if}}</p>
+            {{#if html}}<div class="gh-content dialog-content">{{content}}</div>{{/if}}
+            <div class="dialog-actions">
+                <a class="btn btn-outline" href="{{@site.url}}">Vissza a főoldalra</a>
+                <a class="btn btn-primary" href="/naplo/">Olvass a Naplóban</a>
+            </div>
+        </div>
+    </main>
+</div>
+{{/post}}

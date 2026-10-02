@@ -1,0 +1,134 @@
+{
+  "name": "vilagitani-fogok",
+  "description": "Világítani Fogok Egyesület – egyedi Ghost téma (adománygyűjtés + Napló)",
+  "version": "0.1.0",
+  "private": true,
+  "license": "UNLICENSED",
+  "engines": {
+    "ghost": ">=5.0.0"
+  },
+  "keywords": ["ghost-theme"],
+  "author": {
+    "name": "Világítani Fogok Egyesület",
+    "email": "info@vilagitanifogok.hu"
+  },
+  "scripts": {
+    "test": "npx gscan@latest .",
+    "zip": "mkdir -p ../dist && rm -f ../dist/vilagitani-fogok.zip && zip -rq ../dist/vilagitani-fogok.zip . -x 'node_modules/*' '.DS_Store' '*/.DS_Store'"
+  },
+  "config": {
+    "posts_per_page": 9,
+    "image_sizes": {
+      "s": { "width": 400 },
+      "m": { "width": 800 },
+      "l": { "width": 1200 },
+      "xl": { "width": 1800 }
+    },
+    "card_assets": true,
+    "custom": {
+      "show_notice": {
+        "type": "boolean",
+        "default": false,
+        "description": "Sárga közleménysáv a fejléc fölött, minden oldalon."
+      },
+      "notice_text": {
+        "type": "text",
+        "default": "Két fő programunk előfinanszírozására 12,78 millió forint saját forrást kellett lekötnünk – tartalékaink kimerültek.",
+        "description": "A közleménysáv szövege."
+      },
+      "notice_link": {
+        "type": "text",
+        "default": "/naplo/",
+        "description": "A közleménysáv linkje („Olvasd el, mi történt →”)."
+      },
+      "hero_title": {
+        "type": "text",
+        "group": "homepage",
+        "default": "Kicsiny kis fényemmel, *világítani fogok!*",
+        "description": "Főoldali cím; a *csillagok közé* tett rész sárga. Bevezető: Settings → Site description."
+      },
+      "hero_image": {
+        "type": "image",
+        "group": "homepage",
+        "description": "Főoldali fotó. Üresen a téma saját képe jelenik meg."
+      },
+      "donate_title": {
+        "type": "text",
+        "group": "homepage",
+        "default": "Állj a gyerekek mellé",
+        "description": "Az adománydoboz címe a főoldalon."
+      },
+      "donate_default": {
+        "type": "select",
+        "options": ["Havi", "Egyszeri"],
+        "default": "Havi",
+        "description": "Az adománydobozban alapból kijelölt gyakoriság."
+      },
+      "tier_1_amount": {
+        "type": "text",
+        "default": "5 000",
+        "description": "1. összeg (Ft)."
+      },
+      "tier_1_impact": {
+        "type": "text",
+        "default": "egy gyerek hétvégi programja",
+        "description": "Mit jelent az 1. összeg?"
+      },
+      "tier_2_amount": {
+        "type": "text",
+        "default": "10 000",
+        "description": "2. összeg (Ft)."
+      },
+      "tier_2_impact": {
+        "type": "text",
+        "default": "egy kisgyermekes család havi fejlesztő foglalkozásai",
+        "description": "Mit jelent a 2. összeg?"
+      },
+      "tier_3_amount": {
+        "type": "text",
+        "default": "25 000",
+        "description": "3. összeg (Ft)."
+      },
+      "tier_3_impact": {
+        "type": "text",
+        "default": "egy gyerek részvétele a nyári táborban",
+        "description": "Mit jelent a 3. összeg?"
+      },
+      "donate_api_url": {
+        "type": "text",
+        "default": "http://localhost:8787/checkout",
+        "description": "A Stripe Checkout függvény címe (pl. Cloudflare Worker). Üresen a gomb a /tamogatas/ oldalra visz."
+      },
+      "tax_number": {
+        "type": "text",
+        "default": "19063672-1-10",
+        "description": "Adószám (1% csempe, lábléc)."
+      },
+      "bank_account": {
+        "type": "text",
+        "default": "11711096-21456499",
+        "description": "Bankszámlaszám (OTP Bank)."
+      },
+      "iban": {
+        "type": "text",
+        "default": "HU68 1171 1096 2145 6499 0000 0000",
+        "description": "IBAN."
+      },
+      "address": {
+        "type": "text",
+        "default": "3396 Kerecsend, Fő út 154.",
+        "description": "Postacím a láblécben."
+      },
+      "contact_email": {
+        "type": "text",
+        "default": "info@vilagitanifogok.hu",
+        "description": "Kapcsolati e-mail a láblécben."
+      },
+      "facebook_url": {
+        "type": "text",
+        "default": "https://www.facebook.com/vilagitanifogok",
+        "description": "Facebook oldal linkje."
+      }
+    }
+  }
+}

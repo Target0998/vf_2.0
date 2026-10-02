@@ -1,0 +1,5 @@
+{{!-- Overrides Ghost's {{navigation}} output. Primary nav from Ghost Admin → Settings → Navigation.
+     The Napló item also lights up on posts (/naplo/…/) and tag pages via data-nav-section in main.js. --}}
+{{#foreach navigation}}
+    <a href="{{url absolute="true"}}" class="nav-link{{#if current}} is-current{{/if}}" {{#if current}}aria-current="page"{{/if}} data-nav-slug="{{slug}}">{{label}}</a>
+{{/foreach}}

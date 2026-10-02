@@ -1,0 +1,9 @@
+{{!-- Címkeszűrő chipek – sima linkek a Ghost tag oldalakra. Param: active (tag slug) --}}
+<nav class="chips" aria-label="Címkék">
+    <a class="chip" href="/naplo/"{{#unless active}} aria-current="page"{{/unless}}>Mind</a>
+    {{#get "tags" limit="50" filter="visibility:public" include="count.posts" order="name asc"}}
+        {{#foreach tags}}
+            {{#if count.posts}}<a class="chip" href="{{url}}"{{#match slug ../../active}} aria-current="page"{{/match}}>{{name}}</a>{{/if}}
+        {{/foreach}}
+    {{/get}}
+</nav>

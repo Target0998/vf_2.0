@@ -1,0 +1,12 @@
+{
+  "name": "vf-donate-api",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Stripe Checkout Session létrehozása a Világítani Fogok adománydobozához (egyszeri + havi, HUF, egyedi összeg).",
+  "type": "module",
+  "main": "server.js",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "start": "node server.js"
+  }
+}

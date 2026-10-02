@@ -1,0 +1,6 @@
+{{#if pagination.pages}}
+<nav class="pager" aria-label="Lapozás">
+    {{#if pagination.prev}}<a class="btn btn-outline" href="{{page_url pagination.prev}}">← Újabb bejegyzések</a>{{/if}}
+    {{#if pagination.next}}<a class="btn btn-outline" href="{{page_url pagination.next}}">Korábbi bejegyzések</a>{{/if}}
+</nav>
+{{/if}}

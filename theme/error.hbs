@@ -1,0 +1,15 @@
+{{!< default}}
+<div class="on-dark thanks-wrap">
+    {{> "header"}}
+    <main class="thanks" id="main">
+        <div class="dialog">
+            <img src="{{asset "images/vf/logo-mark.svg"}}" alt="" width="64" height="64">
+            <h1 class="dialog-title">{{statusCode}} – {{#match statusCode 404}}Ez az oldal nem található{{else}}Hiba történt{{/match}}</h1>
+            <p class="dialog-text">{{#match statusCode 404}}Lehet, hogy a link elavult. Nézz körül a főoldalon vagy a Naplóban.{{else}}{{message}}{{/match}}</p>
+            <div class="dialog-actions">
+                <a class="btn btn-outline" href="/naplo/">Napló</a>
+                <a class="btn btn-primary" href="{{@site.url}}">Főoldal</a>
+            </div>
+        </div>
+    </main>
+</div>

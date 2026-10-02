@@ -1,0 +1,7 @@
+{{!-- Napló lista kártya (.post) --}}
+<a class="post" href="{{url}}">
+    {{#if feature_image}}{{> "feature-img" class="photo" sizes="(max-width: 700px) 100vw, (max-width: 1100px) 50vw, 420px"}}{{else}}<span class="photo photo-empty" aria-hidden="true"></span>{{/if}}
+    {{> "post-meta"}}
+    <span class="post-title">{{title}}</span>
+    {{#if custom_excerpt}}<span class="post-excerpt">{{custom_excerpt}}</span>{{else}}<span class="post-excerpt">{{excerpt words="22"}}</span>{{/if}}
+</a>

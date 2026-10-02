@@ -1,0 +1,21 @@
+{{!< default}}
+{{!-- Napló – a /naplo/ gyűjtemény (routes.yaml) --}}
+{{> "naplo-head" title="Napló" lead="Hírek, történetek és beszámolók a kerecsendi mindennapokból – táborokról, programokról és a családokkal végzett munkánkról."}}
+
+{{> "naplo-chips"}}
+
+{{#unless pagination.prev}}
+    {{#get "posts" filter="featured:true" limit="1" include="tags"}}
+        {{#foreach posts}}<div class="feature-wrap">{{> "post-feature"}}</div>{{/foreach}}
+    {{/get}}
+{{/unless}}
+
+<section class="post-grid" aria-label="Bejegyzések">
+    {{#foreach posts}}
+        {{#unless featured}}{{> "post-card"}}{{/unless}}
+    {{/foreach}}
+</section>
+
+{{> "pagination"}}
+
+{{> "cta-band"}}

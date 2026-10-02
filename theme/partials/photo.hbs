@@ -1,0 +1,5 @@
+{{!-- Bundled theme photo (assets/images/photos/<name>-{800,1600}.webp + <name>.jpg fallback). Params: name, alt, class, sizes, eager --}}
+<picture>
+    <source type="image/webp" srcset="{{asset (concat "images/photos/" name "-800.webp")}} 800w, {{asset (concat "images/photos/" name "-1600.webp")}} 1600w" sizes="{{#if sizes}}{{sizes}}{{else}}100vw{{/if}}">
+    <img class="{{class}}" src="{{asset (concat "images/photos/" name ".jpg")}}" alt="{{alt}}" {{#unless eager}}loading="lazy"{{/unless}}>
+</picture>

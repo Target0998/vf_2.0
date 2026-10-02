@@ -1,0 +1,11 @@
+{{!-- Sötétzöld Napló cím-blokk. Params: title, lead --}}
+<div class="on-dark">
+    {{> "header"}}
+    <div class="page-head" id="main">
+        <div class="page-head-copy">
+            <h1 class="h1-72">{{title}}</h1>
+            {{#if lead}}<p class="lead">{{lead}}</p>{{/if}}
+        </div>
+        <img class="page-head-mark" src="{{asset "images/vf/logo-mark-hero.svg"}}" alt="">
+    </div>
+</div>

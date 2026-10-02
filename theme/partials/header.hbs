@@ -1,0 +1,22 @@
+{{!-- Site header. Always rendered inside a dark (.on-dark) block by the page template. --}}
+<header class="site-header">
+    <a class="brand" href="{{@site.url}}">
+        <img src="{{asset "images/vf/logo-mark.svg"}}" alt="" width="60" height="60">
+        <span>
+            <span class="brand-name">Világítani Fogok</span>
+            <span class="brand-sub">EGYESÜLET · KERECSEND</span>
+        </span>
+    </a>
+
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav">
+        <span class="nav-toggle-bars" aria-hidden="true"></span>
+        <span class="visually-hidden">Menü</span>
+    </button>
+
+    <nav class="site-nav" id="site-nav" aria-label="Fő menü">
+        {{navigation}}
+        <span class="lang"><span class="lang-current" aria-current="true">HU</span><span aria-hidden="true">/</span><a href="/en/" lang="en">EN</a></span>
+    </nav>
+
+    <a class="btn btn-accent nav-donate" href="/tamogatas/">Támogatom</a>
+</header>

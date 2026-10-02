@@ -1,0 +1,177 @@
+{{!< default}}
+{{!-- Főoldal (3a). Szerkeszthető tartalom:
+      - hero cím, kép, doboz címe, összegek → Theme settings
+      - bevezető → Settings → General → Site description
+      - számok, jövőkép, programok, havi sáv, partnerek → rejtett oldalak #blokk címkével (lásd README) --}}
+
+<div class="on-dark">
+    {{> "header"}}
+
+    <section class="hero" id="main">
+        <div class="hero-copy">
+            <h1 class="hero-title">{{@custom.hero_title}}</h1>{{> "hl"}}
+            <p class="lead">{{@site.description}}</p>
+            {{> "donate-box"}}
+        </div>
+        <div class="hero-media">
+            {{#if @custom.hero_image}}
+                <img class="hero-img" src="{{img_url @custom.hero_image size="xl"}}"
+                    srcset="{{img_url @custom.hero_image size="m"}} 800w, {{img_url @custom.hero_image size="l"}} 1200w, {{img_url @custom.hero_image size="xl"}} 1800w"
+                    sizes="(max-width: 1100px) 100vw, 820px" alt="">
+            {{else}}
+                {{> "photo" name="gyerekek-csodalkoznak" alt="Éneklő gyerekek a táborban" class="hero-img" sizes="(max-width: 1100px) 100vw, 820px" eager=true}}
+            {{/if}}
+            <img class="hero-mark" src="{{asset "images/vf/logo-mark-hero.svg"}}" alt="">
+        </div>
+    </section>
+</div>
+
+<section class="stats" aria-label="Számokban">
+    {{#get "pages" filter="tag:hash-szam" order="published_at asc" limit="4"}}{{#if pages}}
+        {{#foreach pages}}
+            <div class="stat"><span class="stat-num">{{title}}</span><span class="stat-label">{{custom_excerpt}}</span></div>
+        {{/foreach}}
+    {{else}}
+        <div class="stat"><span class="stat-num">170</span><span class="stat-label">gyermeket érintenek programjaink és fejlesztéseink</span></div>
+        <div class="stat"><span class="stat-num">300</span><span class="stat-label">ügyfél fordul hozzánk segítségért havonta</span></div>
+        <div class="stat"><span class="stat-num">60+</span><span class="stat-label">0–3 éves kisgyermeket és családját kísérjük</span></div>
+        <div class="stat"><span class="stat-num">45</span><span class="stat-label">család vesz részt a kertprogramban</span></div>
+    {{/if}}{{/get}}
+</section>
+
+{{#get "pages" filter="slug:fooldal-jovokep" limit="1"}}{{#if pages}}
+    {{#foreach pages}}
+        <section class="section split vision">
+            {{#if feature_image}}{{> "feature-img" class="vision-img" sizes="(max-width: 1100px) 100vw, 680px"}}{{else}}{{> "photo" name="setalas" alt="Közös séta Kerecsend utcáin" class="vision-img" sizes="(max-width: 1100px) 100vw, 680px"}}{{/if}}
+            <div class="stack-24">
+                <span class="kicker">Jövőképünk</span>
+                <h2 class="h2-46">{{title}}</h2>
+                {{#if custom_excerpt}}<p class="lead-xl">{{custom_excerpt}}</p>{{/if}}
+                <div class="prose-sm">{{content}}</div>
+                <a class="btn btn-outline" href="/rolunk/">Rólunk és a csapatról →</a>
+            </div>
+        </section>
+    {{/foreach}}
+{{else}}
+    <section class="section split vision">
+        {{> "photo" name="setalas" alt="Közös séta Kerecsend utcáin" class="vision-img" sizes="(max-width: 1100px) 100vw, 680px"}}
+        <div class="stack-24">
+            <span class="kicker">Jövőképünk</span>
+            <h2 class="h2-46">Ilyen Kerecsendért dolgozunk</h2>
+            <p class="lead-xl">Egy faluért, ahol érezhetően kisebbek lesznek a szociális helyzetből fakadó különbségek, és ahol az emberek egymást segítő, egyenrangú közösségekben élnek.</p>
+            <div class="prose-sm"><p>Szeretnénk, ha az egyesület és a falu közös munkája országosan ismert és elismert példa lenne. Ebbe a körbe mindenki belefér.</p></div>
+            <a class="btn btn-outline" href="/rolunk/">Rólunk és a csapatról →</a>
+        </div>
+    </section>
+{{/if}}{{/get}}
+
+<section class="section programs" aria-labelledby="programs-title">
+    <div class="section-head">
+        <div class="stack-10">
+            <h2 id="programs-title">Tevékenységünk</h2>
+            <span class="section-sub">7 állandó munkatárs, 7 óradíjas szakember és 3 közfoglalkoztatott dolgozik a programokban.</span>
+        </div>
+        <a class="link-arrow" href="/tevekenysegunk/">Minden program →</a>
+    </div>
+    <div class="grid-3">
+        {{#get "pages" filter="tag:hash-program" order="published_at asc" limit="3"}}{{#if pages}}
+            {{#foreach pages}}
+                <div class="program">
+                    {{> "feature-img" class="photo" sizes="(max-width: 1100px) 100vw, 420px"}}
+                    <h3>{{title}}</h3>
+                    <p>{{custom_excerpt}}</p>
+                </div>
+            {{/foreach}}
+        {{else}}
+            <div class="program">{{> "photo" name="kozeli" alt="" class="photo" sizes="(max-width: 1100px) 100vw, 420px"}}<h3>Családmentorálás és korai fejlesztés</h3><p>Helyi családmentorok magzati kortól kísérik az édesanyákat és a kisgyermekeket. Korai mozgásfejlesztés, és magyar nyelvi fejlesztés a harmadik országból érkezett ukrán, vietnámi és filippínó gyerekeknek.</p></div>
+            <div class="program">{{> "photo" name="kesztyu" alt="" class="photo" sizes="(max-width: 1100px) 100vw, 420px"}}<h3>Gyerekek és kamaszok</h3><p>Két pszichológus, fejlesztőpedagógus, gyógypedagógus és sportedző. Hétvégi programok, nyári napközi, táborok, környezetvédelmi foglalkozások, és a kamasz lányok életre való felkészítése.</p></div>
+            <div class="program">{{> "photo" name="bicikli" alt="" class="photo photo-top" sizes="(max-width: 1100px) 100vw, 420px"}}<h3>Felnőttek és közösség</h3><p>Munkaerőpiaci mentorálás, adósságtanácsadás, egészségügyi szűrések, lakhatási és kertprogram – hogy a családok kevesebb krízissel, biztosabb alapokon éljenek.</p></div>
+        {{/if}}{{/get}}
+    </div>
+</section>
+
+<section class="band band-monthly" aria-labelledby="monthly-title">
+    <img class="band-rays" src="{{asset "images/vf/logo-rays-light.svg"}}" alt="">
+    {{#get "pages" filter="slug:fooldal-havi-tamogatas" limit="1"}}{{#if pages}}
+        {{#foreach pages}}
+            <div class="stack-20">
+                <span class="kicker kicker-plain">Havi támogatás</span>
+                <h2 id="monthly-title" class="h2-50">{{title}}</h2>
+            </div>
+            <div class="stack-28">
+                <p class="band-text">{{custom_excerpt}}</p>
+                {{> "goals"}}
+                <a class="btn btn-light" href="/tamogatas/">Havi támogató leszek</a>
+            </div>
+        {{/foreach}}
+    {{else}}
+        <div class="stack-20">
+            <span class="kicker kicker-plain">Havi támogatás</span>
+            <h2 id="monthly-title" class="h2-50">Rendszeres adományod lehetővé teszi, hogy hosszútávra tervezzünk</h2>
+        </div>
+        <div class="stack-28">
+            <p class="band-text">Szeretnénk, ha munkánk egyre kevésbé függne pályázatoktól és állami programoktól. Célunk, hogy éves bevételünk fele saját forrásból, magánszemélyek és cégek támogatásából származzon.</p>
+            {{> "goals"}}
+            <a class="btn btn-light" href="/tamogatas/">Havi támogató leszek</a>
+        </div>
+    {{/if}}{{/get}}
+</section>
+
+<section class="section news" aria-labelledby="news-title">
+    <div class="section-head">
+        <div class="stack-8">
+            <span class="kicker kicker-ochre">Napló</span>
+            <h2 id="news-title">Hírek a munkánkról</h2>
+        </div>
+        <a class="link-arrow" href="/naplo/">Minden bejegyzés →</a>
+    </div>
+    {{#get "posts" limit="4" include="tags" order="featured desc, published_at desc"}}{{#if posts}}
+        <div class="news-grid">
+            {{#foreach posts limit="1"}}
+                <a class="news-main" href="{{url}}">
+                    {{#if feature_image}}{{> "feature-img" class="news-main-img" sizes="(max-width: 1100px) 100vw, 780px"}}{{else}}<span class="news-main-img photo-empty"></span>{{/if}}
+                    <span class="news-main-body">
+                        {{> "post-meta"}}
+                        <span class="news-main-title">{{title}}</span>
+                        {{#if custom_excerpt}}<span class="post-excerpt">{{custom_excerpt}}</span>{{/if}}
+                    </span>
+                </a>
+            {{/foreach}}
+            <div class="news-side">
+                {{#foreach posts from="2"}}
+                    <a class="news-small" href="{{url}}">
+                        {{#if feature_image}}<img class="news-small-img" src="{{img_url feature_image size="s"}}" alt="" loading="lazy">{{else}}<span class="news-small-img photo-empty"></span>{{/if}}
+                        <span class="stack-6">
+                            {{> "post-meta"}}
+                            <span class="news-small-title">{{title}}</span>
+                        </span>
+                    </a>
+                {{/foreach}}
+            </div>
+        </div>
+    {{else}}
+        <p class="empty">Hamarosan itt olvashatod az első bejegyzéseinket.</p>
+    {{/if}}{{/get}}
+</section>
+
+{{> "help-tiles"}}
+
+<section class="partners" aria-labelledby="partners-title">
+    <span class="kicker kicker-muted" id="partners-title">Partnereink</span>
+    <div class="partner-row">
+        {{#get "pages" filter="tag:hash-partner" order="published_at asc" limit="50"}}{{#if pages}}
+            {{#foreach pages}}
+                {{#if feature_image}}<img src="{{img_url feature_image size="s"}}" alt="{{title}}" loading="lazy">{{/if}}
+            {{/foreach}}
+        {{else}}
+            <img src="{{asset "images/vf/partners/otp.webp"}}" alt="OTP Bank" style="height:44px" loading="lazy">
+            <img src="{{asset "images/vf/partners/belugym.png"}}" alt="Belügyminisztérium" style="height:48px" loading="lazy">
+            <img src="{{asset "images/vf/partners/kerecsend.webp"}}" alt="Kerecsend" style="height:52px" loading="lazy">
+            <img src="{{asset "images/vf/partners/nbt.jpg"}}" alt="NBT" style="height:48px" loading="lazy">
+            <img src="{{asset "images/vf/partners/prezi.png"}}" alt="Prezi" style="height:36px" loading="lazy">
+            <img src="{{asset "images/vf/partners/rackhost.webp"}}" alt="Rackhost" style="height:36px" loading="lazy">
+            <img src="{{asset "images/vf/partners/astron.webp"}}" alt="Astron" style="height:36px" loading="lazy">
+            <img src="{{asset "images/vf/partners/ledora.png"}}" alt="Ledora" style="height:40px" loading="lazy">
+        {{/if}}{{/get}}
+    </div>
+</section>

@@ -1,0 +1,31 @@
+<footer class="site-footer">
+    <span class="footer-logo"><img src="{{asset "images/vf/logo.svg"}}" alt="{{@site.title}}" width="122" height="115"></span>
+
+    <div class="footer-col">
+        <b>Oldalak</b>
+        {{#if @site.secondary_navigation}}
+            {{#foreach @site.secondary_navigation}}<a href="{{url absolute="true"}}">{{label}}</a>{{/foreach}}
+        {{else}}
+            <a href="/rolunk/">Rólunk</a>
+            <a href="/tevekenysegunk/">Tevékenységünk</a>
+            <a href="/naplo/">Napló</a>
+            <a href="/galeria/">Galéria</a>
+            <a href="/atlathatosag/">Átláthatóság</a>
+        {{/if}}
+    </div>
+
+    <div class="footer-col">
+        <b>Kapcsolat</b>
+        <span>{{@custom.address}}</span>
+        <a href="mailto:{{@custom.contact_email}}">{{@custom.contact_email}}</a>
+        {{#if @custom.facebook_url}}<a href="{{@custom.facebook_url}}" rel="noopener">Facebook</a>{{/if}}
+        <a href="/adatvedelem/">Adatvédelem</a>
+    </div>
+
+    <div class="footer-col">
+        <b>Adatok</b>
+        <span>Adószám: {{@custom.tax_number}}</span>
+        <span>OTP Bank · {{@custom.bank_account}}</span>
+        <span class="footer-copy">© {{date format="YYYY"}} {{@site.title}}</span>
+    </div>
+</footer>

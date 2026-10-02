@@ -1,0 +1,10 @@
+{{!< default}}
+{{#author}}
+    {{> "naplo-head" title=name lead=bio}}
+{{/author}}
+
+<section class="post-grid post-grid-top" aria-label="Bejegyzések">
+    {{#foreach posts}}{{> "post-card"}}{{/foreach}}
+</section>
+
+{{> "pagination"}}
