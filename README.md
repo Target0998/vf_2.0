@@ -32,6 +32,22 @@ The theme folder is bind-mounted and Ghost runs with `NODE_ENV=development`, so 
 
 Other commands: `npm run logs`, `npm run down`, `npm run reset` (wipes the DB), `npm run theme:test` (gscan), `npm run theme:zip` (→ `dist/vilagitani-fogok.zip` for upload), `npm run e2e`, `npm run screenshots` (full-page desktop and mobile PNGs → `screenshots/`).
 
+## Deploy (staging / production)
+
+`docker-compose.prod.yml` adds Caddy (HTTPS on 80/443), switches Ghost to production with Mailgun SMTP, stops publishing the internal ports and leaves out Mailpit.
+
+```sh
+git pull
+cp .env.example .env        # fill in the "Csak szerveren" block
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+```
+
+Then in Ghost Admin:
+- Settings → Design → Theme settings → **donate_api_url** = `https://<domain>/api/donate/checkout`
+- Settings → Newsletters → Mailgun: domain, API key, EU region (for newsletters).
+
+In production Ghost caches templates, so after pulling theme changes run `docker compose -f docker-compose.yml -f docker-compose.prod.yml restart ghost`.
+
 ## Donations / Stripe
 
 The donate box (`partials/donate-box.hbs` + `assets/js/main.js`) POSTs `{amount, frequency, name?, email?}` to the URL in the **donate_api_url** theme setting. The service creates a Stripe Checkout Session: `mode: payment` for one-off, `mode: subscription` with `recurring.interval=month` for monthly. It uses `price_data` in HUF, so any custom amount works, and the minimum is 500 Ft. After payment Stripe redirects to `/koszonjuk/?a=…&f=…`.

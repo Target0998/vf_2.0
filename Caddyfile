@@ -1,0 +1,15 @@
+# Used by docker-compose.prod.yml. Caddy fetches the Let's Encrypt certificate automatically
+# (the domain's A record must point at this server and ports 80/443 must be open).
+{$SITE_DOMAIN} {
+	encode zstd gzip
+
+	# donate API on the same origin → no extra DNS record, no CORS preflight
+	# theme setting donate_api_url = https://<domain>/api/donate/checkout
+	handle_path /api/donate/* {
+		reverse_proxy donate-api:8787
+	}
+
+	handle {
+		reverse_proxy ghost:2368
+	}
+}

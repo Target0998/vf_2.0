@@ -1,0 +1,56 @@
+# Staging / production override – run on the server:
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+# Caddy terminates HTTPS on 80/443 and proxies to Ghost and the donate API.
+# Nothing else is published to the host; Mailpit is not started.
+# Needs Docker Compose ≥ 2.24 (for !reset).
+
+services:
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    depends_on: [ghost, donate-api]
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      SITE_DOMAIN: ${SITE_DOMAIN:?set SITE_DOMAIN in .env}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+
+  ghost:
+    ports: !reset []
+    environment:
+      # production = templates are cached; restart Ghost after pulling theme changes
+      NODE_ENV: production
+      url: ${GHOST_URL:?set GHOST_URL in .env}
+      # transactional mail (login links, member sign-up) via Mailgun SMTP.
+      # Newsletters use the Mailgun API key, set in Ghost Admin → Settings → Newsletters.
+      mail__from: ${MAIL_FROM:-Világítani Fogok <noreply@vilagitanifogok.hu>}
+      mail__options__host: ${MAILGUN_SMTP_HOST:-smtp.eu.mailgun.org}
+      mail__options__port: 587
+      mail__options__secure: "false"
+      mail__options__auth__user: ${MAILGUN_SMTP_USER:?set MAILGUN_SMTP_USER in .env}
+      mail__options__auth__pass: ${MAILGUN_SMTP_PASSWORD:?set MAILGUN_SMTP_PASSWORD in .env}
+      security__staffDeviceVerification: "true"
+
+  donate-api:
+    ports: !reset []
+    command: ["node", "server.js"]
+    environment:
+      SITE_URL: ${GHOST_URL}
+      ALLOWED_ORIGINS: ${GHOST_URL}
+
+  db:
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?set MYSQL_ROOT_PASSWORD in .env}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?set MYSQL_PASSWORD in .env}
+
+  mailpit:
+    profiles: [local-only]
+
+volumes:
+  caddy_data:
+  caddy_config:
