@@ -534,16 +534,20 @@ button { font: inherit; cursor: pointer; }
   .lead, .page-head .lead, .support-copy .lead { font-size: 18px; }
   .lead-xl { font-size: 20px; }
 
+  /* keep logo, Támogatom and hamburger on one row at phone width */
+  .site-header { gap: 8px; }
   .brand-sub { display: none; }
-  .brand img { width: 42px; height: 42px; }
-  .brand-name { font-size: 18px; }
-  .nav-toggle { width: 44px; height: 44px; }
-  .nav-donate { padding: 10px 16px; font-size: 15px; }
+  .brand { gap: 8px; }
+  .brand img { width: 36px; height: 36px; }
+  .brand-name { font-size: 16px; white-space: nowrap; }
+  .nav-toggle { width: 42px; height: 42px; }
+  .nav-donate { padding: 9px 14px; font-size: 14px; }
 
   .notice { flex-direction: column; gap: 4px; font-size: 15px; }
 
   .hero-copy { padding-bottom: 32px; }
   .hero-media { margin: 0 12px 12px; border-radius: 24px; }
+  .hero-mark { width: 170px; height: 170px; right: -64px; bottom: -64px; }
   .donate { padding: 20px; gap: 16px; }
   .donate-head { flex-direction: column; align-items: stretch; }
   .donate-head .seg { display: grid; }
@@ -595,6 +599,12 @@ button { font: inherit; cursor: pointer; }
   .site-footer { grid-template-columns: 1fr; gap: 32px; padding-block: 48px; }
   .footer-logo { grid-row: auto; width: 120px; height: 120px; }
   .footer-logo img { width: 96px; height: 90px; }
+}
+
+@media (max-width: 380px) {
+  .brand img { width: 32px; height: 32px; }
+  .brand-name { font-size: 14px; }
+  .nav-donate { padding: 9px 10px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
