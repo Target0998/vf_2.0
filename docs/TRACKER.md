@@ -18,27 +18,38 @@ Shared to-do list for the site. Project overview: [PROJECT.md](PROJECT.md).
 ## In progress
 Launch day 2026-10-05: everything below goes live today. Staging becomes production (same server and DB, domain switched).
 
+**Staging review** (branch `staging`, pushed 2026-10-05). On the server:
+```sh
+git fetch && git checkout staging && git pull
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d            # Caddyfile changed
+docker compose -f docker-compose.yml -f docker-compose.prod.yml restart ghost caddy
+# Ghost Admin → Integrations → custom integration → Admin API key, then from a laptop:
+GHOST_URL=https://staging.vilagitanifogok.hu GHOST_ADMIN_API_KEY=… node scripts/content.mjs --dry-run
+GHOST_URL=https://staging.vilagitanifogok.hu GHOST_ADMIN_API_KEY=… node scripts/content.mjs
+```
+Then Design → Theme settings: notice bar on + link (see VF-056). Reviewers: Marci, Zsuzsi. After sign-off: merge `staging` → `prod`, deploy, VF-045.
+
 **Theme / code**
-- [ ] VF-042  infra · Fonts self-hosted (`theme/assets/fonts/`, latin + latin-ext woff2), no more Google Fonts requests · ✅ built + tested locally 2026-10-05, awaiting deploy
-- [ ] VF-020  bug · Hide the HU/EN switch until VF-006 — Marci; Benedek: "egyelőre vegyük ki" · ✅ built + tested locally 2026-10-05, awaiting deploy
-- [ ] VF-022  bug · Hero: photo and box height jump when the donation amount changes (impact text wraps to a different number of lines) — Benedek · ✅ built + tested locally 2026-10-05, awaiting deploy
-- [ ] VF-023  bug · Footer "Oldalak" links all go to the home page — Marci · ✅ built + tested locally 2026-10-05, awaiting deploy
-- [ ] VF-024  feature · Partner logos clickable, links from the old site; add the missing ones (Gál Tibor, TOP Plusz) — Marci · ✅ built + tested locally 2026-10-05, awaiting deploy
-- [ ] VF-025  bug · /tamogatas/ → Tárgyi adomány "Mire van szükség?" leads to an empty page. Point it at the list on /kapcsolat/ — Marci · ✅ built + tested locally 2026-10-05, awaiting deploy
-- [ ] VF-026  content · Drop "minden hónapban" from the donate box impact text — Zsuzsi · ✅ built + tested locally 2026-10-05, awaiting deploy
-- [ ] VF-048  infra · Redirects from old Mobirise URLs (`index.html`, `rolunk.html`, `tevekenyseg.html`, `atlathatosag.html`, `top.html`) in Caddy · ✅ built + tested locally 2026-10-05, awaiting deploy
-- [ ] VF-049  infra · Content update script (`scripts/content.mjs`): pushes the launch content to a live Ghost through the Admin API key · ✅ built + tested locally 2026-10-05, awaiting deploy
+- [ ] VF-042  infra · Fonts self-hosted (`theme/assets/fonts/`, latin + latin-ext woff2), no more Google Fonts requests · ✅ built + tested locally 2026-10-05, on `staging` (`34bba94`)
+- [ ] VF-020  bug · Hide the HU/EN switch until VF-006 — Marci; Benedek: "egyelőre vegyük ki" · ✅ built + tested locally 2026-10-05, on `staging` (`34bba94`)
+- [ ] VF-022  bug · Hero: photo and box height jump when the donation amount changes (impact text wraps to a different number of lines) — Benedek · ✅ built + tested locally 2026-10-05, on `staging` (`34bba94`)
+- [ ] VF-023  bug · Footer "Oldalak" links all go to the home page — Marci · ✅ built + tested locally 2026-10-05, on `staging` (`34bba94`)
+- [ ] VF-024  feature · Partner logos clickable, links from the old site; add the missing ones (Gál Tibor, TOP Plusz) — Marci · ✅ built + tested locally 2026-10-05, on `staging` (`34bba94`)
+- [ ] VF-025  bug · /tamogatas/ → Tárgyi adomány "Mire van szükség?" leads to an empty page. Point it at the list on /kapcsolat/ — Marci · ✅ built + tested locally 2026-10-05, on `staging` (`34bba94`)
+- [ ] VF-026  content · Drop "minden hónapban" from the donate box impact text — Zsuzsi · ✅ built + tested locally 2026-10-05, on `staging` (`34bba94`)
+- [ ] VF-048  infra · Redirects from old Mobirise URLs (`index.html`, `rolunk.html`, `tevekenyseg.html`, `atlathatosag.html`, `top.html`) in Caddy · ✅ built + tested locally 2026-10-05, on `staging` (`cc3df65`)
+- [ ] VF-049  infra · Content update script (`scripts/content.mjs`): pushes the launch content to a live Ghost through the Admin API key · ✅ built + tested locally 2026-10-05, on `staging` (`2f54262`)
 
 **Content (pushed by `scripts/content.mjs`)**
-- [ ] VF-001  page · Tevékenységünk: text from the old site (generic template; design stays open as VF-060) · ✅ built + tested locally 2026-10-05, awaiting deploy
-- [ ] VF-002  page · Galéria (interim): the old site's programme photos as a Ghost gallery (design stays open as VF-061) — Marci · ✅ built + tested locally 2026-10-05, awaiting deploy
-- [ ] VF-003  page · Kapcsolat: contact details, bank data, in-kind donation list, company cooperation (from the old site). mailto, no form (design stays open as VF-062) · ✅ built + tested locally 2026-10-05, awaiting deploy
-- [ ] VF-004  page · Átláthatóság: all reports, minutes and rules from the old site, PDFs uploaded into Ghost (`content/dokumentumok/`) — Marci · ✅ built + tested locally 2026-10-05, awaiting deploy
-- [ ] VF-005  page · Adatvédelem: rewritten 2026-10-05 in `Adatvédelmi.md` (Stripe, Mailgun EU, Hetzner DE, Google Workspace, Ghost cookieless analytics, newsletter open/click tracking, YouTube, jsDelivr, cookie table); rendered to /adatvedelem/ by `content.mjs` · ✅ built + tested locally, awaiting deploy. **Needs sign-off by the association** (legal text). PDF export later — Marci
-- [ ] VF-007  page · TOP Plusz project page (`/top-plusz/`, old `/top.html`). EU-funded project info page, the old site had it, keep it · ✅ built + tested locally 2026-10-05, awaiting deploy
-- [ ] VF-036  content · Közlemény "Világíthatunk?" as a Napló post (final text from `Helyzetunk.md`), notice bar links to it — Zsuzsi · ✅ built + tested locally 2026-10-05, awaiting deploy
-- [ ] VF-038  content · First summer camp: **2000** (Benedek, 2026-10-05). Rólunk title/text and timeline updated — Zsuzsi · ✅ built + tested locally 2026-10-05, awaiting deploy
-- [ ] VF-039  content · Remove "20 segítő" everywhere until it's clarified internally — Zsuzsi · ✅ built + tested locally 2026-10-05, awaiting deploy
+- [ ] VF-001  page · Tevékenységünk: text from the old site (generic template; design stays open as VF-060) · ✅ built + tested locally 2026-10-05, on `staging` (`2f54262`)
+- [ ] VF-002  page · Galéria (interim): the old site's programme photos as a Ghost gallery (design stays open as VF-061) — Marci · ✅ built + tested locally 2026-10-05, on `staging` (`2f54262`)
+- [ ] VF-003  page · Kapcsolat: contact details, bank data, in-kind donation list, company cooperation (from the old site). mailto, no form (design stays open as VF-062) · ✅ built + tested locally 2026-10-05, on `staging` (`2f54262`)
+- [ ] VF-004  page · Átláthatóság: all reports, minutes and rules from the old site, PDFs uploaded into Ghost (`content/dokumentumok/`) — Marci · ✅ built + tested locally 2026-10-05, on `staging` (`2f54262`)
+- [ ] VF-005  page · Adatvédelem: rewritten 2026-10-05 in `Adatvédelmi.md` (Stripe, Mailgun EU, Hetzner DE, Google Workspace, Ghost cookieless analytics, newsletter open/click tracking, YouTube, jsDelivr, cookie table); rendered to /adatvedelem/ by `content.mjs` · ✅ built + tested locally, on `staging` (`2f54262`). **Needs sign-off by the association** (legal text). PDF export later — Marci
+- [ ] VF-007  page · TOP Plusz project page (`/top-plusz/`, old `/top.html`). EU-funded project info page, the old site had it, keep it · ✅ built + tested locally 2026-10-05, on `staging` (`2f54262`)
+- [ ] VF-036  content · Közlemény "Világíthatunk?" as a Napló post (final text from `Helyzetunk.md`), notice bar links to it — Zsuzsi · ✅ built + tested locally 2026-10-05, on `staging` (`2f54262`)
+- [ ] VF-038  content · First summer camp: **2000** (Benedek, 2026-10-05). Rólunk title/text and timeline updated — Zsuzsi · ✅ built + tested locally 2026-10-05, on `staging` (`2f54262`)
+- [ ] VF-039  content · Remove "20 segítő" everywhere until it's clarified internally — Zsuzsi · ✅ built + tested locally 2026-10-05, on `staging` (`2f54262`)
 
 **Config (by hand, Stripe Dashboard / server / Ghost Admin)**, in this order: deploy code → VF-056 → Stripe → VF-045 → VF-055
 - [ ] VF-050  infra · Stripe: **don't** use the Dashboard "Checkout" builder (the site creates its own Checkout Sessions). Developers → API keys → copy the live `sk_live_…` key into the server `.env` as `STRIPE_SECRET_KEY`, then `up -d`
@@ -77,7 +88,7 @@ Launch day 2026-10-05: everything below goes live today. Staging becomes product
 
 ### Content (association, in Ghost Admin)
 - [ ] VF-035  content · Tier 1 "5 000 Ft = egy gyerek hétvégi programja": confirm the real cost (Theme settings) — Zsuzsi
-- [ ] VF-037  content · ✅ fixed by `content.mjs` (full-res original from the old site), awaiting deploy · Rólunk hero photo is blurry on laptops: replace with the original high-res file or another photo — Zsuzsi
+- [ ] VF-037  content · ✅ fixed by `content.mjs` (full-res original from the old site), on `staging` (`2f54262`) · Rólunk hero photo is blurry on laptops: replace with the original high-res file or another photo — Zsuzsi
 - [ ] VF-058  content · Átláthatóság: beszámolók for 2023, 2024, 2025 are missing (the old site stops at 2022)
 - [ ] VF-059  content · Galéria: pick more photos from the social media Drive folders (monthly programmes, camp days) — Marci
 - [ ] VF-030  content · Replace every `[Helyőrző]` placeholder (search for "Helyőrző" in Ghost Admin → Pages)
