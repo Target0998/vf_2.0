@@ -151,7 +151,7 @@ button { font: inherit; cursor: pointer; }
 .amount { border: 2px solid var(--color-line-2); border-radius: var(--radius-md); padding: 15px 4px; background: #fff; color: var(--color-text); font: 700 17px var(--font-body); white-space: nowrap; }
 .amount:hover { border-color: var(--color-dark); }
 .amount[aria-pressed="true"] { background: var(--color-dark); border-color: var(--color-dark); color: #fff; }
-.amount-input { display: flex; align-items: center; border: 2px solid var(--color-text); border-radius: var(--radius-md); padding: 0 16px; }
+.amount-input { display: flex; align-items: center; border: 2px solid var(--color-text); border-radius: var(--radius-md); padding: 0 16px; box-sizing: border-box; }
 .amount-input[hidden] { display: none; }
 .amount-input input { flex: 1; min-width: 0; border: 0; outline: 0; padding: 14px 0; font: 600 18px var(--font-body); background: transparent; color: var(--color-text); }
 .amount-input span[aria-hidden] { font: 600 18px var(--font-body); color: var(--color-muted); }
@@ -159,9 +159,10 @@ button { font: inherit; cursor: pointer; }
 .impact { display: flex; gap: 12px; align-items: flex-start; background: var(--color-butter-2); border-radius: var(--radius-md); padding: 13px 16px; font: 500 16px/1.4 var(--font-body); color: #5A4300; }
 .impact img { width: 26px; height: 26px; flex: none; }
 .impact [data-impact-text] { flex: 1; }
+.impact[hidden] { display: none; }
 .donate .btn-lg { padding: 18px; }
 .donate-cancel { font: 500 14px var(--font-body); color: var(--color-muted); margin-top: -8px; }
-.donate-cancel[hidden] { display: none; }
+.donate-cancel[hidden] { display: block; visibility: hidden; } /* keeps its line, so the box height never changes */
 .donate-error { font: 600 15px/1.4 var(--font-body); color: var(--color-primary-active); background: var(--color-blush); border-radius: var(--radius-md); padding: 10px 14px; }
 .donate-error[hidden] { display: none; }
 .pay-note { display: flex; justify-content: space-between; align-items: center; gap: 8px 12px; flex-wrap: wrap; font: 500 14px var(--font-body); color: var(--color-muted); }

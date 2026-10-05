@@ -24,7 +24,7 @@ check(await t(cta) === 'Támogatom 25 000 Ft-tal', `once + 25 000: "${await t(ct
 check(await page.locator('[data-donate] [data-monthly-only]').first().isHidden(), 'cancel note hidden for one-off');
 await page.locator('[data-donate] .amount').nth(3).click();
 check(await page.locator('[data-donate] .amount-input').first().isVisible(), '"Egyéb" shows amount input');
-check((await page.locator('[data-impact-text]').first().textContent()).startsWith('Bármekkora'), 'custom impact text');
+check(await page.locator('.hero .impact').isHidden(), 'impact note replaced by the amount field');
 await page.locator('[data-custom-amount]').first().fill('7500');
 check((await t(cta)).includes('7 500'), `custom CTA: "${await t(cta)}"`);
 

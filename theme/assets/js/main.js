@@ -78,26 +78,34 @@
         }
 
         function note(c, monthly) {
-            if (c.custom) return 'Bármekkora összeg számít – te döntöd el, mennyit adsz.';
             return (monthly ? 'Havonta ' : '') + fmt(c.amount) + ' Ft: ' + c.impact + '.';
         }
 
-        // Reserve room for the longest impact text, so the box (and the hero photo next to it)
-        // doesn't change height while the visitor clicks through the amounts.
+        // The impact note and the custom amount field share one slot (only one is shown at a time).
+        // Reserve the height of the tallest variant, so the box – and the hero photo next to it –
+        // doesn't change height while the visitor clicks through the amounts or picks "Egyéb".
+        var impactBox = impactText.parentNode;
         function reserveImpactHeight() {
             var shown = impactText.textContent;
+            var boxHidden = impactBox.hidden, wrapHidden = customWrap.hidden;
             var max = 0;
-            impactText.style.minHeight = '';
+            impactBox.style.minHeight = customWrap.style.minHeight = '';
+            impactBox.hidden = false;
             Array.prototype.forEach.call(amtBtns, function (b) {
                 var raw = b.getAttribute('data-amount');
-                var c = raw === 'custom' ? { custom: true } : { amount: parseAmount(raw), impact: b.getAttribute('data-impact') };
+                if (raw === 'custom') return;
+                var c = { amount: parseAmount(raw), impact: b.getAttribute('data-impact') };
                 [true, false].forEach(function (monthly) {
                     impactText.textContent = note(c, monthly);
-                    max = Math.max(max, impactText.offsetHeight);
+                    max = Math.max(max, impactBox.offsetHeight);
                 });
             });
+            customWrap.hidden = false;
+            max = Math.max(max, customWrap.offsetHeight);
             impactText.textContent = shown;
-            if (max) impactText.style.minHeight = max + 'px';
+            impactBox.hidden = boxHidden;
+            customWrap.hidden = wrapHidden;
+            if (max) impactBox.style.minHeight = customWrap.style.minHeight = max + 'px';
         }
 
         function render() {
@@ -110,10 +118,11 @@
 
             var c = current();
             customWrap.hidden = !c.custom;
+            impactBox.hidden = c.custom;
             cancelNote.hidden = !state.monthly;
 
             var label = c.amount ? fmt(c.amount) + ' Ft' : '';
-            impactText.textContent = note(c, state.monthly);
+            if (!c.custom) impactText.textContent = note(c, state.monthly);
 
             var text;
             if (variant === 'page') {
