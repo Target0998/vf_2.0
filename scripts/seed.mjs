@@ -193,17 +193,17 @@ const P = (...ps) => ps.map((p) => `<p>${p}</p>`).join('\n');
 async function pages() {
     // Real pages ------------------------------------------------------------------------------
     await createPage({
-        title: '23 éve Kerecsenden. *Ebbe a körbe mindenki belefér.*',
+        title: '26 éve Kerecsenden. *Ebbe a körbe mindenki belefér.*',
         meta_title: 'Rólunk – Világítani Fogok Egyesület',
         slug: 'rolunk', image: 'csapat-fuben',
         feature_image_alt: 'Önkénteseink körben a fűben',
         html: P(
-            '23 évvel ezelőtt, amikor először szerveztünk tábort a kerecsendi hátrányos helyzetű gyerekeknek, a Dankó telepi gyerekek kővel hajigálták meg fiatal önkénteseinket. Egy évvel később alig várták, hogy elinduljon a tábor. A kövek eszükbe sem jutottak.',
-            'Ma évente 140 gyereknek adunk élményeket, minőségi időt, figyelmet és feltétlen szeretetet. A kerecsendi családok az elmúlt évben több mint 1000 ügyben fordultak hozzánk segítségért. Három önkéntessel indultunk, ma negyvenöt önkéntessel, húsz segítővel és számos hivatásos munkatárssal dolgozunk.'
+            '26 évvel ezelőtt, amikor először szerveztünk tábort a kerecsendi hátrányos helyzetű gyerekeknek, a Dankó telepi gyerekek kővel hajigálták meg fiatal önkénteseinket. Egy évvel később alig várták, hogy elinduljon a tábor. A kövek eszükbe sem jutottak.',
+            'Ma évente 140 gyereknek adunk élményeket, minőségi időt, figyelmet és feltétlen szeretetet. A kerecsendi családok az elmúlt évben több mint 1000 ügyben fordultak hozzánk segítségért. Három önkéntessel indultunk, ma negyvenöt önkéntessel és számos hivatásos munkatárssal dolgozunk.'
         )
     });
     await createPage({
-        title: 'Állj a kerecsendi *gyerekek* mellé',
+        title: 'Állj a kerecsendi *gyerekek* mellé!',
         meta_title: 'Támogatás – Világítani Fogok Egyesület',
         slug: 'tamogatas', image: 'tabor-csoportkep',
         custom_excerpt: 'Egyszeri adományod is hatalmas segítség, rendszeres adományod pedig lehetővé teszi, hogy hosszútávra tervezzünk.',
@@ -220,7 +220,7 @@ async function pages() {
         custom_excerpt: '7 állandó munkatárs, 7 óradíjas szakember és 3 közfoglalkoztatott dolgozik a programokban.',
         html: '<h2>Családmentorálás és korai fejlesztés</h2>' + P('Helyi családmentorok magzati kortól kísérik az édesanyákat és a kisgyermekeket. [Helyőrző – a régi oldal tartalma ide kerül.]') +
             '<h2>Gyerekek és kamaszok</h2>' + P('Hétvégi programok, nyári napközi, táborok, környezetvédelmi foglalkozások. [Helyőrző]') +
-            '<h2>Felnőttek és közösség</h2>' + P('Munkaerőpiaci mentorálás, adósságtanácsadás, egészségügyi szűrések, lakhatási és kertprogram. [Helyőrző]')
+            '<h2>Felnőttek és közösség</h2>' + P('Munkaerőpiaci mentorálás, adósságtanácsadás, egészségügyi szűrések és kertprogram. [Helyőrző]')
     });
     await createPage({ title: 'Galéria', slug: 'galeria', custom_excerpt: 'Pillanatok a táborokból és a mindennapokból.', html: P('[Helyőrző – Ghost galéria kártyával tölthető fel.]') });
     await createPage({
@@ -246,12 +246,12 @@ async function pages() {
         title: 'Ilyen Kerecsendért dolgozunk', slug: 'fooldal-jovokep', image: 'setalas', tags: block(),
         feature_image_alt: 'Közös séta Kerecsend utcáin',
         custom_excerpt: 'Egy faluért, ahol érezhetően kisebbek lesznek a szociális helyzetből fakadó különbségek, és ahol az emberek egymást segítő, egyenrangú közösségekben élnek.',
-        html: P('Szeretnénk, ha az egyesület és a falu közös munkája országosan ismert és elismert példa lenne. Ebbe a körbe mindenki belefér.')
+        html: P('Szeretnénk, ha az egyesület és a falu közös munkája országosan ismert és elismert példa lenne.')
     });
     const programs = [
         ['Családmentorálás és korai fejlesztés', 'kozeli', 'Helyi családmentorok magzati kortól kísérik az édesanyákat és a kisgyermekeket. Korai mozgásfejlesztés, és magyar nyelvi fejlesztés a harmadik országból érkezett ukrán, vietnámi és filippínó gyerekeknek.'],
         ['Gyerekek és kamaszok', 'kesztyu', 'Két pszichológus, fejlesztőpedagógus, gyógypedagógus és sportedző. Hétvégi programok, nyári napközi, táborok, környezetvédelmi foglalkozások, és a kamasz lányok életre való felkészítése.'],
-        ['Felnőttek és közösség', 'bicikli', 'Munkaerőpiaci mentorálás, adósságtanácsadás, egészségügyi szűrések, lakhatási és kertprogram – hogy a családok kevesebb krízissel, biztosabb alapokon éljenek.']
+        ['Felnőttek és közösség', 'bicikli', 'Munkaerőpiaci mentorálás, adósságtanácsadás, egészségügyi szűrések és kertprogram – hogy a családok kevesebb krízissel, biztosabb alapokon éljenek.']
     ];
     for (const [i, [title, image, excerpt]] of programs.entries()) {
         await createPage({ title, slug: `program-${i + 1}`, image, custom_excerpt: excerpt, tags: block('#program'), html: '' });
@@ -261,7 +261,7 @@ async function pages() {
         custom_excerpt: 'Szeretnénk, ha munkánk egyre kevésbé függne pályázatoktól és állami programoktól. Célunk, hogy éves bevételünk fele saját forrásból, magánszemélyek és cégek támogatásából származzon.',
         html: ''
     });
-    const timeline = [['2003', 'az első nyári tábor, laza civil szerveződésként'], ['2018', 'bejegyzett egyesület lettünk'], ['2023', 'közhasznú egyesületként dolgozunk'], ['45', 'önkéntes és húsz segítő ma']];
+    const timeline = [['2000', 'az első nyári tábor, laza civil szerveződésként'], ['2018', 'bejegyzett egyesület lettünk'], ['2023', 'közhasznú egyesületként dolgozunk'], ['45', 'önkéntes ma']];
     for (const [i, [title, excerpt]] of timeline.entries()) {
         await createPage({ title, slug: `idovonal-${i + 1}`, custom_excerpt: excerpt, tags: block('#idovonal'), html: '' });
     }
