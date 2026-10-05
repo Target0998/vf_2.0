@@ -77,6 +77,29 @@
             return { custom: false, amount: parseAmount(raw), impact: b.getAttribute('data-impact') };
         }
 
+        function note(c, monthly) {
+            if (c.custom) return 'Bármekkora összeg számít – te döntöd el, mennyit adsz.';
+            return (monthly ? 'Havonta ' : '') + fmt(c.amount) + ' Ft: ' + c.impact + '.';
+        }
+
+        // Reserve room for the longest impact text, so the box (and the hero photo next to it)
+        // doesn't change height while the visitor clicks through the amounts.
+        function reserveImpactHeight() {
+            var shown = impactText.textContent;
+            var max = 0;
+            impactText.style.minHeight = '';
+            Array.prototype.forEach.call(amtBtns, function (b) {
+                var raw = b.getAttribute('data-amount');
+                var c = raw === 'custom' ? { custom: true } : { amount: parseAmount(raw), impact: b.getAttribute('data-impact') };
+                [true, false].forEach(function (monthly) {
+                    impactText.textContent = note(c, monthly);
+                    max = Math.max(max, impactText.offsetHeight);
+                });
+            });
+            impactText.textContent = shown;
+            if (max) impactText.style.minHeight = max + 'px';
+        }
+
         function render() {
             Array.prototype.forEach.call(freqBtns, function (b) {
                 b.setAttribute('aria-pressed', String((b.getAttribute('data-freq') === 'monthly') === state.monthly));
@@ -90,15 +113,7 @@
             cancelNote.hidden = !state.monthly;
 
             var label = c.amount ? fmt(c.amount) + ' Ft' : '';
-            var note;
-            if (c.custom) {
-                note = 'Bármekkora összeg számít – te döntöd el, mennyit adsz.';
-            } else if (state.monthly) {
-                note = 'Havonta ' + label + ': ' + c.impact + ', minden hónapban.';
-            } else {
-                note = label + ': ' + c.impact + '.';
-            }
-            impactText.textContent = note;
+            impactText.textContent = note(c, state.monthly);
 
             var text;
             if (variant === 'page') {
@@ -198,6 +213,14 @@
         });
 
         render();
+        reserveImpactHeight();
+        var resizeTimer;
+        window.addEventListener('resize', function () {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(reserveImpactHeight, 150);
+        });
+        // web fonts change the text width once they arrive
+        if (document.fonts && document.fonts.ready) document.fonts.ready.then(reserveImpactHeight);
     }
 
     /* Ghost Members – free signup for the Napló newsletter. Never blocks the donation. */

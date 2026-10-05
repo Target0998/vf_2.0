@@ -4,13 +4,14 @@
     <div class="footer-col">
         <b>Oldalak</b>
         {{#if @site.secondary_navigation}}
-            {{#foreach @site.secondary_navigation}}<a href="{{url absolute="true"}}">{{label}}</a>{{/foreach}}
+            {{navigation type="secondary"}}
         {{else}}
             <a href="/rolunk/">Rólunk</a>
             <a href="/tevekenysegunk/">Tevékenységünk</a>
             <a href="/naplo/">Napló</a>
             <a href="/galeria/">Galéria</a>
             <a href="/atlathatosag/">Átláthatóság</a>
+            <a href="/kapcsolat/">Kapcsolat</a>
         {{/if}}
     </div>
 

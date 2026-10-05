@@ -6,7 +6,7 @@ import { mkdir } from 'node:fs/promises';
 
 const BASE = process.env.BASE || 'http://host.docker.internal:2368';
 const OUT = process.env.OUT || 'screenshots';
-const pages = { notfound: '/nincs-ilyen/', home: '/', naplo: '/naplo/', tag: '/tag/tabor/', post: '/naplo/tabori-hetfo-igy-indult-a-nyar/', tamogatas: '/tamogatas/', rolunk: '/rolunk/', koszonjuk: '/koszonjuk/?a=10000&f=monthly', atlathatosag: '/atlathatosag/' };
+const pages = { notfound: '/nincs-ilyen/', home: '/', naplo: '/naplo/', tag: '/tag/kozlemeny/', post: '/naplo/vilagithatunk-a-megmaradasunkert-kuzdunk/', tamogatas: '/tamogatas/', rolunk: '/rolunk/', koszonjuk: '/koszonjuk/?a=10000&f=monthly', tevekenysegunk: '/tevekenysegunk/', galeria: '/galeria/', kapcsolat: '/kapcsolat/', atlathatosag: '/atlathatosag/', adatvedelem: '/adatvedelem/', top: '/top-plusz/' };
 const only = process.argv.slice(2);
 
 await mkdir(OUT, { recursive: true });
@@ -18,6 +18,11 @@ for (const [vp, size] of Object.entries({ desktop: { width: 1440, height: 900 },
         if (only.length && !only.includes(name)) continue;
         await page.goto(BASE + path, { waitUntil: 'networkidle' });
         await page.evaluate(() => document.fonts.ready);
+        // full-page shots never scroll, so lazy images below the fold would stay blank
+        await page.evaluate(() => Promise.all([...document.images].map((img) => {
+            img.loading = 'eager';
+            return img.complete ? null : new Promise((r) => { img.onload = img.onerror = r; });
+        })));
         const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
         await page.screenshot({ path: `${OUT}/${vp}-${name}.png`, fullPage: true });
         console.log(`${vp}-${name}.png${overflow > 0 ? `  ⚠ horizontal overflow ${overflow}px` : ''}`);

@@ -38,7 +38,7 @@
       },
       "notice_link": {
         "type": "text",
-        "default": "/naplo/",
+        "default": "/naplo/vilagithatunk-a-megmaradasunkert-kuzdunk/",
         "description": "A közleménysáv linkje („Olvasd el, mi történt →”)."
       },
       "hero_title": {
@@ -55,7 +55,7 @@
       "donate_title": {
         "type": "text",
         "group": "homepage",
-        "default": "Állj a gyerekek mellé",
+        "default": "Állj a gyerekek mellé!",
         "description": "Az adománydoboz címe a főoldalon."
       },
       "donate_default": {
