@@ -9,7 +9,21 @@
 		reverse_proxy donate-api:8787
 	}
 
+	# old Mobirise URLs → new pages
+	redir /index.html / permanent
+	redir /rolunk.html /rolunk/ permanent
+	redir /tevekenyseg.html /tevekenysegunk/ permanent
+	redir /atlathatosag.html /atlathatosag/ permanent
+	redir /top.html /top-plusz/ permanent
+	# internal staff tool (Google Apps Script), same target as the old site
+	redir /gyerekek* https://script.google.com/a/macros/vilagitanifogok.hu/s/AKfycby6ahrHFbhFSuXv0PMJTZHbrm7vvNHteUyIzjt5FPr6yHPLRG0ucQUNXvTJT3XT1r-Y/exec
+
 	handle {
 		reverse_proxy ghost:2368
 	}
+}
+
+# www → bare domain (needs a DNS record for www too)
+www.{$SITE_DOMAIN} {
+	redir https://{$SITE_DOMAIN}{uri} permanent
 }
