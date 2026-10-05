@@ -2,11 +2,15 @@
 
 Custom Ghost 6 theme for the Világítani Fogok Egyesület, built from `design_handoff_ghost_theme/` (designs 3a–3d). Includes a local Docker stack and a small Stripe Checkout service for one-off and monthly donations.
 
+**Start here:** [docs/PROJECT.md](docs/PROJECT.md) explains how the site works and how to test it; [docs/TRACKER.md](docs/TRACKER.md) is the to-do / bug list.
+
 ```
 theme/              Ghost theme "vilagitani-fogok" (Handlebars + plain CSS/JS, no build step)
 donate-api/         Stripe Checkout service (Node, no deps) – checkout.js is portable to a Worker/function
 ghost/routes.yaml   Napló collection at /naplo/, home template at /
 scripts/seed.mjs    Owner account, theme activation, settings, nav, tags, pages, content blocks, sample posts
+scripts/content.mjs Launch content (old-site texts, documents, gallery, Közlemény) pushed to any Ghost via Admin API key
+content/            Files the content script uploads into Ghost (PDFs, gallery, Közlemény image)
 scripts/e2e.mjs     Browser test of the donate box + newsletter signup
 docker-compose.yml  Ghost 6 + MySQL 8 + Mailpit + donate-api
 ```
@@ -46,6 +50,15 @@ Then in Ghost Admin:
 - Settings → Design → Theme settings → **donate_api_url** = `https://<domain>/api/donate/checkout`
 - Settings → Newsletters → Mailgun: domain, API key, EU region (for newsletters).
 
+Launch content (pages that only had placeholders on a fresh seed) goes in with the content script. Create the key in Ghost Admin → Settings → Integrations → Add custom integration, then:
+
+```sh
+GHOST_URL=https://<domain> GHOST_ADMIN_API_KEY=<id:secret> node scripts/content.mjs --dry-run   # shows what it would do
+GHOST_URL=https://<domain> GHOST_ADMIN_API_KEY=<id:secret> node scripts/content.mjs
+```
+
+It only replaces pages that still contain placeholder text, and skips anything edited by hand (`--force` overrides). Seed sample posts become drafts. `/adatvedelem/` is the exception: it is always rebuilt from `Adatvédelmi.md` when the text changed (Markdown: `##` headings, `-` lists, `|` tables).
+
 In production Ghost caches templates, so after pulling theme changes run `docker compose -f docker-compose.yml -f docker-compose.prod.yml restart ghost`.
 
 ## Donations / Stripe
@@ -78,7 +91,7 @@ If the newsletter box is ticked on /tamogatas/, the visitor is also signed up as
 | Home – Jövőkép | slug `fooldal-jovokep` | title, excerpt (large text), content, feature image |
 | Home – Tevékenységünk | tag `#program` (3) | title, excerpt, feature image |
 | Home – monthly band | slug `fooldal-havi-tamogatas` | title, excerpt |
-| Home – partners | tag `#partner` (optional) | title = alt text, feature image = logo. The bundled logos are used when none exist |
+| Home – partners | tag `#partner` (optional) | title = alt text, feature image = logo, excerpt = link (optional). The bundled logos are used when none exist |
 | Rólunk – timeline | tag `#idovonal` (4) | title, excerpt |
 | Rólunk – Küldetés | slug `rolunk-kuldetes` | excerpt (statement), content |
 | Rólunk – values | tag `#ertek` (6) | title, excerpt |
@@ -90,7 +103,6 @@ Every section falls back to the design's placeholder text if its pages don't exi
 
 ## Not done yet (handoff steps 6–7 and open items)
 
-- EN version: only the HU / EN switch is shown, and `/en/` doesn't exist yet.
-- Content from the old site (Tevékenységünk, Átláthatóság, …) still needs migrating. The seeded pages contain `[Helyőrző]` markers.
+- EN version: `/en/` doesn't exist yet, so the HU / EN switch is hidden (commented out in `partials/header.hbs`).
 - Value descriptions on Rólunk are still placeholders (the design has none yet).
 - `logo-mark.svg` is not final according to the handoff and may be refined by the client's designer.
