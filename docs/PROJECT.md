@@ -30,7 +30,7 @@ It's built on **Ghost 6** with a custom theme. Editors change content in Ghost A
 |---|---|---|
 | **Ghost** | CMS: pages, posts, members, newsletters, admin UI | `ghost:6-alpine` image |
 | **Theme** | All HTML, CSS and JS of the public site | `theme/` |
-| **donate-api** | Small Node service, no dependencies. Turns {amount, frequency} into a Stripe Checkout Session URL | `donate-api/` |
+| **donate-api** | Small Node service, no dependencies. Turns {amount, frequency} into a Stripe Checkout Session URL; `GET /campaign/<slug>` sums a campaign's card donations from Stripe (cached 1 min) | `donate-api/` |
 | **MySQL** | Ghost's database: content, settings, members, staff accounts | Docker volume `db` |
 | **Caddy** | HTTPS (automatic Let's Encrypt) and reverse proxy. Staging/prod only | `Caddyfile` |
 | **Mailpit** | Catches all email locally so nothing is really sent. Local only | http://localhost:8025 |
@@ -76,7 +76,7 @@ docs/                     this file + TRACKER.md
 | `/tamogatas/` | `page-tamogatas.hbs` | Page `tamogatas` + FAQ pages tagged `#gyik` + theme settings |
 | `/rolunk/` | `page-rolunk.hbs` | Page `rolunk` + `#idovonal`, `#ertek`, `rolunk-kuldetes` block pages |
 | `/koszonjuk/` | `page-koszonjuk.hbs` | Page `koszonjuk` (excerpt = fallback text) |
-| `/futas/` | `page-futas.hbs` | Futás campaign (design `design/2026-10-futas-kampany/`). Page `futas`: title (`*…*` highlighted), excerpt = subtitle, content = story (first paragraph large, `##` = highlighted sentence), feature image = photo + share image. **Raised amount = title of the hidden page `futas-gyujtes`**, update it by hand (Stripe + bank). Donations are tagged `campaign=futas` in Stripe; cancel returns to `/futas/` |
+| `/futas/` | `page-futas.hbs` | Futás campaign (design `design/2026-10-futas-kampany/`). Page `futas`: title (`*…*` highlighted), excerpt = subtitle, content = story (first paragraph large, `##` = highlighted sentence), feature image = photo + share image. **Raised amount = title of the hidden page `futas-gyujtes` (by hand: bank transfers and other confirmed non-card amounts) + card donations live from Stripe** (`donate-api` `GET /campaign/futas`, refreshed every minute). Donations are tagged `campaign=futas` in Stripe; cancel returns to `/futas/` |
 | `/tevekenysegunk/`, `/galeria/`, `/kapcsolat/`, `/atlathatosag/`, `/adatvedelem/`, `/top-plusz/` | `page.hbs` | The page itself (filled by `scripts/content.mjs` from the old site; not designed yet). All content and PDFs are hosted by Ghost (uploaded by the script). New documents: add a Ghost file card or a row in the table. `/adatvedelem/` is generated from `Adatvédelmi.md` |
 | `/en/` | – | **Doesn't exist yet**; the HU/EN switch is hidden |
 
@@ -95,7 +95,7 @@ docs/                     this file + TRACKER.md
 4. The browser goes to Stripe's hosted checkout. On success Stripe sends it back to `/koszonjuk/?a=<amount>&f=<once|monthly>&session_id=…`, and `main.js` writes the thank-you text from those parameters.
 5. With no `STRIPE_SECRET_KEY`, **mock mode** skips Stripe and goes straight to `/koszonjuk/…&mock=1`.
 
-Donations are recorded **only in Stripe**. There are no webhooks yet, so the site itself doesn't know who donated.
+Donations are recorded **only in Stripe**. There are no webhooks yet, so the site itself doesn't know who donated. The campaign counter reads totals from Stripe's Search API instead (`donate-api/campaign.js`); search results can lag about a minute behind a payment.
 
 ### Newsletter / members
 - Ticking "Feliratkozom" on /tamogatas/ signs the visitor up as a free Ghost member. Ghost emails a magic link through Mailgun SMTP. The signup can't block the payment.

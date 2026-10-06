@@ -9,3 +9,5 @@ Forrás: Claude Design projekt, `templates/futas-kampany/FutasKampany.dc.html`
 - Plakátgrafikák: `futas1.svg`, `futas2.svg` az eredetiek; a témában CSS-változós változatuk van
   (`theme/partials/futas-bal.hbs`, `futas-jobb.hbs`, a design `assets/futas/futas-svg.js` fájljából).
 - Fotó: `assets/futas/kezenallas.png` (1400×1400) → a témában `content/futas/kezenallas.jpg`-ként, a Ghost oldal kiemelt képe.
+
+**Eltérés a designtól (2026-10-06):** a „9 millió összegyűlt / a cél fele megvan” állítás nem ellenőrzött, ezért az oldalon egyetlen sáv van 0-tól a 18 millióig (VF-076).

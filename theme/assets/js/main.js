@@ -267,23 +267,44 @@
     }
 
     /* ------------------------------------------------------ campaign page */
-    // [data-progress]: data-raised = total collected so far (editors type it, e.g. "9 350 000"),
-    // data-goal = target. The bar has two halves; the first fills up to goal/2, the second beyond it.
+    // [data-progress]: data-raised = the amount editors type in by hand (bank transfers etc., e.g. "9 350 000"),
+    // data-goal = target. Card donations are added live from the donate API (/campaign/<slug>), which
+    // lives next to the checkout endpoint (data-live = the donate_api_url theme setting).
     function initCampaign() {
         Array.prototype.forEach.call(document.querySelectorAll('[data-progress]'), function (el) {
             var goal = parseAmount(el.getAttribute('data-goal'));
-            var raised = Math.min(parseAmount(el.getAttribute('data-raised')), goal);
+            var manual = parseAmount(el.getAttribute('data-raised'));
             if (!goal) return;
-            var half = goal / 2;
-            var set = function (sel, text) { var t = el.querySelector(sel); if (t) t.textContent = text; };
-            set('[data-total]', fmt(raised) + ' Ft');
-            set('[data-second]', fmt(Math.max(0, raised - half)) + ' / ' + fmt(half) + ' Ft');
-            set('[data-first]', raised >= half ? fmt(half) + ' Ft · közösen elértük!' : fmt(raised) + ' / ' + fmt(half) + ' Ft');
-            set('[data-missing]', raised >= goal ? 'A célt elértük – köszönjük!' : 'Még ' + fmt(goal - raised) + ' Ft hiányzik.');
-            el.style.setProperty('--p1', Math.min(100, raised / half * 100).toFixed(1) + '%');
-            el.style.setProperty('--p2', Math.max(0, (raised - half) / half * 100).toFixed(1) + '%');
-            el.classList.add('is-ready');
+            showProgress(el, goal, manual);
+
+            var api = (el.getAttribute('data-live') || '').trim().replace(/\/checkout\/?$/, '');
+            var slug = el.getAttribute('data-campaign');
+            if (!api || !slug || !window.fetch) return;
+            var refresh = function () {
+                if (document.hidden) return;
+                fetch(api + '/campaign/' + slug)
+                    .then(function (r) { return r.ok ? r.json() : null; })
+                    .then(function (d) { if (d && typeof d.total === 'number') showProgress(el, goal, manual + d.total); })
+                    .catch(function () { /* keep showing the manual amount */ });
+            };
+            refresh();
+            setInterval(refresh, 60000);
+            document.addEventListener('visibilitychange', refresh);
         });
+        initCopyLinks();
+    }
+
+    function showProgress(el, goal, total) {
+        var raised = Math.min(total, goal);
+        var set = function (sel, text) { var t = el.querySelector(sel); if (t) t.textContent = text; };
+        set('[data-total]', fmt(total) + ' Ft');
+        set('[data-missing]', raised >= goal ? 'A célt elértük – köszönjük!' : 'Még ' + fmt(goal - raised) + ' Ft hiányzik.');
+        // a sliver stays visible even at 0, so the bar reads as a bar
+        el.style.setProperty('--p', Math.max(raised / goal * 100, 1.5).toFixed(1) + '%');
+        el.classList.add('is-ready');
+    }
+
+    function initCopyLinks() {
         Array.prototype.forEach.call(document.querySelectorAll('[data-copy-link]'), function (b) {
             var label = b.textContent, timer;
             b.addEventListener('click', function () {

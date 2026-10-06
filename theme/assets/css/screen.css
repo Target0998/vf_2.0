@@ -458,16 +458,10 @@ button { font: inherit; cursor: pointer; }
 .camp-progress { display: flex; flex-direction: column; gap: 14px; margin-top: 20px; max-width: 640px; }
 .camp-total { display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap; font: 600 19px var(--font-body); color: var(--color-on-dark-2); }
 .camp-total-num { font: 800 64px/1 var(--font-heading); letter-spacing: -.02em; color: var(--cw-a); }
-.camp-bar { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; height: 20px; }
-.camp-bar-half { background: rgba(255,252,247,.16); overflow: hidden; }
-.camp-bar-half:first-child { border-radius: 999px 0 0 999px; }
-.camp-bar-half:last-child { border-radius: 0 999px 999px 0; }
-.camp-bar-half i { display: block; height: 100%; }
-.camp-bar-half:first-child i { background: var(--cw-l); }
-.camp-bar-half:last-child i { background: #FFFCF7; }
-.camp-bar-labels { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; font: 600 15px/1.4 var(--font-body); color: var(--color-on-dark-2); }
+.camp-bar { height: 20px; border-radius: 999px; background: rgba(255,252,247,.16); overflow: hidden; }
+.camp-bar i { display: block; height: 100%; background: var(--cw-l); border-radius: 999px; transition: width .6s ease; }
 .camp-missing { font: 700 24px var(--font-body); margin-top: 6px; }
-.camp-progress:not(.is-ready) .camp-bar-labels > span:last-child, .camp-progress:not(.is-ready) .camp-missing { visibility: hidden; }
+.camp-progress:not(.is-ready) .camp-missing { visibility: hidden; }
 .camp-share { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 8px; font: 600 16px var(--font-body); color: var(--color-on-dark-2); }
 .btn-outline-light { background: none; color: #FFFCF7; border: 1.5px solid #FFFCF7; padding: 11px 20px; font-size: 15px; }
 .camp-donate { scroll-margin-top: 24px; }
@@ -630,7 +624,6 @@ button { font: inherit; cursor: pointer; }
   .camp-title { font-size: 44px; }
   .camp-sub { font-size: 20px; }
   .camp-total-num { font-size: 44px; }
-  .camp-bar-labels { font-size: 13px; }
   .camp-missing { font-size: 20px; }
   .camp-route h2 { font-size: 36px; }
   .camp-stats { grid-template-columns: 1fr; }

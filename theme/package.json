@@ -33,7 +33,7 @@
       },
       "notice_text": {
         "type": "text",
-        "default": "*Futás kampány* Október 16-án Budapestről Kerecsendig futunk váltóban, hogy összegyűjtsük a hiányzó 9 millió forintot. Fuss velünk – támogasd te is!",
+        "default": "*Futás kampány* Október 16-án Budapestről Kerecsendig futunk váltóban a kerecsendi gyerekekért. Fuss velünk – támogasd te is!",
         "description": "A közleménysáv szövege. Az elején *csillagok közé* írt rész félkövér címke (pl. *Közlemény*)."
       },
       "notice_link": {

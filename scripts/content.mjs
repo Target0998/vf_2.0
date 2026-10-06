@@ -444,24 +444,25 @@ async function ertekek() {
 }
 
 // --- Futás kampány (VF-067) --------------------------------------------------------------------
-// /futas/ uses page-futas.hbs. The progress bar reads the TITLE of the hidden "futas-gyujtes" page: the total
-// collected so far (Stripe + bank transfers), updated by hand in Ghost Admin.
+// /futas/ uses page-futas.hbs. Progress = TITLE of the hidden "futas-gyujtes" page (everything NOT paid by card on
+// the site, e.g. bank transfers – confirmed amounts only, by hand) + card donations, live from Stripe (donate-api).
 const FUTAS_IMG = path.join(ROOT, 'content/futas/kezenallas.jpg');
-const NOTICE_TEXT = '*Futás kampány* Október 16-án Budapestről Kerecsendig futunk váltóban, hogy összegyűjtsük a hiányzó 9 millió forintot. Fuss velünk – támogasd te is!';
+const FUTAS_COUNTER_NOTE = 'CÍM = a NEM a honlapon, kártyával érkezett összeg forintban (átutalások, korábbi gyűjtés – csak ellenőrzött összeg!), pl. 350 000. A honlapon kártyával adott adományokat a /futas/ oldal magától hozzáadja a Stripe-ból – azokat ide ne írd be!';
+const NOTICE_TEXT = '*Futás kampány* Október 16-án Budapestről Kerecsendig futunk váltóban a kerecsendi gyerekekért. Fuss velünk – támogasd te is!';
 
 async function futas() {
     await upsert('pages', 'futas', async (old) => ({
         title: 'Futni is fogunk, hogy *világíthassunk!*',
         meta_title: 'Futni is fogunk, hogy világíthassunk! – adománygyűjtő váltófutás',
-        meta_description: 'Október 16-án önkénteseink Budapestről Kerecsendig futnak váltóban, hogy összegyűjtsük a hiányzó 9 millió forintot. Támogasd te is!',
+        meta_description: 'Október 16-án önkénteseink Budapestről Kerecsendig futnak váltóban a kerecsendi gyerekekért és családokért. Támogasd te is!',
         custom_excerpt: 'Adománygyűjtő váltófutás Budapestről Kerecsendre',
         ...(existsSync(FUTAS_IMG) && !old?.feature_image ? { feature_image: await upload(FUTAS_IMG), feature_image_alt: 'Kézenálló kisfiú árnyéka az úton, a kerecsendi templom rajzával' } : {}),
         html: [
             P('Csupaszív és elkötelezett önkénteseink ezúttal sem ismernek lehetetlent!',
                 'A Világítani Fogok Egyesülettel hiszünk abban, hogy minden gyermek egyaránt értékes. Célunk ezért a kerecsendi nehéz sorsú családok, különösen a gyerekek életesélyeinek növelése, közösségteremtés és a tágabb társadalom felelősségvállalásának erősítése.',
-                'Az elmúlt hónapokban a megmaradásunkért küzdöttünk, mert az állami programok szerződés szerinti támogatásai ismét hosszú hónapokat késtek. Feléltük a tartalékainkat, veszélybe került a teljes működésünk. Az Egyesületnek és a családoknak biztonságra van szüksége, ezért három havi működési költségünk, <strong>összesen 18 millió forint</strong> összegyűjtését tűztük ki célul, hogy a működési tartalékkal a kerecsendi gyerekek és családok támogatását kiszámíthatóan folytathassuk. A támogatásotokkal már <strong>9 millió forint összegyűlt: a célunk felét közösen elértük!</strong> Hálásak vagyunk mindenkinek, aki hozzájárult.'),
-            H2('Most azért indulunk útnak, hogy a második felét is összegyűjtsük.'),
-            P('Önkénteseink újra nagyot álmodtak: <strong>október 16-án Budapestről kora reggeltől egészen Kerecsendig fognak futni váltóban</strong>, hogy felhívják a figyelmet munkánk fontosságára és segítsenek a hiányzó 9 millió forintot összegyűjteni!')
+                'Az elmúlt hónapokban a megmaradásunkért küzdöttünk, mert az állami programok szerződés szerinti támogatásai ismét hosszú hónapokat késtek. Feléltük a tartalékainkat, veszélybe került a teljes működésünk. Az Egyesületnek és a családoknak biztonságra van szüksége, ezért három havi működési költségünk, <strong>összesen 18 millió forint</strong> összegyűjtését tűztük ki célul, hogy a működési tartalékkal a kerecsendi gyerekek és családok támogatását kiszámíthatóan folytathassuk. Hálásak vagyunk mindenkinek, aki eddig hozzájárult.'),
+            H2('Most azért indulunk útnak, hogy ezt a célt közösen elérjük.'),
+            P('Önkénteseink újra nagyot álmodtak: <strong>október 16-án Budapestről kora reggeltől egészen Kerecsendig fognak futni váltóban</strong>, hogy felhívják a figyelmet munkánk fontosságára és segítsenek a hiányzó összeget összegyűjteni!')
         ].join('\n')
     }));
     // feature image arrives later than the page → add it once, never replace an editor's choice
@@ -474,13 +475,21 @@ async function futas() {
         }
     } else if (!existsSync(FUTAS_IMG)) log('content/futas/kezenallas.jpg missing – /futas/ has no photo yet');
 
-    if (await get('pages', 'futas-gyujtes')) return log('page /futas-gyujtes/ exists (amount is edited by hand)');
-    if (DRY) return log(write('create hidden page futas-gyujtes (amount 9 000 000)'));
+    const counter = await get('pages', 'futas-gyujtes');
+    if (counter) {
+        // the unconfirmed 9 000 000 we seeded goes back to 0; any other value was typed in by someone – keep it
+        const next = { ...(counter.custom_excerpt !== FUTAS_COUNTER_NOTE ? { custom_excerpt: FUTAS_COUNTER_NOTE } : {}), ...(counter.title === '9 000 000' ? { title: '0' } : {}) };
+        if (!Object.keys(next).length) return log(`page /futas-gyujtes/ exists (manual amount: ${counter.title})`);
+        if (DRY) return log(write(`update futas-gyujtes: ${Object.keys(next).join(', ')}`));
+        await api('PUT', `/pages/${counter.id}/`, { pages: [{ ...next, updated_at: counter.updated_at }] });
+        return log(`futas-gyujtes updated: ${Object.keys(next).join(', ')}${next.title ? ' (unconfirmed 9 000 000 → 0)' : ''}`);
+    }
+    if (DRY) return log(write('create hidden page futas-gyujtes (amount 0)'));
     await api('POST', '/pages/', { pages: [{
-        title: '9 000 000', slug: 'futas-gyujtes', status: 'published', tags: [{ name: '#blokk' }],
-        custom_excerpt: 'A Futás kampány eddig összegyűlt összege forintban (Stripe + átutalás). Csak a CÍMET írd át, pl. 9 350 000 – a /futas/ oldal haladásjelzője ebből számol.'
+        title: '0', slug: 'futas-gyujtes', status: 'published', tags: [{ name: '#blokk' }],
+        custom_excerpt: FUTAS_COUNTER_NOTE
     }] });
-    log('page created: futas-gyujtes (amount 9 000 000)');
+    log('page created: futas-gyujtes (amount 0)');
 }
 
 // --- Közlemény post (VF-036) -------------------------------------------------------------------

@@ -2,10 +2,16 @@
 
 Rövid, nem technikai összefoglaló az egyes frissítésekről, a staging oldalt átnézőknek. Részletek: [TRACKER.md](TRACKER.md).
 
+## 2026. október 6. (este)
+
+- **Élő számláló a Futás oldalon:** a kártyás adományok maguktól hozzáadódnak az összeghez a Stripe-ból, percenként frissül (egy friss fizetés kb. 1–2 perc múlva jelenik meg). Visszatérített fizetések nem számítanak bele, a havi támogatások minden kifizetett hónapja igen.
+- **Kézi rész:** a „futas-gyujtes” oldal CÍME a **nem kártyás** összeg: átutalások és a korábbi gyűjtés, **csak ellenőrzött összeg**. A honlapon kártyával adott összegeket **ne** írd bele, különben kétszer számolódnak.
+- **A „9 millió már összegyűlt” állítás lekerült** (oldal szövege, sárga sáv, megosztási leírás), mert nem ellenőrzött szám. A számláló 0-ról indul a 18 milliós cél felé, egyetlen sávval. Ha megvan a valós eddigi összeg (pénzügy: átutalások + korábbi kártyás gyűjtés), az a „futas-gyujtes” címébe kerül; ha tényleg megvan a cél fele, visszatehetjük a két félre bontott sávot.
+- **Sárga sáv új szövege:** „*Futás kampány* Október 16-án Budapestről Kerecsendig futunk váltóban a kerecsendi gyerekekért. Fuss velünk – támogasd te is!”
+
 ## 2026. október 6. (délután)
 
 - **Új oldal: Futás kampány** – `/futas/`. Önálló, megosztható kampányoldal a Claude Design terv alapján (piros színvariáns): haladásjelző a 18 millió forintos célhoz, adománydoboz, Facebook-megosztás és linkmásolás, átutalási adatok („Közlemény: Futás”). A kártyás adományok a Stripe-ban „futas” kampánycímkét kapnak, így külön szűrhetők.
-- **Az összegyűlt összeg frissítése:** Ghost Admin → Pages → „futas-gyujtes” oldal **címét** kell átírni a teljes eddigi összegre (pl. 9 350 000). A sáv és a „még X Ft hiányzik” szöveg ebből számolódik.
 - A szöveg a Ghost Adminban szerkeszthető (Futás oldal). A kézenálló kisfiús kép a történet mellett van, és ez jelenik meg Facebook-megosztáskor is.
 - **Sárga sáv minden oldal tetején:** most a futásra hív („Futás kampány – Október 16-án Budapestről Kerecsendig futunk…”), a „Részletek →” a kampányoldalra visz. A szöveg elején *csillagok közé* írt rész félkövér címke (Design → Theme settings).
 
