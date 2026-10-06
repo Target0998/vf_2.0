@@ -11,6 +11,8 @@
 //     GHOST_URL=https://vilagitanifogok.hu GHOST_ADMIN_API_KEY=<id:secret> node scripts/content.mjs --dry-run
 //     GHOST_URL=https://vilagitanifogok.hu GHOST_ADMIN_API_KEY=<id:secret> node scripts/content.mjs
 //   Local: node scripts/content.mjs   (logs in with the seed's owner account from .env)
+//   One page only, overwriting hand edits:  node scripts/content.mjs --only=atlathatosag --force
+//   Steps: tevekenysegunk kapcsolat atlathatosag adatvedelem top-plusz galeria rolunk ertekek kozlemeny samples notice
 
 import { readFile } from 'node:fs/promises';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
@@ -21,6 +23,9 @@ import { fileURLToPath } from 'node:url';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const DRY = process.argv.includes('--dry-run');
 const FORCE = process.argv.includes('--force');
+// --only=atlathatosag,tevekenysegunk → run just these steps (combine with --force to update hand-edited pages)
+const ONLY = (process.argv.find((a) => a.startsWith('--only=')) || '').slice(7).split(',').filter(Boolean);
+const run = async (name, fn) => { if (!ONLY.length || ONLY.includes(name)) await fn(); };
 
 // --- env ---------------------------------------------------------------------------------------
 const envFile = path.join(ROOT, '.env');
@@ -179,6 +184,19 @@ async function tevekenysegunk() {
         feature_image: old?.feature_image || await upload(path.join(ROOT, 'content/galeria/20-elso1000nap.jpg')),
         feature_image_alt: 'Családmentorok és édesanyák biciklivel Kerecsenden',
         html: [
+            H2('Számokban'),
+            P('Havonta átlagosan 300 ügyfél fordul hozzánk segítségért. Programjaink és fejlesztéseink összességében mintegy 170 gyermeket érintenek.'),
+            '<ul>' + [
+                'Adósságkezelésben eddig <strong>150 család</strong> kért támogatást.',
+                'Munkaerőpiaci mentorunk <strong>több mint 200 ügyféllel</strong> foglalkozott, és több képzést is megszervezett.',
+                'Munkatársaink jelenleg <strong>10 várandóst</strong> és <strong>több mint 60, 0–3 éves kisgyermeket</strong> és családját kísérik.',
+                'Éjszakai Klubunkat <strong>20–30 fiatal</strong> látogatja.',
+                'Kertprogramunkban <strong>45 család</strong> vesz részt.',
+                'Az idős korosztályt segítő alkalmakon <strong>10–30 fővel</strong> dolgozunk.'
+            ].map((li) => `<li>${li}</li>`).join('') + '</ul>',
+            H2('Munkatársaink és a családok kísérése'),
+            P('Munkatársaink alapos kiválasztási folyamat eredményeként dolgoznak velünk. Többen közülük a mi támogatásunkkal szereztek megfelelő végzettséget, szerteágazó szociális munkát végeznek.',
+                'A gyermekek fejlődését már magzati kortól követjük: a helyi roma közösségből származó családmentorok figyelnek az édesanyák és gyermekeik egészségére, fejlődésére. Áldozatos, védőnőket támogató munkájuknak köszönhetően számos csecsemő hazagondozását sikerült megoldani, és reménytelen családi körülmények közé születő babák is családba kerülhettek nyílt örökbeadás támogatásával, ahelyett, hogy a kórházban maradtak volna. Az óvodás- és iskoláskorúakat pszichológus és fejlesztőpedagógus segíti.'),
             H2('Táborok és élménypedagógia'),
             P('Egyesületünk Kerecsenden szerteágazó munkát folytat. Önkénteseink hosszú évek óta szerveznek a gyerekek számára hosszúhétvégéket, nyári táborokat, őszi nagyfiú-nagylány tábort, színházlátogatásokat, kirándulásokat. Ezek az élménypedagógiai alkalmak teret nyitnak az egyes sorsok mélyebb megismerésének, az elakadások föltárásának, a személyes kapcsolatok elmélyítésének.',
                 'E munka során kerültek látóterünkbe azok a fiúk is, akik a Pannonhalmi Bencés Gimnázium diákjaivá válhattak, illetve létrejöhetett az együttműködés a Gimnázium és a helyi általános iskola között. Ennek eredményeképp évente egy diák juthat be a nagy múltú iskolába, hogy ott érettségit szerezhessen.'),
@@ -223,7 +241,7 @@ async function atlathatosag() {
     await upsert('pages', 'atlathatosag', async (old) => ({
         title: 'Átláthatóság',
         meta_title: 'Átláthatóság – Világítani Fogok Egyesület',
-        custom_excerpt: old?.custom_excerpt || 'Beszámolók, jegyzőkönyvek, szabályzatok.',
+        custom_excerpt: old?.custom_excerpt || 'Beszámolók, jegyzőkönyvi kivonatok, szabályzatok.',
         html: [
             H2('Beszámolók'),
             P('Éves beszámolók és közhasznúsági mellékletek.'),
@@ -232,17 +250,17 @@ async function atlathatosag() {
                 ['Beszámoló 2021', '2022.pdf'],
                 ['Beszámoló 2020', '2021.pdf']
             ]),
-            H2('Jegyzőkönyvek'),
-            P('A közgyűlések jegyzőkönyvei.'),
+            H2('Jegyzőkönyvi kivonatok'),
+            P('Kivonatok a közgyűlések jegyzőkönyveiből.'),
             await docTable([
-                ['Jegyzőkönyv – 2026. május 18.', 'JK_KZ_2026.05.18.pdf'],
-                ['Jegyzőkönyv – 2026. február 15.', 'JK_KZ_2026.02.15.pdf'],
-                ['Jegyzőkönyv – 2025. október 12.', 'JK_KZ_2025.10.12.pdf'],
-                ['Jegyzőkönyv – 2024. július 7.', 'JK_KZ_2024.07.07.pdf'],
-                ['Jegyzőkönyv – 2023. december 3.', 'JK_KZ_2023.12.03.pdf'],
-                ['Jegyzőkönyv – 2023. április 15.', 'JK_KZ_2023.04.15.pdf'],
-                ['Jegyzőkönyv – 2023. március 4.', 'JK_KZ_2023.03.04.pdf'],
-                ['Jegyzőkönyv – 2022. július 10.', 'JK_KZ_2022.07.10.pdf']
+                ['Jegyzőkönyvi kivonat – 2026. május 18.', 'JK_kivonat_KZ_2026.05.18.pdf'],
+                ['Jegyzőkönyvi kivonat – 2026. február 15.', 'JK_kivonat_KZ_2026.02.15.pdf'],
+                ['Jegyzőkönyvi kivonat – 2025. október 12.', 'JK_kivonat_KZ_2025.10.12.pdf'],
+                ['Jegyzőkönyvi kivonat – 2024. július 7.', 'JK_kivonat_KZ_2024.07.07.pdf'],
+                ['Jegyzőkönyvi kivonat – 2023. december 3.', 'JK_kivonat_KZ_2023.12.03.pdf'],
+                ['Jegyzőkönyvi kivonat – 2023. április 15.', 'JK_kivonat_KZ_2023.04.15.pdf'],
+                ['Jegyzőkönyvi kivonat – 2023. március 4.', 'JK_kivonat_KZ_2023.03.04.pdf'],
+                ['Jegyzőkönyvi kivonat – 2022. július 10.', 'JK_kivonat_KZ_2022.07.10.pdf']
             ]),
             H2('Szabályzatok'),
             await docTable([
@@ -412,6 +430,19 @@ async function rolunk() {
     }
 }
 
+// VF-071: the Rólunk "Értékeink" section only shows published #ertek pages. While any value still has
+// placeholder text, all of them stay drafts; publish them in Ghost Admin once the texts are written.
+async function ertekek() {
+    const { pages } = await api('GET', '/pages/?filter=' + encodeURIComponent('tag:hash-ertek+status:published') + '&limit=all&fields=id,slug,custom_excerpt,updated_at');
+    if (!pages.length) return log('Értékeink: no published value pages – section hidden');
+    if (!pages.some((pg) => !pg.custom_excerpt || PLACEHOLDER.test(pg.custom_excerpt))) return log('Értékeink: all texts written – section shown');
+    for (const pg of pages) {
+        if (DRY) { log(write(`set value page ${pg.slug} to draft`)); continue; }
+        await api('PUT', `/pages/${pg.id}/`, { pages: [{ status: 'draft', updated_at: pg.updated_at }] });
+        log(`value page → draft: ${pg.slug}`);
+    }
+}
+
 // --- Közlemény post (VF-036) -------------------------------------------------------------------
 const KOZLEMENY_SLUG = 'vilagithatunk-a-megmaradasunkert-kuzdunk';
 
@@ -488,21 +519,22 @@ async function notice() {
 
 // --- run ---------------------------------------------------------------------------------------
 try {
-    console.log(`Content → ${URL_}${DRY ? '  (dry run, nothing is written)' : ''}${FORCE ? '  (--force)' : ''}`);
+    console.log(`Content → ${URL_}${DRY ? '  (dry run, nothing is written)' : ''}${FORCE ? '  (--force)' : ''}${ONLY.length ? `  (only: ${ONLY.join(', ')})` : ''}`);
     await login();
     console.log('Pages');
-    await tevekenysegunk();
-    await kapcsolat();
-    await atlathatosag();
-    await adatvedelem();
-    await topPlusz();
-    await galeria();
-    await rolunk();
+    await run('tevekenysegunk', tevekenysegunk);
+    await run('kapcsolat', kapcsolat);
+    await run('atlathatosag', atlathatosag);
+    await run('adatvedelem', adatvedelem);
+    await run('top-plusz', topPlusz);
+    await run('galeria', galeria);
+    await run('rolunk', rolunk);
+    await run('ertekek', ertekek);
     console.log('Napló');
-    await kozlemeny();
-    await draftSamples();
+    await run('kozlemeny', kozlemeny);
+    await run('samples', draftSamples);
     console.log('Theme settings');
-    await notice();
+    await run('notice', notice);
     console.log('\nDone ✓');
 } catch (e) {
     console.error('\n✗', e.message);

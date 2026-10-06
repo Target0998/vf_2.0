@@ -419,6 +419,7 @@ button { font: inherit; cursor: pointer; }
 .value-tile p { font: 400 17px/1.5 var(--font-body); color: var(--color-text-2); }
 .value-tile p.placeholder { color: #8A8077; font-style: italic; }
 .link-tiles { margin: 0 auto var(--section); padding: 0 var(--gutter); display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: var(--max); }
+.mission + .link-tiles { margin-top: var(--section); } /* when the Értékeink section is hidden */
 .link-tile { background: var(--color-sand); border-radius: 24px; padding: 32px; display: flex; justify-content: space-between; align-items: center; gap: 24px; }
 .link-tile .stack-6 > span:last-child { font: 400 17px/1.5 var(--font-body); color: var(--color-text-2); }
 .link-tile-arrow { font: 700 22px var(--font-body); color: var(--color-primary); }

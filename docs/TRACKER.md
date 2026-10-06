@@ -13,12 +13,21 @@ Shared to-do list for the site. Project overview: [PROJECT.md](PROJECT.md).
 
 ## Inbox (unsorted)
 <!-- One line per request: what, who asked, any link. -->
-- (empty – sorted 2026-10-05)
+- (empty – sorted 2026-10-06)
 
 ## In progress
-Launch day 2026-10-05: everything below goes live today. Staging becomes production (same server and DB, domain switched).
+Launch postponed (2026-10-06). Staging becomes production (same server and DB, domain switched) once the items below and the review are done.
 
-**Staging review** (branch `staging`, pushed 2026-10-05). On the server:
+**Next round – sorted 2026-10-06** (B = Benedek's decision)
+- [ ] VF-067  page · **Futókampány landing page**: own page with description and donation form, linkable on its own — Benedek: **IMPORTANT, starts today**. Open: campaign texts/image/goal, which domain (site launch is postponed)
+- [ ] VF-068  feature · Map on Kapcsolat (the old site linked Google Maps). Must work without cookies: static map image (no third-party request) or an OpenStreetMap embed — B
+- [ ] VF-069  content · Átláthatóság: replace the full minutes with the **extracts** (`content/dokumentumok/JK_kivonat_KZ_*.pdf`), section title "Jegyzőkönyvi kivonatok" (Judit). The oldest extract's original still comes from Éva. Fix the `..pdf` file names — Judit, B · ✅ built + tested locally 2026-10-06
+- [ ] VF-070  content · Tevékenységünk: work in the Közlemény passages (numbers: 150 család adósságkezelés, 200+ ügyfél munkaerőpiaci mentor, 10 várandós, 60+ 0–3 éves, 170 gyermek, Éjszakai Klub 20–30, kertprogram 45 család, idősek 10–30; and the staff / family mentor paragraph) until Kata's material arrives — Zsuzsi, B: "dolgozd bele" · ✅ built + tested locally 2026-10-06
+- [ ] VF-071  content · Rólunk: hide the Értékeink section until the texts exist (VF-012) — Zsuzsi · ✅ built + tested locally 2026-10-06
+- [ ] VF-072  content · Photos: Judit's new set (`UjKepek/`, 27 files). Strong images in key places without a child's face in focus (e.g. home hero); volunteer-focused photos only where the topic is volunteering. Benedek picks the placements, then I resize and swap them in — Judit, B
+- [ ] VF-033  content · Partner logos: list is incomplete. Add **Appy** now; Müller (just donated) and the Áldás utca people later. Current logos came from the old website; Judit uploads new ones to a shared Drive "PARTNEREINK" folder. Not blocking launch — Judit, B
+
+**Staging review** (branch `staging`, pushed 2026-10-05, deployed 2026-10-06). On the server:
 ```sh
 git fetch && git checkout staging && git pull
 docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d            # Caddyfile changed
@@ -67,9 +76,12 @@ Then Design → Theme settings: notice bar on + link (see VF-056). Reviewers: Ma
 ## Up next
 
 ### Missing pages
-- [ ] VF-060  design · **Tevékenységünk**: needs a design (content is in since VF-001)
+- [ ] VF-060  design · **Tevékenységünk**: needs a design. Planned: table overview of activities and their schedule, a description opens on click; based on last year's table that Kata updates (from next week). Open: show funding sources? (Judit: no, Kata: yes, for transparency). Each programme gets a short description — Judit, Kata, B
 - [ ] VF-061  design · **Galéria**: needs a design. Decide on Ghost gallery cards in one page, or albums as posts with a tag
 - [ ] VF-062  design · **Kapcsolat**: needs a design. Address, email, map? Contact form? (Ghost has no forms; options: mailto, Formspree, or an endpoint in donate-api)
+- [ ] VF-073  page · **Önkéntesség**: own page (like bagazs.org/onkentesseg): programmes you can volunteer in, the community, application form. Until then the Rólunk tile "Csatlakoznál önkéntesként?" keeps pointing to Kapcsolat — Judit, B: future, when the material is ready
+- [ ] VF-074  design · **Átláthatóság**: concept for how documents are presented on the site. Not urgent — Judit
+- [ ] VF-075  content · Támogatás "Miért havi?" section: rewrite once there's a clear brief — Judit, B
 - [ ] VF-006  page · **EN version**: the HU/EN switch links to `/en/`, which is a 404. Decide on full translation or a single English summary page; until then hide the switch (see VF-020)
 
 ### Design refinement
@@ -87,14 +99,13 @@ Then Design → Theme settings: notice bar on + link (see VF-056). Reviewers: Ma
 ### Bugs
 
 ### Content (association, in Ghost Admin)
-- [ ] VF-035  content · Tier 1 "5 000 Ft = egy gyerek hétvégi programja": confirm the real cost (Theme settings) — Zsuzsi
+- [ ] VF-035  content · Donation amounts and impact texts (5 000 / 10 000 / 25 000 Ft): **decided 2026-10-06, they stay** until someone has a more precise proposal (Theme settings) — Zsuzsi, B
 - [ ] VF-037  content · ✅ fixed by `content.mjs` (full-res original from the old site), on `staging` (`2f54262`) · Rólunk hero photo is blurry on laptops: replace with the original high-res file or another photo — Zsuzsi
 - [ ] VF-058  content · Átláthatóság: beszámolók for 2023, 2024, 2025 are missing (the old site stops at 2022)
 - [ ] VF-059  content · Galéria: pick more photos from the social media Drive folders (monthly programmes, camp days) — Marci
 - [ ] VF-030  content · Replace every `[Helyőrző]` placeholder (search for "Helyőrző" in Ghost Admin → Pages)
 - [ ] VF-031  content · Real Napló posts in place of the seeded samples
 - [ ] VF-032  content · Check the numbers on the home page (170 gyermek, 300 ügyfél/hó, …) and the 20/30/50% goals
-- [ ] VF-033  content · Partner logos as `#partner` pages (or confirm the bundled ones)
 - [ ] VF-034  content · Facebook URL, IBAN and contact details in Theme settings
 
 ### Infra / launch
