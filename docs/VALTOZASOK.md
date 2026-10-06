@@ -2,6 +2,11 @@
 
 Rövid, nem technikai összefoglaló az egyes frissítésekről, a staging oldalt átnézőknek. Részletek: [TRACKER.md](TRACKER.md).
 
+## 2026. október 6. – este
+
+- **Futás oldal:** az adománydoboz alapból a **Havi** (rendszeres) támogatást mutatja; az Egyszeri egy kattintással választható.
+- **Tevékenységünk:** új „Ismerj meg minket” videó.
+
 ## 2026. október 6. – élesítés
 
 - **Az új oldal él:** https://vilagitanifogok.hu (a régi Mobirise oldal helyett), éles Stripe-pal: a kártyás adományok már valódi fizetések.

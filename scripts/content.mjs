@@ -12,7 +12,7 @@
 //     GHOST_URL=https://vilagitanifogok.hu GHOST_ADMIN_API_KEY=<id:secret> node scripts/content.mjs
 //   Local: node scripts/content.mjs   (logs in with the seed's owner account from .env)
 //   One page only, overwriting hand edits:  node scripts/content.mjs --only=atlathatosag --force
-//   Steps: tevekenysegunk kapcsolat atlathatosag adatvedelem top-plusz galeria rolunk ertekek futas kozlemeny samples notice
+//   Steps: tevekenysegunk video kapcsolat atlathatosag adatvedelem top-plusz galeria rolunk ertekek futas kozlemeny samples notice
 
 import { readFile } from 'node:fs/promises';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
@@ -176,6 +176,14 @@ async function docTable(rows) {
 }
 
 // --- pages -------------------------------------------------------------------------------------
+// "Ismerj meg minket" video on Tevékenységünk (youtube.com/watch?v=<id>), embedded in privacy mode
+const VIDEO_ID = 'fqbGNXKUvt8';
+const OLD_VIDEO_IDS = ['deO2cUtChPw'];
+
+// Swap only the video on an existing Tevékenységünk page, leaving any Admin edits alone
+async function video() {
+    await patch('pages', 'tevekenysegunk', OLD_VIDEO_IDS.map((id) => [`embed/${id}`, `embed/${VIDEO_ID}`]));
+}
 async function tevekenysegunk() {
     await upsert('pages', 'tevekenysegunk', async (old) => ({
         title: 'Tevékenységünk',
@@ -208,7 +216,7 @@ async function tevekenysegunk() {
             H2('Helyi humán fejlesztések – TOP Plusz'),
             P('A Kerecsendi Önkormányzat konzorciumi partnereként veszünk részt a „Helyi humán fejlesztések Kerecsenden” projektben: egészségügyi szűrések, ifjúsági klub, sportprogramok, közösségi és kulturális események, bűnmegelőzési és digitális programok. <a href="/top-plusz/">A projektről bővebben →</a>'),
             H2('Ismerj meg minket'),
-            HTML('<div class="video-embed"><iframe src="https://www.youtube-nocookie.com/embed/deO2cUtChPw" title="Ismerj meg minket – Világítani Fogok Egyesület" loading="lazy" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>'),
+            HTML(`<div class="video-embed"><iframe src="https://www.youtube-nocookie.com/embed/${VIDEO_ID}" title="Ismerj meg minket – Világítani Fogok Egyesület" loading="lazy" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`),
             P('Képek programjainkról: <a href="/galeria/">Galéria →</a>')
         ].join('\n')
     }));
@@ -574,6 +582,7 @@ try {
     await login();
     console.log('Pages');
     await run('tevekenysegunk', tevekenysegunk);
+    await run('video', video);
     await run('kapcsolat', kapcsolat);
     await run('atlathatosag', atlathatosag);
     await run('adatvedelem', adatvedelem);

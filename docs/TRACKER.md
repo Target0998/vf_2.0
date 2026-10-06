@@ -19,69 +19,19 @@ Shared to-do list for the site. Project overview: [PROJECT.md](PROJECT.md).
 **Live since 2026-10-06** on https://vilagitanifogok.hu (former staging server and DB, live Stripe key). The server now runs the `prod` branch; a new staging environment will be set up elsewhere.
 
 **Next round – sorted 2026-10-06** (B = Benedek's decision)
-- [ ] VF-067  page · **Futókampány landing page** `/futas/` (design `design/2026-10-futas-kampany/`, colourway piros): progress bar (title of hidden page `futas-gyujtes` = bank transfers etc. by hand, **+ card donations live from Stripe**, refreshed every minute), donate box tagged `campaign=futas` in Stripe, share/copy link, bank transfer box · notice bar points to `/futas/` (`*label*` in notice_text is bold) · ✅ built + tested locally 2026-10-06 — Benedek: IMPORTANT
-- [x] VF-076  content · Futás real amount: **9 357 579 Ft** (Benedek, 2026-10-06) → title of `futas-gyujtes`. First half really reached, so the two-halves bar and the "célunk felét elértük" wording are back
 - [ ] VF-068  feature · Map on Kapcsolat (the old site linked Google Maps). Must work without cookies: static map image (no third-party request) or an OpenStreetMap embed — B
-- [ ] VF-069  content · Átláthatóság: replace the full minutes with the **extracts** (`content/dokumentumok/JK_kivonat_KZ_*.pdf`), section title "Jegyzőkönyvi kivonatok" (Judit). The oldest extract's original still comes from Éva. Fix the `..pdf` file names — Judit, B · ✅ built + tested locally 2026-10-06, on `staging` (`7432c05`)
-- [ ] VF-070  content · Tevékenységünk: work in the Közlemény passages (numbers: 150 család adósságkezelés, 200+ ügyfél munkaerőpiaci mentor, 10 várandós, 60+ 0–3 éves, 170 gyermek, Éjszakai Klub 20–30, kertprogram 45 család, idősek 10–30; and the staff / family mentor paragraph) until Kata's material arrives — Zsuzsi, B: "dolgozd bele" · ✅ built + tested locally 2026-10-06, on `staging` (`7432c05`)
-- [ ] VF-071  content · Rólunk: hide the Értékeink section until the texts exist (VF-012) — Zsuzsi · ✅ built + tested locally 2026-10-06, on `staging` (`7432c05`)
 - [ ] VF-072  content · Photos: Judit's new set (`UjKepek/`, 27 files). Strong images in key places without a child's face in focus (e.g. home hero); volunteer-focused photos only where the topic is volunteering. Benedek picks the placements, then I resize and swap them in — Judit, B
 - [ ] VF-033  content · Partner logos: list is incomplete. Add **Appy** now; Müller (just donated) and the Áldás utca people later. Current logos came from the old website; Judit uploads new ones to a shared Drive "PARTNEREINK" folder. Not blocking launch — Judit, B
 
-**Staging review** (branch `staging`, pushed 2026-10-05, deployed 2026-10-06). On the server:
-```sh
-git fetch && git checkout staging && git pull
-docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d            # Caddyfile changed
-docker compose -f docker-compose.yml -f docker-compose.prod.yml restart ghost caddy
-# Ghost Admin → Integrations → custom integration → Admin API key, then from a laptop:
-GHOST_URL=https://staging.vilagitanifogok.hu GHOST_ADMIN_API_KEY=… node scripts/content.mjs --dry-run
-GHOST_URL=https://staging.vilagitanifogok.hu GHOST_ADMIN_API_KEY=… node scripts/content.mjs
-```
-Then Design → Theme settings: notice bar on + link (see VF-056). Reviewers: Marci, Zsuzsi. After sign-off: merge `staging` → `prod`, deploy, VF-045.
-
-**Theme / code**
-- [ ] VF-042  infra · Fonts self-hosted (`theme/assets/fonts/`, latin + latin-ext woff2), no more Google Fonts requests · ✅ built + tested locally 2026-10-05, on `staging` (`34bba94`)
-- [ ] VF-020  bug · Hide the HU/EN switch until VF-006 — Marci; Benedek: "egyelőre vegyük ki" · ✅ built + tested locally 2026-10-05, on `staging` (`34bba94`)
-- [ ] VF-022  bug · Hero: photo and box height jump when the donation amount changes (impact text wraps to a different number of lines) — Benedek · ✅ built + tested locally 2026-10-05, on `staging` (`34bba94`)
-- [ ] VF-023  bug · Footer "Oldalak" links all go to the home page — Marci · ✅ built + tested locally 2026-10-05, on `staging` (`34bba94`)
-- [ ] VF-024  feature · Partner logos clickable, links from the old site; add the missing ones (Gál Tibor, TOP Plusz) — Marci · ✅ built + tested locally 2026-10-05, on `staging` (`34bba94`)
-- [ ] VF-025  bug · /tamogatas/ → Tárgyi adomány "Mire van szükség?" leads to an empty page. Point it at the list on /kapcsolat/ — Marci · ✅ built + tested locally 2026-10-05, on `staging` (`34bba94`)
-- [ ] VF-026  content · Drop "minden hónapban" from the donate box impact text — Zsuzsi · ✅ built + tested locally 2026-10-05, on `staging` (`34bba94`)
-- [ ] VF-048  infra · Redirects from old Mobirise URLs (`index.html`, `rolunk.html`, `tevekenyseg.html`, `atlathatosag.html`, `top.html`) in Caddy · ✅ built + tested locally 2026-10-05, on `staging` (`cc3df65`)
-- [ ] VF-049  infra · Content update script (`scripts/content.mjs`): pushes the launch content to a live Ghost through the Admin API key · ✅ built + tested locally 2026-10-05, on `staging` (`2f54262`)
-
-**Content (pushed by `scripts/content.mjs`)**
-- [ ] VF-001  page · Tevékenységünk: text from the old site (generic template; design stays open as VF-060) · ✅ built + tested locally 2026-10-05, on `staging` (`2f54262`)
-- [ ] VF-002  page · Galéria (interim): the old site's programme photos as a Ghost gallery (design stays open as VF-061) — Marci · ✅ built + tested locally 2026-10-05, on `staging` (`2f54262`)
-- [ ] VF-003  page · Kapcsolat: contact details, bank data, in-kind donation list, company cooperation (from the old site). mailto, no form (design stays open as VF-062) · ✅ built + tested locally 2026-10-05, on `staging` (`2f54262`)
-- [ ] VF-004  page · Átláthatóság: all reports, minutes and rules from the old site, PDFs uploaded into Ghost (`content/dokumentumok/`) — Marci · ✅ built + tested locally 2026-10-05, on `staging` (`2f54262`)
-- [ ] VF-005  page · Adatvédelem: rewritten 2026-10-05 in `Adatvédelmi.md` (Stripe, Mailgun EU, Hetzner DE, Google Workspace, Ghost cookieless analytics, newsletter open/click tracking, YouTube, jsDelivr, cookie table); rendered to /adatvedelem/ by `content.mjs` · ✅ built + tested locally, on `staging` (`2f54262`). **Needs sign-off by the association** (legal text). PDF export later — Marci
-- [ ] VF-007  page · TOP Plusz project page (`/top-plusz/`, old `/top.html`). EU-funded project info page, the old site had it, keep it · ✅ built + tested locally 2026-10-05, on `staging` (`2f54262`)
-- [ ] VF-036  content · Közlemény "Világíthatunk?" as a Napló post (final text from `Helyzetunk.md`), notice bar links to it — Zsuzsi · ✅ built + tested locally 2026-10-05, on `staging` (`2f54262`)
-- [ ] VF-038  content · First summer camp: **2000** (Benedek, 2026-10-05). Rólunk title/text and timeline updated — Zsuzsi · ✅ built + tested locally 2026-10-05, on `staging` (`2f54262`)
-- [ ] VF-039  content · Remove "20 segítő" everywhere until it's clarified internally — Zsuzsi · ✅ built + tested locally 2026-10-05, on `staging` (`2f54262`)
-
-**Config (by hand, Stripe Dashboard / server / Ghost Admin)**, in this order: deploy code → VF-056 → Stripe → VF-045 → VF-055
-- [ ] VF-050  infra · Stripe: **don't** use the Dashboard "Checkout" builder (the site creates its own Checkout Sessions). Developers → API keys → copy the live `sk_live_…` key into the server `.env` as `STRIPE_SECRET_KEY`, then `up -d`
-- [ ] VF-051  infra · Stripe: Settings → Branding (logo, colours `#…` from `screen.css`, icon)
+**After launch**
+- [ ] VF-078  infra · New **staging environment** on another server (the old staging server is now production). Branches: `staging` → staging env, `prod` → vilagitanifogok.hu, `main` = same as prod — Benedek
+- [ ] VF-079  feature · Futás donate box defaults to **Havi** (monthly) · ✅ built + tested locally 2026-10-06 — Benedek
+- [ ] VF-081  content · Tevékenységünk video → https://youtube.com/watch?v=fqbGNXKUvt8 (privacy-mode embed); live page via `content.mjs --only=video` (swaps only the video) · ✅ tested locally 2026-10-06 — Benedek
+- [ ] VF-080  content · **Association sign-off on the privacy policy** (`Adatvédelmi.md`, live on /adatvedelem/). It's my draft, not legal advice; PDF export once approved — Marci
 - [ ] VF-052  infra · Stripe: Settings → Payment methods: cards, Apple Pay, Google Pay on; anything that can't do recurring HUF off
-- [ ] VF-053  infra · Stripe: Settings → Customer emails → "Successful payments" receipts on (see VF-016 for wording)
 - [ ] VF-054  infra · Stripe: public business details (Settings → Business → Public details: name, support email, statement descriptor e.g. `VILAGITANIFOGOK`)
-- [ ] VF-055  infra · Smoke test with live key: one real 500 Ft one-off + one monthly, then refund/cancel in the Dashboard
 - [ ] VF-015  feature · Stripe: Customer Portal (Settings → Billing → Customer portal): enable cancel subscription, set the link, then update the "Hogyan mondhatom le…" FAQ
-- [ ] VF-045  infra · **Go-live runbook** (staging server becomes production, same DB). Order:
-  1. Day before / now: at dns24.hu lower the TTL of the `vilagitanifogok.hu` and `www` **A records** to 300 s. **Don't touch MX / TXT** (email is Google Workspace: MX → aspmx.l.google.com)
-  2. Stripe live mode ready (VF-050–054): live `sk_live_…` key; branding, payment methods, receipts, public details set **in live mode** (they're separate from test mode)
-  3. DNS: `@` and `www` A records 91.227.139.39 (old Rackhost site) → **2.28.137.208** (Hetzner). Check with `dig +short vilagitanifogok.hu`
-  4. Server `.env`: `SITE_DOMAIN=vilagitanifogok.hu`, `GHOST_URL=https://vilagitanifogok.hu`, `STRIPE_SECRET_KEY=sk_live_…`; then `up -d` and `restart ghost caddy donate-api`. Caddy gets the certificates once DNS points here (www too)
-  5. Ghost Admin: Theme settings → `donate_api_url = https://vilagitanifogok.hu/api/donate/checkout`; Settings → Access → **private site off**; Members: delete test sign-ups
-  6. Smoke test (VF-055): home, /futas/ counter, one real 500 Ft one-off + one monthly → refund/cancel in Stripe; magic-link email; old URLs (`/rolunk.html` → /rolunk/, `/assets/files/2023.pdf` → /atlathatosag/)
-  7. Content links are stored domain-neutral (`__GHOST_URL__`), so nothing needs rewriting. The staging hostname can be pointed at the same server later or dropped
-  8. Keep the Rackhost account until the switch is confirmed (DNS is at dns24.hu, SPF includes Rackhost)
-- [ ] VF-047  infra · Web analytics via **Tinybird Cloud, EU (Frankfurt)**: traffic-analytics service, `tinybird-*` setup services (profile `analytics`), Caddy route `/.ghost/analytics/`, privacy policy section. Self-hosting Tinybird ruled out (self-managed is beta, not for production, needs 4 vCPU / 16 GB). One-time setup on the server: docs/PROJECT.md → Web analytics — Benedek · ✅ built 2026-10-06 (not testable locally: needs the Tinybird account)
 - [ ] VF-077  infra · Tinybird follow-ups for the privacy policy: sign Tinybird's DPA, check EU–US Data Privacy Framework status, and make the promised 2-year retention true (TTL on the datasources or a yearly delete)
-- [ ] VF-066  infra · Ghost Admin: Settings → Analytics → web analytics **on** (cookieless, needs VF-047); Settings → Newsletters → email open + click tracking **on**. Both are described in the privacy policy
-- [ ] VF-056  infra · Ghost Admin → Settings → Integrations → add custom integration "Content script", run `scripts/content.mjs --dry-run`, then without it (README → Deploy). Then Design → Theme settings: `show_notice` on, `notice_link` = `/naplo/vilagithatunk-a-megmaradasunkert-kuzdunk/` (integrations can't change theme settings)
 - [ ] VF-057  infra · Ghost Admin → Settings → Navigation: secondary (footer) menu, optional: add Kapcsolat, TOP Plusz
 
 ## Up next
@@ -130,6 +80,38 @@ Then Design → Theme settings: notice bar on + link (see VF-056). Reviewers: Ma
 - [ ] VF-046  infra · Mailgun: confirm SPF/DKIM verified and newsletters don't land in spam (Gmail + Outlook test)
 
 ## Done
+- [x] 2026-10-06  VF-067  page · **Futókampány landing page** `/futas/` (design `design/2026-10-futas-kampany/`, colourway piros): progress bar (title of hidden page `futas-gyujtes` = bank transfers etc. by hand, **+ card donations live from Stripe**, refreshed every minute), donate box tagged `campaign=futas` in Stripe, share/copy link, bank transfer box · notice bar points to `/futas/` (`*label*` in notice_text is bold)
+- [x] 2026-10-06  VF-076  content · Futás real amount: **9 357 579 Ft** (Benedek, 2026-10-06) → title of `futas-gyujtes`. First half really reached, so the two-halves bar and the "célunk felét elértük" wording are back
+- [x] 2026-10-06  VF-069  content · Átláthatóság: replace the full minutes with the **extracts** (`content/dokumentumok/JK_kivonat_KZ_*.pdf`), section title "Jegyzőkönyvi kivonatok" (Judit). The oldest extract's original still comes from Éva. Fix the `..pdf` file names — Judit, B
+- [x] 2026-10-06  VF-070  content · Tevékenységünk: work in the Közlemény passages (numbers: 150 család adósságkezelés, 200+ ügyfél munkaerőpiaci mentor, 10 várandós, 60+ 0–3 éves, 170 gyermek, Éjszakai Klub 20–30, kertprogram 45 család, idősek 10–30; and the staff / family mentor paragraph) until Kata's material arrives — Zsuzsi, B: "dolgozd bele"
+- [x] 2026-10-06  VF-071  content · Rólunk: hide the Értékeink section until the texts exist (VF-012) — Zsuzsi
+- [x] 2026-10-06  VF-042  infra · Fonts self-hosted (`theme/assets/fonts/`, latin + latin-ext woff2), no more Google Fonts requests
+- [x] 2026-10-06  VF-020  bug · Hide the HU/EN switch until VF-006 — Marci; Benedek: "egyelőre vegyük ki"
+- [x] 2026-10-06  VF-022  bug · Hero: photo and box height jump when the donation amount changes (impact text wraps to a different number of lines) — Benedek
+- [x] 2026-10-06  VF-023  bug · Footer "Oldalak" links all go to the home page — Marci
+- [x] 2026-10-06  VF-024  feature · Partner logos clickable, links from the old site; add the missing ones (Gál Tibor, TOP Plusz) — Marci
+- [x] 2026-10-06  VF-025  bug · /tamogatas/ → Tárgyi adomány "Mire van szükség?" leads to an empty page. Point it at the list on /kapcsolat/ — Marci
+- [x] 2026-10-06  VF-026  content · Drop "minden hónapban" from the donate box impact text — Zsuzsi
+- [x] 2026-10-06  VF-048  infra · Redirects from old Mobirise URLs (`index.html`, `rolunk.html`, `tevekenyseg.html`, `atlathatosag.html`, `top.html`) in Caddy
+- [x] 2026-10-06  VF-049  infra · Content update script (`scripts/content.mjs`): pushes the launch content to a live Ghost through the Admin API key
+- [x] 2026-10-06  VF-001  page · Tevékenységünk: text from the old site (generic template; design stays open as VF-060)
+- [x] 2026-10-06  VF-002  page · Galéria (interim): the old site's programme photos as a Ghost gallery (design stays open as VF-061) — Marci
+- [x] 2026-10-06  VF-003  page · Kapcsolat: contact details, bank data, in-kind donation list, company cooperation (from the old site). mailto, no form (design stays open as VF-062)
+- [x] 2026-10-06  VF-004  page · Átláthatóság: all reports, minutes and rules from the old site, PDFs uploaded into Ghost (`content/dokumentumok/`) — Marci
+- [x] 2026-10-06  VF-005  page · Adatvédelem: rewritten 2026-10-05 in `Adatvédelmi.md` (Stripe, Mailgun EU, Hetzner DE, Google Workspace, Ghost cookieless analytics, newsletter open/click tracking, YouTube, jsDelivr, cookie table); rendered to /adatvedelem/ by `content.mjs`
+- [x] 2026-10-06  VF-007  page · TOP Plusz project page (`/top-plusz/`, old `/top.html`). EU-funded project info page, the old site had it, keep it
+- [x] 2026-10-06  VF-036  content · Közlemény "Világíthatunk?" as a Napló post (final text from `Helyzetunk.md`), notice bar links to it — Zsuzsi
+- [x] 2026-10-06  VF-038  content · First summer camp: **2000** (Benedek, 2026-10-05). Rólunk title/text and timeline updated — Zsuzsi
+- [x] 2026-10-06  VF-039  content · Remove "20 segítő" everywhere until it's clarified internally — Zsuzsi
+- [x] 2026-10-06  VF-050  infra · Stripe: **don't** use the Dashboard "Checkout" builder (the site creates its own Checkout Sessions). Developers → API keys → copy the live `sk_live_…` key into the server `.env` as `STRIPE_SECRET_KEY`, then `up -d` · live Stripe key on the server
+- [x] 2026-10-06  VF-051  infra · Stripe: Settings → Branding (logo, colours `#…` from `screen.css`, icon) · Stripe branding (live)
+- [x] 2026-10-06  VF-053  infra · Stripe: Settings → Customer emails → "Successful payments" receipts on (see VF-016 for wording) · Stripe receipts on (live)
+- [x] 2026-10-06  VF-055  infra · Smoke test with live key: one real 500 Ft one-off + one monthly, then refund/cancel in the Dashboard · live smoke test: real payment succeeded
+- [x] 2026-10-06  VF-045  infra · **Go-live runbook** (staging server becomes production, same DB). Order: · go-live: DNS → Hetzner, live Stripe, vilagitanifogok.hu
+- [x] 2026-10-06  VF-047  infra · Web analytics via **Tinybird Cloud, EU (Frankfurt)**: traffic-analytics service, `tinybird-*` setup services (profile `analytics`), Caddy route `/.ghost/analytics/`, privacy policy section. Self-hosting Tinybird ruled out (self-managed is beta, not for production, needs 4 vCPU / 16 GB). One-time setup on the server: docs/PROJECT.md → Web analytics — Benedek
+- [x] 2026-10-06  VF-066  infra · Ghost Admin: Settings → Analytics → web analytics **on** (cookieless, needs VF-047); Settings → Newsletters → email open + click tracking **on**. Both are described in the privacy policy · web analytics on, traffic visible
+- [x] 2026-10-06  VF-056  infra · Ghost Admin → Settings → Integrations → add custom integration "Content script", run `scripts/content.mjs --dry-run`, then without it (README → Deploy). Then Design → Theme settings: `show_notice` on, `notice_link` = `/naplo/vilagithatunk-a-megmaradasunkert-kuzdunk/` (integrations can't change theme settings) · content script run on the live site
+- [x] 2026-10-06  Test sign-ups in Members: kept (only Benedek), nothing to delete
 - [x] 2026-10-02  VF-021  bug · Mobile: hero ray graphic covered the girl's face; hamburger wrapped to its own row (`8ffea36`)
 - [x] 2026-10-02  Staging on Hetzner: Caddy + HTTPS, Mailgun SMTP, Stripe sandbox (`0411ffb`)
 - [x] 2026-10-02  Theme v1: home, Napló, post, tag, Támogatás, Rólunk, Köszönjük, donate box + Stripe Checkout (`2c32102`)
