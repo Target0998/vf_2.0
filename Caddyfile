@@ -9,12 +9,20 @@
 		reverse_proxy donate-api:8787
 	}
 
+	# web analytics: Ghost's tracker posts to /.ghost/analytics/… → traffic-analytics (profile "analytics")
+	@analytics path_regexp analytics_match ^(.*)/\.ghost/analytics(.*)$
+	handle @analytics {
+		rewrite * {re.analytics_match.2}
+		reverse_proxy traffic-analytics:3000
+	}
+
 	# old Mobirise URLs → new pages
 	redir /index.html / permanent
 	redir /rolunk.html /rolunk/ permanent
 	redir /tevekenyseg.html /tevekenysegunk/ permanent
 	redir /atlathatosag.html /atlathatosag/ permanent
 	redir /top.html /top-plusz/ permanent
+	redir /assets/files/* /atlathatosag/   # old PDF links; the documents now live in Ghost
 	# internal staff tool (Google Apps Script), same target as the old site
 	redir /gyerekek* https://script.google.com/a/macros/vilagitanifogok.hu/s/AKfycby6ahrHFbhFSuXv0PMJTZHbrm7vvNHteUyIzjt5FPr6yHPLRG0ucQUNXvTJT3XT1r-Y/exec
 

@@ -69,7 +69,17 @@ Then Design → Theme settings: notice bar on + link (see VF-056). Reviewers: Ma
 - [ ] VF-054  infra · Stripe: public business details (Settings → Business → Public details: name, support email, statement descriptor e.g. `VILAGITANIFOGOK`)
 - [ ] VF-055  infra · Smoke test with live key: one real 500 Ft one-off + one monthly, then refund/cancel in the Dashboard
 - [ ] VF-015  feature · Stripe: Customer Portal (Settings → Billing → Customer portal): enable cancel subscription, set the link, then update the "Hogyan mondhatom le…" FAQ
-- [ ] VF-045  infra · **Go-live** (staging → production): DNS A record `vilagitanifogok.hu` (+ `www`) → Hetzner IP; server `.env`: `SITE_DOMAIN`, `GHOST_URL=https://vilagitanifogok.hu`; `up -d` + restart ghost; Theme settings → `donate_api_url = https://vilagitanifogok.hu/api/donate/checkout`; Ghost Settings → Access: private site **off**; old Mobirise hosting off after DNS has switched
+- [ ] VF-045  infra · **Go-live runbook** (staging server becomes production, same DB). Order:
+  1. Day before / now: at dns24.hu lower the TTL of the `vilagitanifogok.hu` and `www` **A records** to 300 s. **Don't touch MX / TXT** (email is Google Workspace: MX → aspmx.l.google.com)
+  2. Stripe live mode ready (VF-050–054): live `sk_live_…` key; branding, payment methods, receipts, public details set **in live mode** (they're separate from test mode)
+  3. DNS: `@` and `www` A records 91.227.139.39 (old Rackhost site) → **2.28.137.208** (Hetzner). Check with `dig +short vilagitanifogok.hu`
+  4. Server `.env`: `SITE_DOMAIN=vilagitanifogok.hu`, `GHOST_URL=https://vilagitanifogok.hu`, `STRIPE_SECRET_KEY=sk_live_…`; then `up -d` and `restart ghost caddy donate-api`. Caddy gets the certificates once DNS points here (www too)
+  5. Ghost Admin: Theme settings → `donate_api_url = https://vilagitanifogok.hu/api/donate/checkout`; Settings → Access → **private site off**; Members: delete test sign-ups
+  6. Smoke test (VF-055): home, /futas/ counter, one real 500 Ft one-off + one monthly → refund/cancel in Stripe; magic-link email; old URLs (`/rolunk.html` → /rolunk/, `/assets/files/2023.pdf` → /atlathatosag/)
+  7. Content links are stored domain-neutral (`__GHOST_URL__`), so nothing needs rewriting. The staging hostname can be pointed at the same server later or dropped
+  8. Keep the Rackhost account until the switch is confirmed (DNS is at dns24.hu, SPF includes Rackhost)
+- [ ] VF-047  infra · Web analytics via **Tinybird Cloud, EU (Frankfurt)**: traffic-analytics service, `tinybird-*` setup services (profile `analytics`), Caddy route `/.ghost/analytics/`, privacy policy section. Self-hosting Tinybird ruled out (self-managed is beta, not for production, needs 4 vCPU / 16 GB). One-time setup on the server: docs/PROJECT.md → Web analytics — Benedek · ✅ built 2026-10-06 (not testable locally: needs the Tinybird account)
+- [ ] VF-077  infra · Tinybird follow-ups for the privacy policy: sign Tinybird's DPA, check EU–US Data Privacy Framework status, and make the promised 2-year retention true (TTL on the datasources or a yearly delete)
 - [ ] VF-066  infra · Ghost Admin: Settings → Analytics → web analytics **on** (cookieless, needs VF-047); Settings → Newsletters → email open + click tracking **on**. Both are described in the privacy policy
 - [ ] VF-056  infra · Ghost Admin → Settings → Integrations → add custom integration "Content script", run `scripts/content.mjs --dry-run`, then without it (README → Deploy). Then Design → Theme settings: `show_notice` on, `notice_link` = `/naplo/vilagithatunk-a-megmaradasunkert-kuzdunk/` (integrations can't change theme settings)
 - [ ] VF-057  infra · Ghost Admin → Settings → Navigation: secondary (footer) menu, optional: add Kapcsolat, TOP Plusz
@@ -116,7 +126,6 @@ Then Design → Theme settings: notice bar on + link (see VF-056). Reviewers: Ma
 - [ ] VF-064  infra · Docker log rotation on the server (`max-size`/`max-file` in compose) and check Ghost's request logs don't keep IPs. The privacy policy says no access log is kept
 - [ ] VF-065  content · Monthly: delete unsubscribed members in Ghost Admin → Members. The privacy policy promises deletion within 30 days of unsubscribing
 - [ ] VF-043  infra · Cookie/consent: only strictly necessary cookies are used (see the privacy policy), so no banner is needed. Revisit if analytics or embeds change
-- [ ] VF-047  infra · Self-hosted Tinybird config (Ghost 6 analytics) — Benedek
 - [ ] VF-044  infra · Analytics: decide whether we want any (Ghost 6 built-in, Plausible, or none)
 - [ ] VF-046  infra · Mailgun: confirm SPF/DKIM verified and newsletters don't land in spam (Gmail + Outlook test)
 

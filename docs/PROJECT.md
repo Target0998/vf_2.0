@@ -33,6 +33,7 @@ It's built on **Ghost 6** with a custom theme. Editors change content in Ghost A
 | **donate-api** | Small Node service, no dependencies. Turns {amount, frequency} into a Stripe Checkout Session URL; `GET /campaign/<slug>` sums a campaign's card donations from Stripe (cached 1 min) | `donate-api/` |
 | **MySQL** | Ghost's database: content, settings, members, staff accounts | Docker volume `db` |
 | **Caddy** | HTTPS (automatic Let's Encrypt) and reverse proxy. Staging/prod only | `Caddyfile` |
+| **traffic-analytics** | Ghost's analytics proxy: page views → Tinybird Cloud (EU), IP removed. Staging/prod, profile `analytics` | `docker-compose.prod.yml`, `tinybird/` |
 | **Mailpit** | Catches all email locally so nothing is really sent. Local only | http://localhost:8025 |
 
 **Not in git, so it doesn't move between machines:** the database (content, admin passwords, settings and theme settings), uploaded images, and `.env`. Local and staging are **separate sites with separate content**. To copy content between them, use Ghost Admin → Settings → Labs → Export/Import. Images have to be copied separately.
@@ -61,7 +62,8 @@ Adatvédelmi.md            privacy policy source; content.mjs renders it as /ada
 scripts/e2e.mjs           browser test: donate box + newsletter signup
 scripts/screenshots.mjs   full-page desktop (1440) + mobile (390) screenshots → screenshots/
 docker-compose.yml        local stack           docker-compose.prod.yml  staging/prod override
-Caddyfile                 HTTPS + routing for staging/prod, www → bare domain, redirects from old Mobirise URLs
+Caddyfile                 HTTPS + routing for staging/prod, www → bare domain, redirects from old Mobirise URLs, /.ghost/analytics
+tinybird/                 helper image for the one-time Tinybird setup (from TryGhost/ghost-docker, MIT)
 design_handoff_ghost_theme/  original design handoff (see "Design workflow")
 docs/                     this file + TRACKER.md
 ```
@@ -103,6 +105,25 @@ Donations are recorded **only in Stripe**. There are no webhooks yet, so the sit
 
 ### Staff login
 - `/ghost/`. In production, logging in from a new device needs an email code (`staffDeviceVerification`), so Mailgun must be working.
+
+### Web analytics (Tinybird)
+Ghost 6's built-in, cookieless statistics (Admin → Analytics). Page views go from the browser to `/.ghost/analytics/` on our own domain → **traffic-analytics** (container on our server: drops the IP, adds a daily-salted session id) → **Tinybird Cloud, EU (Frankfurt)**, where Ghost reads the stats from. Self-hosting Tinybird isn't an option: its self-managed version is beta, "not for production", and needs 4 vCPU / 16 GB RAM.
+
+What reaches Tinybird per page view: page URL, referrer, utm parameters, browser user agent / device type, language, country, the salted session id and, **for logged-in newsletter subscribers, their Ghost member id and status**. No IP address, no cookies. Covered in `Adatvédelmi.md`.
+
+One-time setup on the server (needs a free account at tinybird.co; pick **Europe (Frankfurt)**):
+```sh
+C="docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile analytics"
+$C build tinybird-login
+$C run --rm tinybird-login              # prints a code + URL: open it, log in, choose the workspace
+$C run --rm tinybird-sync               # "Tinybird files synced into shared volume."
+$C run --rm tinybird-deploy             # wait for "Deployment #1 is live!"
+$C run --rm tinybird-login get-tokens   # prints 4 lines → paste them into .env
+# in .env also: COMPOSE_PROFILES=analytics
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+docker compose -f docker-compose.yml -f docker-compose.prod.yml restart ghost caddy
+```
+Then Ghost Admin → Settings → Analytics → turn on **Web analytics**, open the home page in a private window, and check that a visit appears on the Analytics page within a minute or two. After a Ghost upgrade that changes the analytics schema, re-run `tinybird-sync` and `tinybird-deploy`.
 
 ## Environments
 

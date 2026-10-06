@@ -2,6 +2,11 @@
 
 Rövid, nem technikai összefoglaló az egyes frissítésekről, a staging oldalt átnézőknek. Részletek: [TRACKER.md](TRACKER.md).
 
+## 2026. október 6. (statisztika)
+
+- **Látogatottsági statisztika:** a Ghost saját, süti nélküli statisztikája bekapcsolható (Ghost Admin → Analytics). Az adatokat a Tinybird nevű szolgáltatás tárolja, európai (frankfurti) adatközpontban; IP-címet nem tárolunk.
+- **Adatkezelési tájékoztató:** a „Látogatottsági statisztika” rész ehhez igazítva (milyen adat, mennyi ideig, ki dolgozza fel). Az egyesület jóváhagyása továbbra is szükséges.
+
 ## 2026. október 6. (este)
 
 - **Élő számláló a Futás oldalon:** a kártyás adományok maguktól hozzáadódnak az összeghez a Stripe-ból, percenként frissül (egy friss fizetés kb. 1–2 perc múlva jelenik meg). Visszatérített fizetések nem számítanak bele, a havi támogatások minden kifizetett hónapja igen.

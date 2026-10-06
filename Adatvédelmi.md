@@ -24,7 +24,7 @@ Adatvédelmi tisztviselő kinevezésére az Adatkezelő nem köteles, ilyet nem 
 | Adatkezelés | Milyen adatok | Jogalap | Meddig |
 |---|---|---|---|
 | Weboldal látogatása | technikai adatok (IP-cím, böngésző) | jogos érdek | a látogatás idejére |
-| Látogatottsági statisztika | anonim, sütik nélküli összesítés | jogos érdek | összesített formában |
+| Látogatottsági statisztika | megtekintett oldal, hivatkozó oldal, böngésző és eszköz típusa, ország, napi álnevesített munkamenet-azonosító; bejelentkezett feliratkozónál a feliratkozói azonosító | jogos érdek | 2 évig |
 | Online adományozás | név, e-mail, összeg, fizetési adatok | szerződés, jogi kötelezettség | 8 év (számviteli kötelezettség) |
 | Hírlevél (Napló) | e-mail, név, megnyitások, kattintások | hozzájárulás | leiratkozásig |
 | Kapcsolatfelvétel e-mailben | e-mail, név, az üzenet tartalma | jogos érdek | az ügy lezárásától 1 évig |
@@ -38,9 +38,14 @@ A weboldal egyes kiegészítő programjai (feliratkozási és kereső felület) 
 Jogalap: az Adatkezelő jogos érdeke a weboldal működtetéséhez és biztonságához (GDPR 6. cikk (1) f) pont).
 
 ### Látogatottsági statisztika
-A weboldal látogatottságát a Ghost tartalomkezelő beépített, sütik nélküli statisztikai eszközével mérjük (megtekintett oldalak, hivatkozó oldal, eszköz típusa, ország). A mérés nem használ sütit, nem követi a látogatót más weboldalakon, és nem alkot róla profilt; az IP-címet nem tároljuk, az adatokat kizárólag összesítve, statisztikai célra használjuk.
-<!-- TODO VF-047: when Tinybird is set up, check where the analytics data is stored. If it is Tinybird's cloud rather than our own server, add Tinybird as a processor here. -->
-Jogalap: az Adatkezelő jogos érdeke a weboldal fejlesztéséhez (GDPR 6. cikk (1) f) pont).
+A weboldal látogatottságát a Ghost tartalomkezelő beépített statisztikai eszközével mérjük, **sütik nélkül**. Célunk, hogy lássuk, mely oldalakat és tartalmakat olvassák, honnan érkeznek a látogatók, és hogyan fejleszthetjük a weboldalt.
+Kezelt adatok oldalmegtekintésenként: a megtekintett oldal címe, a hivatkozó oldal (ahonnan érkeztél), a kampánylinkek paraméterei (utm), a böngésző azonosító szövege (user agent) és az ebből meghatározott eszköztípus, a böngésző nyelve, az ország, valamint egy munkamenet-azonosító. Ha feliratkozóként be vagy jelentkezve a weboldalra, a feliratkozói azonosítód és feliratkozói státuszod is hozzákapcsolódik az oldalmegtekintéshez.
+Az IP-címedet nem tároljuk és nem továbbítjuk: a saját szerverünkön futó program az IP-címből és a böngésző adataiból naponta változó, titkos kiegészítéssel (só) képzett munkamenet-azonosítót készít, majd az IP-címet elhagyja. A munkamenet-azonosítóból nem lehet visszafejteni az IP-címet, és napokon átívelő követésre sem alkalmas. Más weboldalakon nem követünk, és nem alkotunk profilt.
+Jogalap: az Adatkezelő jogos érdeke a weboldal működésének megismeréséhez és fejlesztéséhez (GDPR 6. cikk (1) f) pont). Az adatkezelés ellen tiltakozhatsz az info@vilagitanifogok.hu címen.
+Időtartam: az oldalmegtekintési adatokat legfeljebb 2 évig őrizzük meg, utána töröljük; a statisztikát összesített, személyhez nem köthető formában használjuk.
+<!-- TODO VF-077: Tinybird has no automatic expiry for these events. Either set a 2-year TTL on the Tinybird datasources or delete old rows yearly – otherwise change the 2-year promise above. -->
+Adatfeldolgozó: a statisztikai adatokat a Tinybird Inc. (41 East 11th Street, 11th floor, New York, NY 10003, USA) tárolja és dolgozza fel, az Európai Unióban (Frankfurt, Németország) található adatközpontban. Mivel a Tinybird amerikai vállalat, az esetleges adattovábbítás alapja az Európai Bizottság által elfogadott általános szerződési feltételek. A Tinybird adatkezelési tájékoztatója: [tinybird.co/privacy](https://www.tinybird.co/privacy)
+<!-- TODO VF-077: sign Tinybird's DPA (ask legal@tinybird.co if it isn't in the dashboard) and check whether they are certified under the EU–US Data Privacy Framework; if yes, mention it here like for Stripe and Mailgun. -->
 
 ## Online adományozás
 A weboldalon egyszeri vagy havi rendszerességű bankkártyás adományt adhatsz. A fizetés a Stripe biztonságos fizetési oldalán történik; bankkártyaadataidat közvetlenül a Stripe kezeli, azok hozzánk nem jutnak el (a kártyából csak a típusát, az utolsó négy számjegyét és a kibocsátó országát látjuk).

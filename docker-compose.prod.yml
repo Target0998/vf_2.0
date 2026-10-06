@@ -35,6 +35,12 @@ services:
       mail__options__auth__user: ${MAILGUN_SMTP_USER:?set MAILGUN_SMTP_USER in .env}
       mail__options__auth__pass: ${MAILGUN_SMTP_PASSWORD:?set MAILGUN_SMTP_PASSWORD in .env}
       security__staffDeviceVerification: "true"
+      # web analytics (Tinybird). Empty tokens = analytics off; the tracker goes through traffic-analytics (Caddy route)
+      tinybird__tracker__endpoint: ${GHOST_URL}/.ghost/analytics/api/v1/page_hit
+      tinybird__tracker__datasource: analytics_events
+      tinybird__adminToken: ${TINYBIRD_ADMIN_TOKEN:-}
+      tinybird__workspaceId: ${TINYBIRD_WORKSPACE_ID:-}
+      tinybird__stats__endpoint: ${TINYBIRD_API_URL:-https://api.tinybird.co}
 
   donate-api:
     ports: !reset []
@@ -51,6 +57,58 @@ services:
   mailpit:
     profiles: [local-only]
 
+  # ── Web analytics (profile "analytics", from TryGhost/ghost-docker) ─────────────────────────
+  # One-time setup: docs/PROJECT.md → Web analytics. Turn on with COMPOSE_PROFILES=analytics in .env.
+  # traffic-analytics receives page hits at /.ghost/analytics/ (Caddy), replaces the IP with a daily
+  # salted session id and forwards the event to Tinybird.
+  traffic-analytics:
+    image: ghost/traffic-analytics:1.0.451@sha256:ed36fcd315cbc440b4dd906bc4227a348b3fb5ad973017ea28a4ff1ebed81c15
+    restart: unless-stopped
+    expose: ["3000"]
+    volumes:
+      - traffic_analytics_data:/data
+    environment:
+      NODE_ENV: production
+      PROXY_TARGET: ${TINYBIRD_API_URL:-https://api.tinybird.co}/v0/events
+      SALT_STORE_TYPE: file
+      SALT_STORE_FILE_PATH: /data/salts.json
+      TINYBIRD_TRACKER_TOKEN: ${TINYBIRD_TRACKER_TOKEN:-}
+      LOG_LEVEL: info
+    profiles: [analytics]
+
+  tinybird-login:
+    build: ./tinybird
+    working_dir: /home/tinybird
+    command: /usr/local/bin/tinybird-login
+    volumes:
+      - tinybird_home:/home/tinybird
+      - tinybird_files:/data/tinybird
+    profiles: [analytics]
+    restart: "no"
+
+  tinybird-sync:   # copies Ghost's Tinybird schema (datasources, pipes) into a shared volume
+    image: ghost:6-alpine
+    entrypoint: []
+    command: >
+      sh -c "rm -rf /data/tinybird/* && cp -rf /var/lib/ghost/current/core/server/data/tinybird/* /data/tinybird/ && echo 'Tinybird files synced into shared volume.'"
+    volumes:
+      - tinybird_files:/data/tinybird
+    profiles: [analytics]
+    restart: "no"
+
+  tinybird-deploy:
+    build: ./tinybird
+    working_dir: /data/tinybird
+    command: sh -c "tb-wrapper --cloud deploy"
+    volumes:
+      - tinybird_home:/home/tinybird
+      - tinybird_files:/data/tinybird
+    profiles: [analytics]
+    restart: "no"
+
 volumes:
   caddy_data:
   caddy_config:
+  traffic_analytics_data:
+  tinybird_home:
+  tinybird_files:
