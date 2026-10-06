@@ -2,6 +2,13 @@
 
 Rövid, nem technikai összefoglaló az egyes frissítésekről, a staging oldalt átnézőknek. Részletek: [TRACKER.md](TRACKER.md).
 
+## 2026. október 6. – élesítés
+
+- **Az új oldal él:** https://vilagitanifogok.hu (a régi Mobirise oldal helyett), éles Stripe-pal: a kártyás adományok már valódi fizetések.
+- **Futás kampány:** a valós eddigi összeg **9 357 579 Ft**, így tényleg megvan a cél fele. Visszakerült a két félre bontott sáv („1. fele · közösen elértük!”) és a „célunk felét közösen elértük” szöveg az oldalon, a megosztási leírásban és a sárga sávban.
+- **A sárga sáv új szövege** (Design → Theme settings → notice_text): „*Futás kampány* A célunk felét közösen elértük! Október 16-án Budapestről Kerecsendig futunk váltóban, hogy a második felét is összegyűjtsük. Fuss velünk – támogasd te is!”
+- **Számláló:** a „futas-gyujtes” címe = 9 357 579 + az ezután érkező átutalások (kézzel); a honlapon kártyával adott adományok maguktól hozzáadódnak.
+
 ## 2026. október 6. (statisztika)
 
 - **Látogatottsági statisztika:** a Ghost saját, süti nélküli statisztikája bekapcsolható (Ghost Admin → Analytics). Az adatokat a Tinybird nevű szolgáltatás tárolja, európai (frankfurti) adatközpontban; IP-címet nem tárolunk.

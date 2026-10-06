@@ -127,16 +127,19 @@ Then Ghost Admin → Settings → Analytics → turn on **Web analytics**, open 
 
 ## Environments
 
-| | Local | Staging |
+| | Local | Production (branch `prod`) |
 |---|---|---|
-| URL | http://localhost:2368 | https://staging.vilagitanifogok.hu |
-| Admin | http://localhost:2368/ghost/ | https://staging.vilagitanifogok.hu/ghost/ |
+| URL | http://localhost:2368 | https://vilagitanifogok.hu |
+| Admin | http://localhost:2368/ghost/ | https://vilagitanifogok.hu/ghost/ |
 | Start | `npm run up` (+ `npm run seed` on a fresh DB) | `docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d` |
 | Ghost mode | development: theme edits show on reload | production: templates cached, **restart Ghost after theme changes** |
 | Email | Mailpit at :8025, nothing really sent | Mailgun, real emails |
-| Stripe | mock, or `sk_test_…` in `.env` | sandbox key in `.env` |
+| Analytics | – | Tinybird Cloud (EU), profile `analytics` |
+| Stripe | mock, or `sk_test_…` in `.env` | **live** key in `.env` |
 
-**Deploying a change to staging:**
+**Branches:** `staging` = work in progress (a new staging environment is coming, on another server); `prod` = what runs on vilagitanifogok.hu. Release = merge/push `staging` → `prod`, then on the server:
+
+**Deploying a change (server runs `prod`):**
 ```sh
 # locally: commit + push
 # on the server:

@@ -298,9 +298,13 @@
         var raised = Math.min(total, goal);
         var set = function (sel, text) { var t = el.querySelector(sel); if (t) t.textContent = text; };
         set('[data-total]', fmt(total) + ' Ft');
+        // two halves: the first fills up to goal/2, the second beyond it
+        var half = goal / 2;
+        set('[data-first]', raised >= half ? fmt(half) + ' Ft · közösen elértük!' : fmt(raised) + ' / ' + fmt(half) + ' Ft');
+        set('[data-second]', fmt(Math.max(0, raised - half)) + ' / ' + fmt(half) + ' Ft');
         set('[data-missing]', raised >= goal ? 'A célt elértük – köszönjük!' : 'Még ' + fmt(goal - raised) + ' Ft hiányzik.');
-        // a sliver stays visible even at 0, so the bar reads as a bar
-        el.style.setProperty('--p', Math.max(raised / goal * 100, 1.5).toFixed(1) + '%');
+        el.style.setProperty('--p1', Math.min(100, raised / half * 100).toFixed(1) + '%');
+        el.style.setProperty('--p2', Math.max(0, (raised - half) / half * 100).toFixed(1) + '%');
         el.classList.add('is-ready');
     }
 

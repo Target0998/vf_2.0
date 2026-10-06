@@ -10,4 +10,4 @@ Forrás: Claude Design projekt, `templates/futas-kampany/FutasKampany.dc.html`
   (`theme/partials/futas-bal.hbs`, `futas-jobb.hbs`, a design `assets/futas/futas-svg.js` fájljából).
 - Fotó: `assets/futas/kezenallas.png` (1400×1400) → a témában `content/futas/kezenallas.jpg`-ként, a Ghost oldal kiemelt képe.
 
-**Eltérés a designtól (2026-10-06):** a „9 millió összegyűlt / a cél fele megvan” állítás nem ellenőrzött, ezért az oldalon egyetlen sáv van 0-tól a 18 millióig (VF-076).
+**2026-10-06:** a valós összeg (9 357 579 Ft) igazolta a „cél fele megvan” állítást, így a két félre bontott sáv a design szerint működik; a „közösen elértük!” felirat csak akkor jelenik meg, ha az összeg tényleg eléri a 9 milliót (VF-076).

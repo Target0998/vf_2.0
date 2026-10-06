@@ -18,7 +18,8 @@
             {{#get "pages" filter="slug:futas-gyujtes" limit="1"}}
             <div class="camp-progress" data-progress data-goal="18000000" data-raised="{{#foreach pages}}{{title}}{{else}}0{{/foreach}}" data-live="{{@custom.donate_api_url}}" data-campaign="futas">
                 <div class="camp-total"><span class="camp-total-num" data-total>{{#foreach pages}}{{title}} Ft{{else}}0 Ft{{/foreach}}</span><span>összegyűlt · cél: 18 000 000 Ft</span></div>
-                <div class="camp-bar" aria-hidden="true"><i style="width:var(--p,0%)"></i></div>
+                <div class="camp-bar" aria-hidden="true"><span class="camp-bar-half"><i style="width:var(--p1,0%)"></i></span><span class="camp-bar-half"><i style="width:var(--p2,0%)"></i></span></div>
+                <div class="camp-bar-labels"><span>1. fele · <span data-first></span></span><span>2. fele · <span data-second></span></span></div>
                 <div class="camp-missing" data-missing></div>
             </div>
             {{/get}}

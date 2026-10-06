@@ -16,11 +16,11 @@ Shared to-do list for the site. Project overview: [PROJECT.md](PROJECT.md).
 - (empty – sorted 2026-10-06)
 
 ## In progress
-Launch postponed (2026-10-06). Staging becomes production (same server and DB, domain switched) once the items below and the review are done.
+**Live since 2026-10-06** on https://vilagitanifogok.hu (former staging server and DB, live Stripe key). The server now runs the `prod` branch; a new staging environment will be set up elsewhere.
 
 **Next round – sorted 2026-10-06** (B = Benedek's decision)
 - [ ] VF-067  page · **Futókampány landing page** `/futas/` (design `design/2026-10-futas-kampany/`, colourway piros): progress bar (title of hidden page `futas-gyujtes` = bank transfers etc. by hand, **+ card donations live from Stripe**, refreshed every minute), donate box tagged `campaign=futas` in Stripe, share/copy link, bank transfer box · notice bar points to `/futas/` (`*label*` in notice_text is bold) · ✅ built + tested locally 2026-10-06 — Benedek: IMPORTANT
-- [ ] VF-076  content · **Futás: real amount raised so far.** The design's "9 millió összegyűlt, a cél fele megvan" was unconfirmed, so it's off the site (counter starts at 0 toward 18 M, single bar). Treasurer: sum bank transfers since the appeal + the earlier card fundraiser (adjukossze.hu) → title of `futas-gyujtes`. If the first half really is reached, restore the two-halves bar and wording — Benedek
+- [x] VF-076  content · Futás real amount: **9 357 579 Ft** (Benedek, 2026-10-06) → title of `futas-gyujtes`. First half really reached, so the two-halves bar and the "célunk felét elértük" wording are back
 - [ ] VF-068  feature · Map on Kapcsolat (the old site linked Google Maps). Must work without cookies: static map image (no third-party request) or an OpenStreetMap embed — B
 - [ ] VF-069  content · Átláthatóság: replace the full minutes with the **extracts** (`content/dokumentumok/JK_kivonat_KZ_*.pdf`), section title "Jegyzőkönyvi kivonatok" (Judit). The oldest extract's original still comes from Éva. Fix the `..pdf` file names — Judit, B · ✅ built + tested locally 2026-10-06, on `staging` (`7432c05`)
 - [ ] VF-070  content · Tevékenységünk: work in the Közlemény passages (numbers: 150 család adósságkezelés, 200+ ügyfél munkaerőpiaci mentor, 10 várandós, 60+ 0–3 éves, 170 gyermek, Éjszakai Klub 20–30, kertprogram 45 család, idősek 10–30; and the staff / family mentor paragraph) until Kata's material arrives — Zsuzsi, B: "dolgozd bele" · ✅ built + tested locally 2026-10-06, on `staging` (`7432c05`)
