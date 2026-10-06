@@ -42,7 +42,7 @@ const server = http.createServer(async (req, res) => {
     try {
         const input = JSON.parse(raw || '{}');
         const result = await createCheckout(input, env);
-        console.log(`[checkout] ${input.frequency} ${input.amount} Ft → ${env.STRIPE_SECRET_KEY ? 'stripe' : 'mock'}`);
+        console.log(`[checkout] ${input.frequency} ${input.amount} Ft${input.campaign ? ` [${input.campaign}]` : ''} → ${env.STRIPE_SECRET_KEY ? 'stripe' : 'mock'}`);
         send(res, 200, result, origin);
     } catch (err) {
         send(res, err.status || 500, { error: err.status ? err.message : 'Szerver hiba' }, origin);

@@ -91,6 +91,7 @@ If the newsletter box is ticked on /tamogatas/, the visitor is also signed up as
 | Home – Jövőkép | slug `fooldal-jovokep` | title, excerpt (large text), content, feature image |
 | Home – Tevékenységünk | tag `#program` (3) | title, excerpt, feature image |
 | Home – monthly band | slug `fooldal-havi-tamogatas` | title, excerpt |
+| Futás – raised amount | page `futas-gyujtes` (tag `#blokk`) | **title** = total collected so far, e.g. `9 350 000`. The /futas/ progress bar computes the rest |
 | Home – partners | tag `#partner` (optional) | title = alt text, feature image = logo, excerpt = link (optional). The bundled logos are used when none exist |
 | Rólunk – timeline | tag `#idovonal` (4) | title, excerpt |
 | Rólunk – Küldetés | slug `rolunk-kuldetes` | excerpt (statement), content |

@@ -125,7 +125,9 @@
             if (!c.custom) impactText.textContent = note(c, state.monthly);
 
             var text;
-            if (variant === 'page') {
+            if (variant === 'campaign') {
+                text = c.amount ? 'Támogatom · ' + (state.monthly ? 'havi ' : '') + label : 'Tovább a fizetéshez';
+            } else if (variant === 'page') {
                 text = c.amount ? 'Tovább a fizetéshez · ' + (state.monthly ? 'havi ' : '') + label : 'Tovább a fizetéshez';
             } else if (c.custom && !c.amount) {
                 text = 'Tovább a támogatáshoz';
@@ -165,7 +167,7 @@
             var c = current();
 
             if (c.custom && !c.amount) {
-                if (variant !== 'page' && !api) { window.location.href = '/tamogatas/'; return; }
+                if (variant === 'hero' && !api) { window.location.href = '/tamogatas/'; return; }
                 showError('Add meg, mekkora összeggel támogatnál.');
                 customInput.focus();
                 return;
@@ -205,6 +207,8 @@
                         frequency: state.monthly ? 'monthly' : 'once',
                         name: name || undefined,
                         email: email || undefined,
+                        campaign: form.getAttribute('data-campaign') || undefined,
+                        return_path: form.getAttribute('data-return') || undefined,
                         site: window.location.origin
                     })
                 });
@@ -262,8 +266,42 @@
         if (!monthly) el.textContent = el.textContent.charAt(0).toUpperCase() + el.textContent.slice(1);
     }
 
+    /* ------------------------------------------------------ campaign page */
+    // [data-progress]: data-raised = total collected so far (editors type it, e.g. "9 350 000"),
+    // data-goal = target. The bar has two halves; the first fills up to goal/2, the second beyond it.
+    function initCampaign() {
+        Array.prototype.forEach.call(document.querySelectorAll('[data-progress]'), function (el) {
+            var goal = parseAmount(el.getAttribute('data-goal'));
+            var raised = Math.min(parseAmount(el.getAttribute('data-raised')), goal);
+            if (!goal) return;
+            var half = goal / 2;
+            var set = function (sel, text) { var t = el.querySelector(sel); if (t) t.textContent = text; };
+            set('[data-total]', fmt(raised) + ' Ft');
+            set('[data-second]', fmt(Math.max(0, raised - half)) + ' / ' + fmt(half) + ' Ft');
+            set('[data-first]', raised >= half ? fmt(half) + ' Ft · közösen elértük!' : fmt(raised) + ' / ' + fmt(half) + ' Ft');
+            set('[data-missing]', raised >= goal ? 'A célt elértük – köszönjük!' : 'Még ' + fmt(goal - raised) + ' Ft hiányzik.');
+            el.style.setProperty('--p1', Math.min(100, raised / half * 100).toFixed(1) + '%');
+            el.style.setProperty('--p2', Math.max(0, (raised - half) / half * 100).toFixed(1) + '%');
+            el.classList.add('is-ready');
+        });
+        Array.prototype.forEach.call(document.querySelectorAll('[data-copy-link]'), function (b) {
+            var label = b.textContent, timer;
+            b.addEventListener('click', function () {
+                var url = b.getAttribute('data-copy-link') || window.location.href;
+                var done = function () {
+                    b.textContent = 'Link másolva ✓';
+                    clearTimeout(timer);
+                    timer = setTimeout(function () { b.textContent = label; }, 1800);
+                };
+                if (navigator.clipboard) navigator.clipboard.writeText(url).then(done, function () { window.prompt('Link:', url); });
+                else window.prompt('Link:', url);
+            });
+        });
+    }
+
     function init() {
         initNav();
+        initCampaign();
         Array.prototype.forEach.call(document.querySelectorAll('[data-donate]'), initDonate);
         initThanks();
     }

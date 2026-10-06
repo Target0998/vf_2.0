@@ -76,6 +76,7 @@ docs/                     this file + TRACKER.md
 | `/tamogatas/` | `page-tamogatas.hbs` | Page `tamogatas` + FAQ pages tagged `#gyik` + theme settings |
 | `/rolunk/` | `page-rolunk.hbs` | Page `rolunk` + `#idovonal`, `#ertek`, `rolunk-kuldetes` block pages |
 | `/koszonjuk/` | `page-koszonjuk.hbs` | Page `koszonjuk` (excerpt = fallback text) |
+| `/futas/` | `page-futas.hbs` | Futás campaign (design `design/2026-10-futas-kampany/`). Page `futas`: title (`*…*` highlighted), excerpt = subtitle, content = story (first paragraph large, `##` = highlighted sentence), feature image = photo + share image. **Raised amount = title of the hidden page `futas-gyujtes`**, update it by hand (Stripe + bank). Donations are tagged `campaign=futas` in Stripe; cancel returns to `/futas/` |
 | `/tevekenysegunk/`, `/galeria/`, `/kapcsolat/`, `/atlathatosag/`, `/adatvedelem/`, `/top-plusz/` | `page.hbs` | The page itself (filled by `scripts/content.mjs` from the old site; not designed yet). All content and PDFs are hosted by Ghost (uploaded by the script). New documents: add a Ghost file card or a row in the table. `/adatvedelem/` is generated from `Adatvédelmi.md` |
 | `/en/` | – | **Doesn't exist yet**; the HU/EN switch is hidden |
 
@@ -89,7 +90,7 @@ docs/                     this file + TRACKER.md
 
 ### Donation
 1. In the donate box (`partials/donate-box.hbs` + `main.js`) the visitor picks Egyszeri/Havi and an amount. The impact text and button label update as they choose.
-2. On submit, JS POSTs `{amount, frequency, name?, email?}` to the **donate_api_url** theme setting (staging: `https://staging.vilagitanifogok.hu/api/donate/checkout`).
+2. On submit, JS POSTs `{amount, frequency, name?, email?, campaign?, return_path?}` to the **donate_api_url** theme setting (staging: `https://staging.vilagitanifogok.hu/api/donate/checkout`).
 3. `checkout.js` checks the amount (500 – 5 000 000 Ft) and creates a Stripe Checkout Session. One-off uses `mode: payment`; monthly uses `mode: subscription` with interval month. It returns the session URL.
 4. The browser goes to Stripe's hosted checkout. On success Stripe sends it back to `/koszonjuk/?a=<amount>&f=<once|monthly>&session_id=…`, and `main.js` writes the thank-you text from those parameters.
 5. With no `STRIPE_SECRET_KEY`, **mock mode** skips Stripe and goes straight to `/koszonjuk/…&mock=1`.

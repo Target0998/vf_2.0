@@ -1,0 +1,83 @@
+{{!< default}}
+{{!-- Futás kampány (4a) – slug: futas. Design: Claude Design, templates/futas-kampany/FutasKampany.dc.html
+      Cím (*csillag* = kiemelt szín) · Excerpt = alcím · Tartalom = a történet (első bekezdés nagy, a ## cím kiemelt mondat)
+      Kiemelt kép = kép a történet mellett (és a Facebook-megosztás képe)
+      Összegyűlt összeg: rejtett „futas-gyujtes” oldal CÍME (pl. „9 350 000”) – ezt kell frissíteni
+      Színvariáns: „piros” (a .camp változói lent, screen.css „Campaign: Futás”) --}}
+{{#post}}
+<div class="camp">
+<div class="on-dark camp-hero-wrap">
+    {{> "header" donate_href="#tamogatas"}}
+    <section class="camp-hero" id="main">
+        <div class="camp-copy">
+            <span class="camp-kicker">ADOMÁNYGYŰJTŐ VÁLTÓFUTÁS · 2026. OKTÓBER 16.</span>
+            <h1 class="camp-title">{{title}}</h1>{{> "hl"}}
+            {{#if custom_excerpt}}<p class="camp-sub">{{custom_excerpt}}</p>{{/if}}
+
+            {{#get "pages" filter="slug:futas-gyujtes" limit="1"}}
+            <div class="camp-progress" data-progress data-goal="18000000" data-raised="{{#foreach pages}}{{title}}{{else}}9000000{{/foreach}}">
+                <div class="camp-total"><span class="camp-total-num" data-total>{{#foreach pages}}{{title}} Ft{{else}}9 000 000 Ft{{/foreach}}</span><span>összegyűlt · cél: 18 000 000 Ft</span></div>
+                <div class="camp-bar" aria-hidden="true"><span class="camp-bar-half"><i style="width:var(--p1,100%)"></i></span><span class="camp-bar-half"><i style="width:var(--p2,0%)"></i></span></div>
+                <div class="camp-bar-labels"><span>1. fele · <span data-first>9 000 000 Ft · közösen elértük!</span></span><span>2. fele · <span data-second></span></span></div>
+                <div class="camp-missing" data-missing></div>
+            </div>
+            {{/get}}
+
+            <div class="camp-share">
+                <span>Oszd meg a felhívást:</span>
+                <a class="btn btn-outline-light" href="https://www.facebook.com/sharer/sharer.php?u={{url absolute="true"}}" target="_blank" rel="noopener">Facebook</a>
+                <button type="button" class="btn btn-outline-light" data-copy-link="{{url absolute="true"}}">Link másolása</button>
+            </div>
+        </div>
+        <div id="tamogatas" class="camp-donate">
+            {{> "donate-box" variant="campaign" title="Támogatom a futást" campaign="futas" return="/futas/" default="once"}}
+        </div>
+    </section>
+</div>
+
+<section class="camp-route" aria-labelledby="route-title">
+    <div class="camp-poster camp-poster-bal" role="img" aria-label="Világíts velünk! Fuss velünk! Október 16.">{{> "futas-bal"}}</div>
+    <div class="camp-route-copy">
+        <h2 id="route-title">Budapest → Kerecsend</h2>
+        <div class="camp-stats">
+            <div><span class="camp-stat-num">120 km</span><span>váltóban</span></div>
+            <div><span class="camp-stat-num">17</span><span>önkéntes futó</span></div>
+            <div><span class="camp-stat-num">okt. 16.</span><span>kora reggeltől</span></div>
+        </div>
+    </div>
+</section>
+
+<section class="camp-story">
+    <div class="camp-story-text">{{content}}</div>
+    {{#if feature_image}}{{> "feature-img" class="camp-story-img" sizes="(max-width: 1100px) 100vw, 520px"}}{{/if}}
+</section>
+
+<section class="camp-cta" aria-labelledby="cta-title">
+    <div class="stack-20">
+        <h2 id="cta-title">Szállj be te is, hogy a kerecsendi gyerekek és családok továbbra is számíthassanak ránk!</h2>
+        <p>Támogasd a kampányt a lehetőségeidhez mérten utalásoddal és a felhívás megosztásával!</p>
+    </div>
+    <div class="camp-cta-actions">
+        <a class="btn btn-primary btn-lg" href="#tamogatas">Támogatom a futást</a>
+        <div class="camp-cta-row">
+            <a class="btn btn-outline" href="https://www.facebook.com/sharer/sharer.php?u={{url absolute="true"}}" target="_blank" rel="noopener">Megosztom</a>
+            <button type="button" class="btn btn-outline" data-copy-link="{{url absolute="true"}}">Link másolása</button>
+        </div>
+        <div class="camp-bank">
+            <span class="camp-bank-label">ÁTUTALÁSSAL</span>
+            <span class="camp-bank-num">OTP Bank · {{@custom.bank_account}}</span>
+            <span>Világítani Fogok Egyesület · Közlemény: Futás</span>
+        </div>
+    </div>
+</section>
+
+<section class="camp-thanks">
+    <div class="camp-thanks-copy">
+        <h2>Nagyon köszönjük, ha mellénk állsz!</h2>
+        <p>Kövesd a munkánkat és az október 16-i futásunkat a Facebook-oldalunkon!</p>
+        {{#if @custom.facebook_url}}<a class="btn camp-btn-light" href="{{@custom.facebook_url}}" target="_blank" rel="noopener">Facebook-oldalunk →</a>{{/if}}
+    </div>
+    <div class="camp-poster camp-poster-jobb" aria-hidden="true">{{> "futas-jobb"}}</div>
+</section>
+</div>
+{{/post}}

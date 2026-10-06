@@ -6,7 +6,7 @@ import { mkdir } from 'node:fs/promises';
 
 const BASE = process.env.BASE || 'http://host.docker.internal:2368';
 const OUT = process.env.OUT || 'screenshots';
-const pages = { notfound: '/nincs-ilyen/', home: '/', naplo: '/naplo/', tag: '/tag/kozlemeny/', post: '/naplo/vilagithatunk-a-megmaradasunkert-kuzdunk/', tamogatas: '/tamogatas/', rolunk: '/rolunk/', koszonjuk: '/koszonjuk/?a=10000&f=monthly', tevekenysegunk: '/tevekenysegunk/', galeria: '/galeria/', kapcsolat: '/kapcsolat/', atlathatosag: '/atlathatosag/', adatvedelem: '/adatvedelem/', top: '/top-plusz/' };
+const pages = { notfound: '/nincs-ilyen/', home: '/', naplo: '/naplo/', tag: '/tag/kozlemeny/', post: '/naplo/vilagithatunk-a-megmaradasunkert-kuzdunk/', tamogatas: '/tamogatas/', rolunk: '/rolunk/', koszonjuk: '/koszonjuk/?a=10000&f=monthly', tevekenysegunk: '/tevekenysegunk/', galeria: '/galeria/', kapcsolat: '/kapcsolat/', atlathatosag: '/atlathatosag/', adatvedelem: '/adatvedelem/', top: '/top-plusz/', futas: '/futas/' };
 const only = process.argv.slice(2);
 
 await mkdir(OUT, { recursive: true });

@@ -12,7 +12,7 @@
 //     GHOST_URL=https://vilagitanifogok.hu GHOST_ADMIN_API_KEY=<id:secret> node scripts/content.mjs
 //   Local: node scripts/content.mjs   (logs in with the seed's owner account from .env)
 //   One page only, overwriting hand edits:  node scripts/content.mjs --only=atlathatosag --force
-//   Steps: tevekenysegunk kapcsolat atlathatosag adatvedelem top-plusz galeria rolunk ertekek kozlemeny samples notice
+//   Steps: tevekenysegunk kapcsolat atlathatosag adatvedelem top-plusz galeria rolunk ertekek futas kozlemeny samples notice
 
 import { readFile } from 'node:fs/promises';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
@@ -443,6 +443,46 @@ async function ertekek() {
     }
 }
 
+// --- Futás kampány (VF-067) --------------------------------------------------------------------
+// /futas/ uses page-futas.hbs. The progress bar reads the TITLE of the hidden "futas-gyujtes" page: the total
+// collected so far (Stripe + bank transfers), updated by hand in Ghost Admin.
+const FUTAS_IMG = path.join(ROOT, 'content/futas/kezenallas.jpg');
+const NOTICE_TEXT = '*Futás kampány* Október 16-án Budapestről Kerecsendig futunk váltóban, hogy összegyűjtsük a hiányzó 9 millió forintot. Fuss velünk – támogasd te is!';
+
+async function futas() {
+    await upsert('pages', 'futas', async (old) => ({
+        title: 'Futni is fogunk, hogy *világíthassunk!*',
+        meta_title: 'Futni is fogunk, hogy világíthassunk! – adománygyűjtő váltófutás',
+        meta_description: 'Október 16-án önkénteseink Budapestről Kerecsendig futnak váltóban, hogy összegyűjtsük a hiányzó 9 millió forintot. Támogasd te is!',
+        custom_excerpt: 'Adománygyűjtő váltófutás Budapestről Kerecsendre',
+        ...(existsSync(FUTAS_IMG) && !old?.feature_image ? { feature_image: await upload(FUTAS_IMG), feature_image_alt: 'Kézenálló kisfiú árnyéka az úton, a kerecsendi templom rajzával' } : {}),
+        html: [
+            P('Csupaszív és elkötelezett önkénteseink ezúttal sem ismernek lehetetlent!',
+                'A Világítani Fogok Egyesülettel hiszünk abban, hogy minden gyermek egyaránt értékes. Célunk ezért a kerecsendi nehéz sorsú családok, különösen a gyerekek életesélyeinek növelése, közösségteremtés és a tágabb társadalom felelősségvállalásának erősítése.',
+                'Az elmúlt hónapokban a megmaradásunkért küzdöttünk, mert az állami programok szerződés szerinti támogatásai ismét hosszú hónapokat késtek. Feléltük a tartalékainkat, veszélybe került a teljes működésünk. Az Egyesületnek és a családoknak biztonságra van szüksége, ezért három havi működési költségünk, <strong>összesen 18 millió forint</strong> összegyűjtését tűztük ki célul, hogy a működési tartalékkal a kerecsendi gyerekek és családok támogatását kiszámíthatóan folytathassuk. A támogatásotokkal már <strong>9 millió forint összegyűlt: a célunk felét közösen elértük!</strong> Hálásak vagyunk mindenkinek, aki hozzájárult.'),
+            H2('Most azért indulunk útnak, hogy a második felét is összegyűjtsük.'),
+            P('Önkénteseink újra nagyot álmodtak: <strong>október 16-án Budapestről kora reggeltől egészen Kerecsendig fognak futni váltóban</strong>, hogy felhívják a figyelmet munkánk fontosságára és segítsenek a hiányzó 9 millió forintot összegyűjteni!')
+        ].join('\n')
+    }));
+    // feature image arrives later than the page → add it once, never replace an editor's choice
+    const page = await get('pages', 'futas');
+    if (page && !page.feature_image && existsSync(FUTAS_IMG)) {
+        if (DRY) log(write('add the Futás photo'));
+        else {
+            await api('PUT', `/pages/${page.id}/`, { pages: [{ feature_image: await upload(FUTAS_IMG), feature_image_alt: 'Kézenálló kisfiú árnyéka az úton, a kerecsendi templom rajzával', updated_at: page.updated_at }] });
+            log('Futás photo added');
+        }
+    } else if (!existsSync(FUTAS_IMG)) log('content/futas/kezenallas.jpg missing – /futas/ has no photo yet');
+
+    if (await get('pages', 'futas-gyujtes')) return log('page /futas-gyujtes/ exists (amount is edited by hand)');
+    if (DRY) return log(write('create hidden page futas-gyujtes (amount 9 000 000)'));
+    await api('POST', '/pages/', { pages: [{
+        title: '9 000 000', slug: 'futas-gyujtes', status: 'published', tags: [{ name: '#blokk' }],
+        custom_excerpt: 'A Futás kampány eddig összegyűlt összege forintban (Stripe + átutalás). Csak a CÍMET írd át, pl. 9 350 000 – a /futas/ oldal haladásjelzője ebből számol.'
+    }] });
+    log('page created: futas-gyujtes (amount 9 000 000)');
+}
+
 // --- Közlemény post (VF-036) -------------------------------------------------------------------
 const KOZLEMENY_SLUG = 'vilagithatunk-a-megmaradasunkert-kuzdunk';
 
@@ -498,17 +538,19 @@ async function draftSamples() {
     }
 }
 
-// Notice bar → the Közlemény post. Integrations may not be allowed to change theme settings;
+// Notice bar → the Futás campaign (VF-067). *label* at the start of the text is shown in bold. Integrations may not be allowed to change theme settings;
 // then it prints what to set by hand.
 async function notice() {
-    const link = `/naplo/${KOZLEMENY_SLUG}/`;
-    const manual = () => log(`set by hand: Design → Theme settings → show_notice = on, notice_link = ${link}`);
+    const link = '/futas/';
+    const text = NOTICE_TEXT;
+    const manual = () => log(`set by hand: Design → Theme settings → show_notice = on, notice_link = ${link}, notice_text = ${text}`);
     try {
         const { custom_theme_settings: list } = await api('GET', '/custom_theme_settings/');
         const val = (k) => list.find((s) => s.key === k)?.value;
-        if (val('notice_link') === link && val('show_notice') === true) return log('notice bar already links to the Közlemény');
-        if (DRY) return log(write(`turn the notice bar on and link it to ${link}`));
-        const updated = list.map(({ key, value }) => ({ key, value: key === 'notice_link' ? link : key === 'show_notice' ? true : value }));
+        if (val('notice_link') === link && val('show_notice') === true && val('notice_text') === text) return log('notice bar already points to the campaign');
+        if (DRY) return log(write(`turn the notice bar on and point it to ${link}`));
+        const next = { notice_link: link, show_notice: true, notice_text: text };
+        const updated = list.map(({ key, value }) => ({ key, value: key in next ? next[key] : value }));
         await api('PUT', '/custom_theme_settings/', { custom_theme_settings: updated });
         log(`notice bar on → ${link}`);
     } catch (e) {
@@ -530,6 +572,7 @@ try {
     await run('galeria', galeria);
     await run('rolunk', rolunk);
     await run('ertekek', ertekek);
+    await run('futas', futas);
     console.log('Napló');
     await run('kozlemeny', kozlemeny);
     await run('samples', draftSamples);

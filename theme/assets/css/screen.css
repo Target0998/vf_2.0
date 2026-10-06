@@ -191,7 +191,7 @@ button { font: inherit; cursor: pointer; }
 
 /* — notice bar — */
 .notice { display: flex; align-items: center; justify-content: center; gap: 16px; padding: 12px var(--gutter); background: var(--color-yellow); color: var(--color-text); font: 500 16px var(--font-body); text-align: center; }
-.notice b:first-child { font-weight: 800; }
+.notice .hl { color: inherit; font-weight: 800; margin-right: 10px; } /* *label* at the start of notice_text */
 .notice-cta { font-weight: 700; text-decoration: underline; text-underline-offset: 3px; white-space: nowrap; }
 .notice:hover { opacity: 1; }
 .notice:hover .notice-cta { opacity: .8; }
@@ -446,6 +446,74 @@ button { font: inherit; cursor: pointer; }
 .thanks { flex: 1; display: grid; place-items: center; padding: 56px 20px 88px; }
 .dialog-content { font-size: 16px; }
 
+/* — Campaign: Futás (page-futas.hbs, design 4a) — colourway "piros" — */
+.camp { --cw-d: #b31d1e; --cw-l: #ddd05e; --cw-a: #ddd05e; --cw-o: #7a1413; --cw-i: #b31d1c; }
+.camp .camp-hero-wrap { background: var(--cw-d); }
+.camp .hl { color: var(--cw-a); }
+.camp-hero { display: grid; grid-template-columns: minmax(0, 1fr) 500px; gap: 72px; padding: 40px var(--gutter) 88px; align-items: start; }
+.camp-copy { display: flex; flex-direction: column; gap: 28px; padding-top: 12px; min-width: 0; }
+.camp-kicker { font: 700 14px var(--font-body); letter-spacing: .12em; color: var(--cw-a); }
+.camp-title { font: 800 80px/.98 var(--font-heading); letter-spacing: -.03em; }
+.camp-sub { font: 500 24px/1.4 var(--font-body); color: var(--color-on-dark-2); }
+.camp-progress { display: flex; flex-direction: column; gap: 14px; margin-top: 20px; max-width: 640px; }
+.camp-total { display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap; font: 600 19px var(--font-body); color: var(--color-on-dark-2); }
+.camp-total-num { font: 800 64px/1 var(--font-heading); letter-spacing: -.02em; color: var(--cw-a); }
+.camp-bar { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; height: 20px; }
+.camp-bar-half { background: rgba(255,252,247,.16); overflow: hidden; }
+.camp-bar-half:first-child { border-radius: 999px 0 0 999px; }
+.camp-bar-half:last-child { border-radius: 0 999px 999px 0; }
+.camp-bar-half i { display: block; height: 100%; }
+.camp-bar-half:first-child i { background: var(--cw-l); }
+.camp-bar-half:last-child i { background: #FFFCF7; }
+.camp-bar-labels { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; font: 600 15px/1.4 var(--font-body); color: var(--color-on-dark-2); }
+.camp-missing { font: 700 24px var(--font-body); margin-top: 6px; }
+.camp-progress:not(.is-ready) .camp-bar-labels > span:last-child, .camp-progress:not(.is-ready) .camp-missing { visibility: hidden; }
+.camp-share { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 8px; font: 600 16px var(--font-body); color: var(--color-on-dark-2); }
+.btn-outline-light { background: none; color: #FFFCF7; border: 1.5px solid #FFFCF7; padding: 11px 20px; font-size: 15px; }
+.camp-donate { scroll-margin-top: 24px; }
+.donate-campaign .donate-title { font: 800 28px/1.1 var(--font-heading); letter-spacing: -.01em; display: block; margin-bottom: 20px; }
+.donate-campaign .seg button[aria-pressed="true"], .donate-campaign .amount[aria-pressed="true"] { background: var(--cw-d); border-color: var(--cw-d); color: #fff; }
+
+.camp-route { background: var(--cw-l); color: var(--cw-o); display: grid; grid-template-columns: 500px minmax(0, 1fr); align-items: center; }
+.camp-poster { --color-2: #fefefb; overflow: hidden; }
+.camp-poster svg { display: block; width: 100%; height: 100%; }
+.camp-poster-bal { width: 500px; aspect-ratio: 1; --bg: var(--cw-l); --color-1: var(--cw-d); }
+.camp-route-copy { padding: 56px 72px 56px 48px; display: flex; flex-direction: column; gap: 36px; }
+.camp-route h2 { font: 800 52px/1 var(--font-heading); letter-spacing: -.02em; }
+.camp-stats { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 2px solid var(--cw-o); }
+.camp-stats > div { padding: 20px 24px 0; display: flex; flex-direction: column; gap: 6px; font: 600 18px var(--font-body); }
+.camp-stats > div:first-child { padding-left: 0; }
+.camp-stats > div + div { border-left: 2px solid var(--cw-o); }
+.camp-stat-num { font: 800 64px/1 var(--font-heading); letter-spacing: -.02em; }
+
+.camp-story { padding: 96px var(--gutter); display: grid; grid-template-columns: minmax(0, 1fr) 520px; gap: 88px; align-items: start; max-width: var(--max); margin: 0 auto; box-sizing: border-box; }
+.camp-story-text { display: flex; flex-direction: column; gap: 24px; max-width: 760px; }
+.camp-story-text p { margin: 0; font: 400 20px/1.65 var(--font-body); color: #4a433d; text-wrap: pretty; }
+.camp-story-text p strong { color: var(--color-text); }
+.camp-story-text > p:first-child { font: 800 36px/1.2 var(--font-heading); letter-spacing: -.015em; color: var(--color-text); }
+.camp-story-text h2 { margin: 16px 0 0; font: 800 40px/1.12 var(--font-heading); letter-spacing: -.02em; color: var(--cw-i); text-wrap: balance; }
+.camp-story-img { width: 520px; aspect-ratio: 1; object-fit: cover; border-radius: var(--radius-xl); position: sticky; top: 24px; }
+
+.camp-cta { margin: 0 var(--gutter) 96px; background: #F4EEE6; border-radius: 32px; padding: 64px; display: grid; grid-template-columns: minmax(0, 1fr) 400px; gap: 64px; align-items: center; }
+@media (min-width: 1440px) { .camp-cta { max-width: calc(var(--max) - 2 * var(--gutter)); margin-inline: auto; box-sizing: border-box; } }
+.camp-cta h2 { font: 800 50px/1.06 var(--font-heading); letter-spacing: -.02em; text-wrap: balance; }
+.camp-cta p { margin: 0; font: 500 22px/1.5 var(--font-body); color: #4a433d; }
+.camp-cta .stack-20 { display: flex; flex-direction: column; }
+.camp-cta-actions { display: flex; flex-direction: column; gap: 12px; }
+.camp-cta-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.camp-cta-actions > .btn-primary { width: 100%; }
+.camp-cta-row .btn { color: var(--color-text); background: none; padding: 14px 8px; font-size: 16px; }
+.camp-bank { background: #fff; border-radius: 20px; padding: 20px 22px; display: flex; flex-direction: column; gap: 4px; margin-top: 8px; font: 500 15px/1.5 var(--font-body); color: #4a433d; }
+.camp-bank-label { font: 700 13px var(--font-body); letter-spacing: .1em; color: var(--color-muted); }
+.camp-bank-num { font: 700 19px var(--font-body); color: var(--color-text); }
+
+.camp-thanks { background: var(--cw-d); color: #FFFCF7; display: grid; grid-template-columns: minmax(0, 1fr) 500px; align-items: end; }
+.camp-thanks-copy { padding: 80px var(--gutter); display: flex; flex-direction: column; gap: 20px; align-self: center; }
+.camp-thanks h2 { font: 800 56px/1.02 var(--font-heading); letter-spacing: -.025em; color: var(--cw-a); }
+.camp-thanks p { margin: 0; font: 500 22px/1.5 var(--font-body); color: var(--color-on-dark-2); max-width: 620px; }
+.camp-btn-light { align-self: flex-start; margin-top: 8px; background: var(--cw-l); color: var(--cw-o); padding: 16px 30px; font-size: 17px; }
+.camp-poster-jobb { width: 500px; aspect-ratio: 2400 / 1944; --bg: var(--cw-d); --color-1: var(--cw-l); }
+
 /* ==========================================================================
    3. Ghost content (Koenig)
    ========================================================================== */
@@ -489,6 +557,20 @@ button { font: inherit; cursor: pointer; }
 }
 
 @media (max-width: 1100px) {
+
+  /* campaign */
+  .camp-hero { grid-template-columns: 1fr; gap: 40px; padding-bottom: 64px; }
+  .camp-donate .donate-campaign { max-width: 600px; }
+  .camp-title { font-size: 60px; }
+  .camp-route { grid-template-columns: 1fr; }
+  .camp-poster-bal { width: 100%; max-width: 560px; margin: 0 auto; }
+  .camp-route-copy { padding: 0 var(--gutter) 56px; }
+  .camp-story { grid-template-columns: 1fr; gap: 40px; padding-block: 64px; }
+  .camp-story-img { width: 100%; max-width: 560px; position: static; }
+  .camp-cta { grid-template-columns: 1fr; gap: 32px; padding: 40px; margin-bottom: 64px; }
+  .camp-thanks { grid-template-columns: 1fr; }
+  .camp-thanks-copy { padding: 64px var(--gutter) 24px; }
+  .camp-poster-jobb { width: 100%; max-width: 500px; justify-self: end; }
   :root { --gutter: 40px; --section: 72px; }
 
   /* header → hamburger; Támogatom always visible */
@@ -543,6 +625,26 @@ button { font: inherit; cursor: pointer; }
 }
 
 @media (max-width: 700px) {
+
+  /* campaign */
+  .camp-title { font-size: 44px; }
+  .camp-sub { font-size: 20px; }
+  .camp-total-num { font-size: 44px; }
+  .camp-bar-labels { font-size: 13px; }
+  .camp-missing { font-size: 20px; }
+  .camp-route h2 { font-size: 36px; }
+  .camp-stats { grid-template-columns: 1fr; }
+  .camp-stats > div, .camp-stats > div:first-child { padding: 16px 0; flex-direction: row; align-items: baseline; gap: 14px; }
+  .camp-stats > div + div { border-left: 0; border-top: 2px solid var(--cw-o); }
+  .camp-stat-num { font-size: 44px; }
+  .camp-story-text > p:first-child { font-size: 26px; }
+  .camp-story-text h2 { font-size: 30px; }
+  .camp-story-text p { font-size: 18px; }
+  .camp-cta { padding: 28px 20px; margin-inline: var(--gutter); }
+  .camp-cta h2 { font-size: 32px; }
+  .camp-cta p { font-size: 18px; }
+  .camp-thanks h2 { font-size: 38px; }
+  .camp-thanks p { font-size: 18px; }
   :root { --gutter: 20px; --section: 56px; }
   h1, .hero-title, .h1-64, .h1-72, .article-title { font-size: 42px; hyphens: auto; overflow-wrap: anywhere; }
   h2, .h2-46, .h2-50, .why-content h2 { font-size: 32px; }

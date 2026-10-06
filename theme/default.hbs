@@ -16,9 +16,8 @@
 
     {{#if @custom.show_notice}}
         <a class="notice" href="{{@custom.notice_link}}">
-            <b>Közlemény</b>
-            <span>{{@custom.notice_text}}</span>
-            <b class="notice-cta">Olvasd el, mi történt →</b>
+            <span class="notice-text">{{@custom.notice_text}}</span>{{> "hl"}}
+            <b class="notice-cta">Részletek →</b>
         </a>
     {{/if}}
 

@@ -2,6 +2,13 @@
 
 Rövid, nem technikai összefoglaló az egyes frissítésekről, a staging oldalt átnézőknek. Részletek: [TRACKER.md](TRACKER.md).
 
+## 2026. október 6. (délután)
+
+- **Új oldal: Futás kampány** – `/futas/`. Önálló, megosztható kampányoldal a Claude Design terv alapján (piros színvariáns): haladásjelző a 18 millió forintos célhoz, adománydoboz, Facebook-megosztás és linkmásolás, átutalási adatok („Közlemény: Futás”). A kártyás adományok a Stripe-ban „futas” kampánycímkét kapnak, így külön szűrhetők.
+- **Az összegyűlt összeg frissítése:** Ghost Admin → Pages → „futas-gyujtes” oldal **címét** kell átírni a teljes eddigi összegre (pl. 9 350 000). A sáv és a „még X Ft hiányzik” szöveg ebből számolódik.
+- A szöveg a Ghost Adminban szerkeszthető (Futás oldal). A kézenálló kisfiús kép a történet mellett van, és ez jelenik meg Facebook-megosztáskor is.
+- **Sárga sáv minden oldal tetején:** most a futásra hív („Futás kampány – Október 16-án Budapestről Kerecsendig futunk…”), a „Részletek →” a kampányoldalra visz. A szöveg elején *csillagok közé* írt rész félkövér címke (Design → Theme settings).
+
 ## 2026. október 6.
 
 - **Átláthatóság:** a teljes közgyűlési jegyzőkönyvek helyett a **jegyzőkönyvi kivonatok** szerepelnek, „Jegyzőkönyvi kivonatok” címmel (8 db, 2022–2026). A legrégebbi (2022. július 10.) kivonat eredetijét Éva küldi, utána cseréljük.

@@ -5,8 +5,12 @@
 export const MIN_AMOUNT = 500;       // Ft
 export const MAX_AMOUNT = 5_000_000; // Ft – sanity cap
 
+// Campaign slug → name shown on Stripe's checkout page and receipt. Unknown slugs are still tagged, shown as-is.
+const CAMPAIGNS = { futas: 'Futás kampány' };
+
 /**
- * @param {object} input  { amount: number (Ft), frequency: 'once'|'monthly', email?, name? }
+ * @param {object} input  { amount: number (Ft), frequency: 'once'|'monthly', email?, name?, campaign?, return_path? }
+ *                         campaign: slug tagged on the Stripe objects (e.g. 'futas'); return_path: where Cancel goes
  * @param {object} env    { STRIPE_SECRET_KEY, SITE_URL }
  * @returns {Promise<{url: string}>}
  */
@@ -23,6 +27,10 @@ export async function createCheckout(input, env) {
     }
     const email = typeof input.email === 'string' && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.email) ? input.email : undefined;
 
+    // Optional campaign tag (filterable in the Stripe Dashboard by metadata) and the page to return to on cancel.
+    const campaign = typeof input.campaign === 'string' && /^[a-z0-9-]{1,40}$/.test(input.campaign) ? input.campaign : '';
+    const returnPath = typeof input.return_path === 'string' && /^\/[a-z0-9-]+\/$/.test(input.return_path) ? input.return_path : '/tamogatas/';
+
     const thanks = `${site}/koszonjuk/?a=${amount}&f=${monthly ? 'monthly' : 'once'}`;
 
     // Mock mode: no Stripe key → skip payment so the whole flow can be tested locally.
@@ -30,13 +38,13 @@ export async function createCheckout(input, env) {
         return { url: `${thanks}&mock=1` };
     }
 
-    const label = monthly ? 'Havi támogatás – Világítani Fogok Egyesület' : 'Adomány – Világítani Fogok Egyesület';
+    const label = (monthly ? 'Havi támogatás' : 'Adomány') + (campaign ? ` – ${CAMPAIGNS[campaign] || campaign}` : '') + ' – Világítani Fogok Egyesület';
 
     const params = {
         mode: monthly ? 'subscription' : 'payment',
         locale: 'hu',
         success_url: `${thanks}&session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${site}/tamogatas/`,
+        cancel_url: `${site}${returnPath}`,
         'line_items[0][quantity]': 1,
         'line_items[0][price_data][currency]': 'huf',
         // Stripe expects HUF in two-decimal units (×100) and the value must be divisible by 100.
@@ -53,6 +61,10 @@ export async function createCheckout(input, env) {
         params.submit_type = 'donate';
         params['payment_intent_data[metadata][source]'] = 'vf-ghost-donate-box';
         params.customer_creation = 'always';
+    }
+    if (campaign) {
+        params['metadata[campaign]'] = campaign;
+        params[monthly ? 'subscription_data[metadata][campaign]' : 'payment_intent_data[metadata][campaign]'] = campaign;
     }
     if (email) params.customer_email = email;
 
