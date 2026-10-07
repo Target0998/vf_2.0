@@ -61,6 +61,7 @@ content/                  files content.mjs uploads into Ghost: dokumentumok/ (�
 Adatvédelmi.md            privacy policy source; content.mjs renders it as /adatvedelem/ (edit here, not in Ghost)
 scripts/e2e.mjs           browser test: donate box + newsletter signup
 scripts/screenshots.mjs   full-page desktop (1440) + mobile (390) screenshots → screenshots/
+scripts/backup.sh         database + uploads backup;  scripts/restore-staging.sh  copy of production → staging, without members
 docker-compose.yml        local stack           docker-compose.prod.yml  staging/prod override
 Caddyfile                 HTTPS + routing for staging/prod, www → bare domain, redirects from old Mobirise URLs, /.ghost/analytics
 tinybird/                 helper image for the one-time Tinybird setup (from TryGhost/ghost-docker, MIT)
@@ -137,7 +138,7 @@ Then Ghost Admin → Settings → Analytics → turn on **Web analytics**, open 
 | Analytics | – | Tinybird Cloud (EU), profile `analytics` |
 | Stripe | mock, or `sk_test_…` in `.env` | **live** key in `.env` |
 
-**Branches:** `staging` = work in progress (a new staging environment is coming, on another server); `prod` = what runs on vilagitanifogok.hu. Release = merge/push `staging` → `prod`, then on the server:
+**Branches:** `staging` = work in progress, runs on https://staging.vilagitanifogok.hu (Benedek's own server, private site, Stripe test key); `prod` = what runs on vilagitanifogok.hu. Release = merge/push `staging` → `prod`, then on the server:
 
 **Deploying a change (server runs `prod`):**
 ```sh
@@ -148,6 +149,20 @@ docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d          #
 docker compose -f docker-compose.yml -f docker-compose.prod.yml restart ghost  # picks up theme / routes.yaml changes
 ```
 Changes to `theme/package.json` (theme settings) or `ghost/routes.yaml` always need a Ghost restart, even locally.
+
+## Backups and copying production to staging
+- `scripts/backup.sh` (on a server, in the repo folder): database dump (`utf8mb4`) + uploaded images, PDFs and media → `backups/vf-<date>-db.sql.gz` and `…-content.tar.gz`. Contains members' personal data: `backups/` is git-ignored, keep the files private.
+- `scripts/restore-staging.sh <db.sql.gz> <content.tar.gz>` (on the **staging** server): replaces staging with that copy, then **deletes all members and their e-mail/payment history**, removes the Mailgun and Ghost-Stripe keys (staging can't send newsletters), points `donate_api_url` at staging and turns on **private site** (prints the password). Refuses to run if `.env` has the production `GHOST_URL`.
+
+```sh
+# production server
+scripts/backup.sh
+# laptop: copy the two files across
+scp prod:vf_2.0/backups/vf-<date>-* staging:vf_2.0/backups/
+# staging server
+scripts/restore-staging.sh backups/vf-<date>-db.sql.gz backups/vf-<date>-content.tar.gz
+```
+Staff logins are the same as on production afterwards. Run it again whenever staging should catch up with live content.
 
 ## How to test
 
