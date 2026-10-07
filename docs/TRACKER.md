@@ -24,13 +24,11 @@ Shared to-do list for the site. Project overview: [PROJECT.md](PROJECT.md).
 - [ ] VF-033  content · Partner logos: list is incomplete. Add **Appy** now; Müller (just donated) and the Áldás utca people later. Current logos came from the old website; Judit uploads new ones to a shared Drive "PARTNEREINK" folder. Not blocking launch — Judit, B
 
 **After launch**
-- [ ] VF-078  infra · New **staging environment** on another server (the old staging server is now production). Branches: `staging` → staging env, `prod` → vilagitanifogok.hu, `main` = same as prod — Benedek
+- [ ] VF-078  infra · New **staging environment**: up on Benedek's own server (2026-10-07), branch `staging`. Data = copy of production without members via `scripts/backup.sh` + `scripts/restore-staging.sh` (tested locally 2026-10-07) — Benedek
 - [ ] VF-079  feature · Futás donate box defaults to **Havi** (monthly) · ✅ built + tested locally 2026-10-06 — Benedek
 - [ ] VF-081  content · Tevékenységünk video → https://youtube.com/watch?v=fqbGNXKUvt8 (privacy-mode embed); live page via `content.mjs --only=video` (swaps only the video) · ✅ tested locally 2026-10-06 — Benedek
+- [ ] VF-082  content · Monthly donors' way to cancel: put the Stripe **Customer Portal login link** on the site (FAQ "Hogyan mondhatom le…" = `gyik-2` page, /koszonjuk/ text for monthly, "bármikor lemondhatod" note in the donate box) and check the receipt e-mail shows a manage-subscription link — Benedek
 - [ ] VF-080  content · **Association sign-off on the privacy policy** (`Adatvédelmi.md`, live on /adatvedelem/). It's my draft, not legal advice; PDF export once approved — Marci
-- [ ] VF-052  infra · Stripe: Settings → Payment methods: cards, Apple Pay, Google Pay on; anything that can't do recurring HUF off
-- [ ] VF-054  infra · Stripe: public business details (Settings → Business → Public details: name, support email, statement descriptor e.g. `VILAGITANIFOGOK`)
-- [ ] VF-015  feature · Stripe: Customer Portal (Settings → Billing → Customer portal): enable cancel subscription, set the link, then update the "Hogyan mondhatom le…" FAQ
 - [ ] VF-077  infra · Tinybird follow-ups for the privacy policy: sign Tinybird's DPA, check EU–US Data Privacy Framework status, and make the promised 2-year retention true (TTL on the datasources or a yearly delete)
 - [ ] VF-057  infra · Ghost Admin → Settings → Navigation: secondary (footer) menu, optional: add Kapcsolat, TOP Plusz
 
@@ -70,7 +68,7 @@ Shared to-do list for the site. Project overview: [PROJECT.md](PROJECT.md).
 - [ ] VF-034  content · Facebook URL, IBAN and contact details in Theme settings
 
 ### Infra / launch
-- [ ] VF-040  infra · **Database backups** on the server: nightly `mysqldump` + a copy of the `ghost` volume (images), kept off the server (e.g. Hetzner Storage Box). Nothing is backed up yet
+- [ ] VF-040  infra · **Backups**: `scripts/backup.sh` exists (2026-10-07: DB + uploads). Still missing: run it nightly (cron) on production and copy the files off the server (e.g. Hetzner Storage Box), plus deleting old ones. Until then there is no automatic backup
 - [ ] VF-041  infra · Staging: turn on Ghost **Private site** (Settings → Access) so search engines don't index it
 - [ ] VF-063  infra · Self-host Ghost Portal + search scripts (now loaded from cdn.jsdelivr.net: visitor IP goes to jsDelivr). Ghost config `portal__url`, `sodoSearch__url`, `sodoSearch__styles`. Then delete the jsDelivr paragraph in `Adatvédelmi.md`
 - [ ] VF-064  infra · Docker log rotation on the server (`max-size`/`max-file` in compose) and check Ghost's request logs don't keep IPs. The privacy policy says no access log is kept
@@ -80,6 +78,9 @@ Shared to-do list for the site. Project overview: [PROJECT.md](PROJECT.md).
 - [ ] VF-046  infra · Mailgun: confirm SPF/DKIM verified and newsletters don't land in spam (Gmail + Outlook test)
 
 ## Done
+- [x] 2026-10-06  VF-052  infra · Stripe: Settings → Payment methods: cards, Apple Pay, Google Pay on; anything that can't do recurring HUF off · payment methods set in live mode
+- [x] 2026-10-06  VF-054  infra · Stripe: public business details (Settings → Business → Public details: name, support email, statement descriptor e.g. `VILAGITANIFOGOK`) · public details + statement descriptor set
+- [x] 2026-10-06  VF-015  feature · Stripe: Customer Portal (Settings → Billing → Customer portal): enable cancel subscription, set the link, then update the "Hogyan mondhatom le…" FAQ · Customer Portal set up (FAQ link: VF-082)
 - [x] 2026-10-06  VF-067  page · **Futókampány landing page** `/futas/` (design `design/2026-10-futas-kampany/`, colourway piros): progress bar (title of hidden page `futas-gyujtes` = bank transfers etc. by hand, **+ card donations live from Stripe**, refreshed every minute), donate box tagged `campaign=futas` in Stripe, share/copy link, bank transfer box · notice bar points to `/futas/` (`*label*` in notice_text is bold)
 - [x] 2026-10-06  VF-076  content · Futás real amount: **9 357 579 Ft** (Benedek, 2026-10-06) → title of `futas-gyujtes`. First half really reached, so the two-halves bar and the "célunk felét elértük" wording are back
 - [x] 2026-10-06  VF-069  content · Átláthatóság: replace the full minutes with the **extracts** (`content/dokumentumok/JK_kivonat_KZ_*.pdf`), section title "Jegyzőkönyvi kivonatok" (Judit). The oldest extract's original still comes from Éva. Fix the `..pdf` file names — Judit, B
