@@ -165,7 +165,7 @@ Ghost content (pages, posts, settings, theme settings, uploaded images) lives in
 node scripts/promote.mjs staging prod page:tamogatas post:<slug> theme:hero_image setting:navigation          # dry run
 node scripts/promote.mjs staging prod page:tamogatas post:<slug> theme:hero_image setting:navigation --apply
 ```
-  Keys go in your local `.env`: `STAGING_ADMIN_API_KEY`, `PROD_ADMIN_API_KEY` (Ghost Admin → Settings → Integrations → Add custom integration "Promote" → Admin API key). `local` logs in with the seed's owner account.
+  Keys go in your local `.env`: `STAGING_ADMIN_API_KEY`, `PROD_ADMIN_API_KEY`. A custom integration's Admin API key (Settings → Integrations → "Promote") covers pages, posts and site settings. **Theme settings** (e.g. `hero_image`) need a **staff access token** instead (Ghost Admin → your profile → Staff access token; same format, acts as you). `local` logs in with the seed's owner account.
 - **Photos:** originals (full-size camera files) are kept outside git, in the shared Drive. Locally they can sit in `UjKepek/` (git-ignored). Resize to at most 2400 px, upload into Ghost on local or staging, and promote the page/setting that uses them. The promote script carries the files along.
 
 ## Backups and copying production to staging

@@ -14,8 +14,9 @@
 // copied as well (the original upload, not Ghost's resized copy); a file the target already has is reused.
 // Links to the source site are rewritten to the target site.
 //
-// Auth, in .env: <SITE>_ADMIN_API_KEY (Ghost Admin → Settings → Integrations → Add custom integration →
-// Admin API key), e.g. STAGING_ADMIN_API_KEY, PROD_ADMIN_API_KEY. local falls back to the seed's owner login.
+// Auth, in .env: <SITE>_ADMIN_API_KEY, e.g. STAGING_ADMIN_API_KEY, PROD_ADMIN_API_KEY. Either a staff access token
+// (Ghost Admin → your profile → Staff access token; can do everything) or a custom integration's Admin API key
+// (Settings → Integrations; everything except theme settings). local falls back to the seed's owner login.
 
 import { existsSync, readFileSync } from 'node:fs';
 import { createHmac } from 'node:crypto';
@@ -120,37 +121,50 @@ async function download(site, kind, p) {
     return null;
 }
 
-const mediaMap = new Map();   // source URL path → target URL
-let copied = 0, reused = 0;
-async function copyMedia(kind, p) {
+// A file the target already has – under the same name or one Ghost renamed on upload (x-1.jpg, x-2.jpg …)
+async function findOnTarget(kind, p, orig) {
+    for (let i = 0; i <= 5; i++) {
+        const cand = i ? p.replace(/(\.\w+)$/, `-${i}$1`) : p;
+        // compare with the target's original and its resized copy (a site filled from a download may only have the latter)
+        const res = await fetch(`${to.url}/content/${kind}/${cand}`);
+        if (!res.ok) return null;
+        const there = [Buffer.from(await res.arrayBuffer()), kind === 'images' && await download(to, kind, cand)];
+        if (there.some((f) => f && f.equals(orig))) return `${to.url}/content/${kind}/${cand}`;
+    }
+    return null;
+}
+
+// Planning (write = false) only looks; writing uploads what the target doesn't have yet.
+const planned = new Map(), written = new Map();   // "kind/path" on the source → target URL
+let toCopy = 0, reused = 0;
+async function copyMedia(kind, p, write) {
     const k = `${kind}/${p}`;
-    if (mediaMap.has(k)) return mediaMap.get(k);
-    const same = `${to.url}/content/${kind}/${p}`;
+    const cache = write ? written : planned;
+    if (cache.has(k)) return cache.get(k);
     const orig = await download(from, kind, p);
     if (!orig) throw new Error(`${from.name}: /content/${kind}/${p} not found`);
-    const there = await download(to, kind, p);
-    let url;
-    if (there && there.equals(orig)) { url = same; reused++; }
-    else if (!APPLY) { url = same; copied++; }
-    else {
+    let url = await findOnTarget(kind, p, orig);
+    if (!write) {
+        url ? reused++ : toCopy++;
+        url ||= `${to.url}/content/${kind}/(new)/${p}`;
+    } else if (!url) {
         const name = path.basename(decodeURIComponent(p));
         const type = { jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', webp: 'image/webp', gif: 'image/gif', svg: 'image/svg+xml', pdf: 'application/pdf', mp4: 'video/mp4' }[path.extname(name).slice(1).toLowerCase()] || 'application/octet-stream';
         const form = new FormData();
         form.append('file', new Blob([orig], { type }), name);
         if (kind === 'images') form.append('purpose', 'image');
-        const r = await dst('POST', `/${kind}/upload/`, undefined, form);
-        url = r[kind][0].url;
-        copied++;
+        url = (await dst('POST', `/${kind}/upload/`, undefined, form))[kind][0].url;
     }
-    mediaMap.set(k, url);
+    cache.set(k, url);
     return url;
 }
 
-// Copies every file a value uses, then points it (and any link to the source site) at the target.
-async function carry(value) {
+// Points every file a value uses (and any link to the source site) at the target; with write, uploads missing files.
+async function carry(value, write = false) {
     let json = JSON.stringify(value);
-    for (const [, kind, p] of json.matchAll(mediaRe(from))) await copyMedia(kind, p);
-    json = json.replace(mediaRe(from), (m, kind, p) => mediaMap.get(`${kind}/${p}`));
+    for (const [, kind, p] of json.matchAll(mediaRe(from))) await copyMedia(kind, p, write);
+    const cache = write ? written : planned;
+    json = json.replace(mediaRe(from), (m, kind, p) => cache.get(`${kind}/${p}`));
     json = json.replaceAll(from.url, to.url);
     return JSON.parse(json);
 }
@@ -181,12 +195,10 @@ async function promoteDoc(type, slug) {
     const a = await getDoc(src, type, slug);
     if (!a) return console.log(`✗ ${one} ${slug}: not on ${from.name}`);
     const b = await getDoc(dst, type, slug);
-    if (b && new Date(b.updated_at) > new Date(a.updated_at) && !FORCE) {
-        return console.log(`! ${one} ${slug}: edited on ${to.name} (${b.updated_at}) after ${from.name} (${a.updated_at}) – skipped, --force overwrites`);
-    }
     const doc = {};
     for (const f of FIELDS) if (a[f] !== undefined) doc[f] = a[f];
-    doc.tags = (a.tags || []).map((t) => ({ name: t.name, slug: t.slug }));
+    // Ghost's importer tags everything it imports with #import-<date>: not content, never carried over
+    doc.tags = (a.tags || []).filter((t) => !t.slug.startsWith('hash-import-')).map((t) => ({ name: t.name, slug: t.slug }));
     const next = await carry(doc);
 
     const changes = [];
@@ -206,15 +218,27 @@ async function promoteDoc(type, slug) {
         else changes.push(`${f}: ${short(was)} → ${short(now)}`);
     }
     if (b && !changes.length) return console.log(`= ${one} ${slug}: same on both`);
+    // differs, and the target copy is the newer one: someone edited it there – don't overwrite that by accident
+    if (b && new Date(b.updated_at) > new Date(a.updated_at) && !FORCE) {
+        console.log(`! ${one} ${slug}: edited on ${to.name} (${b.updated_at}) after ${from.name} (${a.updated_at}) – skipped, --force overwrites`);
+        return changes.forEach((c) => console.log(`    ${c}`));
+    }
     console.log(`${b ? '~' : '+'} ${one} ${slug}${b ? '' : ' (new)'}`);
     changes.forEach((c) => console.log(`    ${c}`));
     if (!APPLY) return;
-    if (b) await dst('PUT', `/${type}/${b.id}/`, { [type]: [{ ...next, updated_at: b.updated_at }] });
-    else await dst('POST', `/${type}/`, { [type]: [{ ...next, slug }] });
+    const doc2 = await carry(doc, true);
+    if (b) await dst('PUT', `/${type}/${b.id}/`, { [type]: [{ ...doc2, updated_at: b.updated_at }] });
+    else await dst('POST', `/${type}/`, { [type]: [{ ...doc2, slug }] });
 }
 
 async function promoteTheme(keys) {
-    const [{ custom_theme_settings: a }, { custom_theme_settings: b }] = await Promise.all([src('GET', '/custom_theme_settings/'), dst('GET', '/custom_theme_settings/')]);
+    let a, b;
+    try {
+        [{ custom_theme_settings: a }, { custom_theme_settings: b }] = await Promise.all([src('GET', '/custom_theme_settings/'), dst('GET', '/custom_theme_settings/')]);
+    } catch (e) {
+        if (e.status !== 403) throw e;
+        return console.log(`✗ theme ${keys.join(', ')}: integration keys can't touch theme settings – use a staff access token instead (Ghost Admin → your profile → Staff access token)`);
+    }
     const out = b.map(({ key, value }) => ({ key, value }));
     let dirty = false;
     for (const key of keys) {
@@ -225,7 +249,7 @@ async function promoteTheme(keys) {
         if (JSON.stringify(value) === JSON.stringify(sb.value)) { console.log(`= theme ${key}: same on both`); continue; }
         const show = (v) => (typeof v === 'string' && v.includes('/content/') ? path.basename(v) : short(v));
         console.log(`~ theme ${key}: ${show(sb.value)} → ${show(value)}`);
-        sb.value = value;
+        sb.value = APPLY ? await carry(sa.value, true) : value;
         dirty = true;
     }
     if (dirty && APPLY) await dst('PUT', '/custom_theme_settings/', { custom_theme_settings: out });
@@ -241,7 +265,7 @@ async function promoteSettings(keys) {
         const value = await carry(sa.value);
         if (JSON.stringify(value) === JSON.stringify(sb?.value)) { console.log(`= setting ${key}: same on both`); continue; }
         console.log(`~ setting ${key}: ${short(sb?.value)} → ${short(value)}`);
-        out.push({ key, value });
+        out.push({ key, value: APPLY ? await carry(sa.value, true) : value });
     }
     if (out.length && APPLY) await dst('PUT', '/settings/', { settings: out });
 }
@@ -255,5 +279,5 @@ for (const slug of pick('page')) await promoteDoc('pages', slug);
 for (const slug of pick('post')) await promoteDoc('posts', slug);
 if (pick('theme').length) await promoteTheme(pick('theme'));
 if (pick('setting').length) await promoteSettings(pick('setting'));
-console.log(`files: ${copied} ${APPLY ? 'copied' : 'to copy'}, ${reused} already on ${to.name}`);
+console.log(`files: ${toCopy} ${APPLY ? 'copied' : 'to copy'}, ${reused} already on ${to.name}`);
 if (!APPLY) console.log('Nothing written. Add --apply to do it.');
