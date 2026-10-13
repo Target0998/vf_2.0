@@ -135,8 +135,8 @@ Three stages. **Code** moves up through git branches, **content** mostly moves d
 |---|---|---|---|
 | Purpose | development: experiments, breaking changes | review by the team before going live | the live site |
 | URL | http://localhost:2368 | https://staging.vilagitanifogok.hu | https://vilagitanifogok.hu |
-| Runs on | your laptop | lepusprime (Benedek's server, NixOS module `services/vf-staging.nix` in nixos-dotfiles) | Hetzner server |
-| Start / deploy | `npm run up` (+ `npm run seed` on a fresh DB) | automatic: pulls `staging` every minute | `git pull` + compose, see below |
+| Runs on | your laptop | lepusprime (Benedek's server): checkout in `/srv/vf-staging/repo`, Caddy vhost in nixos-dotfiles | Hetzner server |
+| Start / deploy | `npm run up` (+ `npm run seed` on a fresh DB) | by hand: `git pull && docker compose up -d` | `git pull` + compose, see below |
 | Ghost mode | development: theme edits show on reload | development | production: templates cached, **restart Ghost after theme changes** |
 | Email | Mailpit at :8025, nothing really sent | Mailgun SMTP (own SMTP user), real emails | Mailgun, real emails |
 | Analytics | – | – | Tinybird Cloud (EU), profile `analytics` |
@@ -146,8 +146,13 @@ Three stages. **Code** moves up through git branches, **content** mostly moves d
 ### Code: `main` → `staging` → `prod`
 Every commit is made on `main`. Releasing is a fast-forward of the next branch, so `staging` and `prod` are always a point on `main`'s history and never have commits of their own:
 ```sh
-scripts/release.sh staging   # main → staging: lepusprime deploys it within a minute, the team reviews it
+scripts/release.sh staging   # main → staging, then deploy on lepusprime ↓, the team reviews it
 scripts/release.sh prod      # staging → prod: then on the production server ↓
+```
+On lepusprime (staging) – never commit there, fixes go on `main` and come back with the next release:
+```sh
+cd /srv/vf-staging/repo && git pull && docker compose up -d   # docker-compose.override.yml (untracked) adds Mailgun + loopback ports
+docker compose restart ghost                                  # after theme/package.json or ghost/routes.yaml changes
 ```
 On the production server:
 ```sh
@@ -155,7 +160,7 @@ git pull
 docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d          # picks up compose/.env changes
 docker compose -f docker-compose.yml -f docker-compose.prod.yml restart ghost  # picks up theme / routes.yaml changes
 ```
-Changes to `theme/package.json` (theme settings) or `ghost/routes.yaml` always need a Ghost restart, even locally (staging's deploy does it by itself).
+Changes to `theme/package.json` (theme settings) or `ghost/routes.yaml` always need a Ghost restart, even locally.
 
 ### Content: down by default, up on purpose
 Ghost content (pages, posts, settings, theme settings, uploaded images) lives in each site's database and `content/` volume, not in git.
@@ -180,7 +185,7 @@ scp prod:vf_2.0/backups/vf-<date>-* staging:vf_2.0/backups/
 # staging server
 scripts/restore-staging.sh backups/vf-<date>-db.sql.gz backups/vf-<date>-content.tar.gz
 ```
-On lepusprime the stack isn't the prod compose: run it with `DC="docker compose -p vf-staging -f docker-compose.yml -f <override from the Nix module>"` (see `docker compose ls` for the exact files). Staff logins are the same as on production afterwards. Run it again whenever staging should catch up with live content.
+On lepusprime the stack isn't the prod compose: run it with `DC="docker compose"` (the checkout's `.env` and `docker-compose.override.yml` do the rest). Staff logins are the same as on production afterwards. Run it again whenever staging should catch up with live content.
 
 ## How to test
 
