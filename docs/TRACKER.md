@@ -13,18 +13,18 @@ Shared to-do list for the site. Project overview: [PROJECT.md](PROJECT.md).
 
 ## Inbox (unsorted)
 <!-- One line per request: what, who asked, any link. -->
-- (empty – sorted 2026-10-06)
+- Ghost dashboard shows MRR 10 000 Ft, left over from staging tests: remove the test paid member / disconnect Stripe in Ghost. (Futás counter checked 2026-10-13: correct, the uncounted payments came from other pages) — Benedek
 
 ## In progress
 **Live since 2026-10-06** on https://vilagitanifogok.hu (former staging server and DB, live Stripe key). The server now runs the `prod` branch; a new staging environment will be set up elsewhere.
 
 **Next round – sorted 2026-10-06** (B = Benedek's decision)
 - [ ] VF-068  feature · Map on Kapcsolat (the old site linked Google Maps). Must work without cookies: static map image (no third-party request) or an OpenStreetMap embed — B
-- [ ] VF-072  content · Photos: Judit's new set (`UjKepek/`, 27 files). Strong images in key places without a child's face in focus (e.g. home hero); volunteer-focused photos only where the topic is volunteering. Benedek picks the placements, then I resize and swap them in — Judit, B
+- [ ] VF-072  content · Photos: Judit's new set (`UjKepek/`, 27 files). Strong images in key places without a child's face in focus (e.g. home hero); volunteer-focused photos only where the topic is volunteering. Benedek picks the placements, then I resize and swap them in — Judit, B · 2026-10-13: round 1 on **staging** (originals in `UjKepek/`, gitignored): home hero 220711_FTA5117, Jövőkép 260712_Tabor2026_SB_0004, programs 240711_…_0031 / 210714_FTA5437 / 240712_…_0126, Tevékenységünk 250709_…_074 (chosen over 220514_FTA4666: no face in focus), Támogatás 190716_FTA0669, Világíthatunk? post = campaign image only (three-girls photo removed). Live: not yet
 - [ ] VF-033  content · Partner logos: list is incomplete. Add **Appy** now; Müller (just donated) and the Áldás utca people later. Current logos came from the old website; Judit uploads new ones to a shared Drive "PARTNEREINK" folder. Not blocking launch — Judit, B
 
 **After launch**
-- [ ] VF-078  infra · New **staging environment**: up on Benedek's own server (2026-10-07), branch `staging`. Data = copy of production without members via `scripts/backup.sh` + `scripts/restore-staging.sh` (tested locally 2026-10-07) — Benedek
+- [ ] VF-078  infra · New **staging environment**: up on Benedek's own server (2026-10-07), branch `staging`. Data = copy of production without members via `scripts/backup.sh` + `scripts/restore-staging.sh` (tested locally 2026-10-07) — Benedek · 2026-10-13: running on lepusprime (NixOS module `services/vf-staging.nix` in nixos-dotfiles, dev compose + server-side override, pulls `staging` every minute). Populated by hand this time from a live Ghost export (no members, Stripe/Mailgun settings stripped, images/PDFs copied), Stripe test key. Open: apply the Mailgun SMTP override (`nixos-rebuild switch`), Mailgun API key for newsletters in staging Ghost Admin
 - [ ] VF-079  feature · Futás donate box defaults to **Havi** (monthly) · ✅ built + tested locally 2026-10-06 — Benedek
 - [ ] VF-081  content · Tevékenységünk video → https://youtube.com/watch?v=fqbGNXKUvt8 (privacy-mode embed); live page via `content.mjs --only=video` (swaps only the video) · ✅ tested locally 2026-10-06 — Benedek
 - [ ] VF-082  content · Monthly donors' way to cancel: put the Stripe **Customer Portal login link** on the site (FAQ "Hogyan mondhatom le…" = `gyik-2` page, /koszonjuk/ text for monthly, "bármikor lemondhatod" note in the donate box) and check the receipt e-mail shows a manage-subscription link — Benedek
@@ -56,6 +56,7 @@ Shared to-do list for the site. Project overview: [PROJECT.md](PROJECT.md).
 - [ ] VF-018  feature · `/koszonjuk/` shows the amount from the URL, so anyone can make a fake "thank you for 1 000 000 Ft" link. Low risk; could verify `session_id` with Stripe if it matters
 
 ### Bugs
+- [ ] VF-083  bug · /tamogatas/ donate box shows the page title with raw asterisks ("Állj a kerecsendi \*gyerekek\* mellé"); since the Futás change the partial's `title` param picks up the page title. Fixed in `partials/donate-box.hbs` (title only on the campaign box), not committed yet · found 2026-10-13
 
 ### Content (association, in Ghost Admin)
 - [ ] VF-035  content · Donation amounts and impact texts (5 000 / 10 000 / 25 000 Ft): **decided 2026-10-06, they stay** until someone has a more precise proposal (Theme settings) — Zsuzsi, B

@@ -14,7 +14,8 @@
 
     <div class="donate-head">
         {{#unless variant}}<span class="donate-title">{{@custom.donate_title}}</span>{{/unless}}
-        {{#if title}}<span class="donate-title">{{title}}</span>{{/if}}
+        {{!-- only the campaign box: elsewhere "title" would be the surrounding page's title --}}
+        {{#match variant "campaign"}}{{#if title}}<span class="donate-title">{{title}}</span>{{/if}}{{/match}}
         <div class="seg" role="group" aria-label="Gyakoriság">
             <button type="button" data-freq="once" aria-pressed="false">Egyszeri</button>
             <button type="button" data-freq="monthly" aria-pressed="true">Havi</button>
