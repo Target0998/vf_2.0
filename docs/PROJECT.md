@@ -36,7 +36,7 @@ It's built on **Ghost 6** with a custom theme. Editors change content in Ghost A
 | **traffic-analytics** | Ghost's analytics proxy: page views → Tinybird Cloud (EU), IP removed. Staging/prod, profile `analytics` | `docker-compose.prod.yml`, `tinybird/` |
 | **Mailpit** | Catches all email locally so nothing is really sent. Local only | http://localhost:8025 |
 
-**Not in git, so it doesn't move between machines:** the database (content, admin passwords, settings and theme settings), uploaded images, and `.env`. Local and staging are **separate sites with separate content**. To copy content between them, use Ghost Admin → Settings → Labs → Export/Import. Images have to be copied separately.
+**Not in git, so it doesn't move between machines:** the database (content, admin passwords, settings and theme settings), uploaded images, and `.env`. Local, staging and prod are **separate sites with separate content**. How content moves between them: "Environments" → "Content".
 
 ## Repo map
 
@@ -62,6 +62,7 @@ Adatvédelmi.md            privacy policy source; content.mjs renders it as /ada
 scripts/e2e.mjs           browser test: donate box + newsletter signup
 scripts/screenshots.mjs   full-page desktop (1440) + mobile (390) screenshots → screenshots/
 scripts/backup.sh         database + uploads backup;  scripts/restore-staging.sh  copy of production → staging, without members
+scripts/release.sh        code: main → staging → prod (fast-forward);  scripts/promote.mjs  content: pages/posts/settings + their images one stage up
 docker-compose.yml        local stack           docker-compose.prod.yml  staging/prod override
 Caddyfile                 HTTPS + routing for staging/prod, www → bare domain, redirects from old Mobirise URLs, /.ghost/analytics
 tinybird/                 helper image for the one-time Tinybird setup (from TryGhost/ghost-docker, MIT)
@@ -128,27 +129,44 @@ Then Ghost Admin → Settings → Analytics → turn on **Web analytics**, open 
 
 ## Environments
 
-| | Local | Production (branch `prod`) |
-|---|---|---|
-| URL | http://localhost:2368 | https://vilagitanifogok.hu |
-| Admin | http://localhost:2368/ghost/ | https://vilagitanifogok.hu/ghost/ |
-| Start | `npm run up` (+ `npm run seed` on a fresh DB) | `docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d` |
-| Ghost mode | development: theme edits show on reload | production: templates cached, **restart Ghost after theme changes** |
-| Email | Mailpit at :8025, nothing really sent | Mailgun, real emails |
-| Analytics | – | Tinybird Cloud (EU), profile `analytics` |
-| Stripe | mock, or `sk_test_…` in `.env` | **live** key in `.env` |
+Three stages. **Code** moves up through git branches, **content** mostly moves down from prod.
 
-**Branches:** `staging` = work in progress, runs on https://staging.vilagitanifogok.hu (Benedek's own server, private site, Stripe test key); `prod` = what runs on vilagitanifogok.hu. Release = merge/push `staging` → `prod`, then on the server:
+| | Local (branch `main`) | Staging (branch `staging`) | Production (branch `prod`) |
+|---|---|---|---|
+| Purpose | development: experiments, breaking changes | review by the team before going live | the live site |
+| URL | http://localhost:2368 | https://staging.vilagitanifogok.hu | https://vilagitanifogok.hu |
+| Runs on | your laptop | lepusprime (Benedek's server, NixOS module `services/vf-staging.nix` in nixos-dotfiles) | Hetzner server |
+| Start / deploy | `npm run up` (+ `npm run seed` on a fresh DB) | automatic: pulls `staging` every minute | `git pull` + compose, see below |
+| Ghost mode | development: theme edits show on reload | development | production: templates cached, **restart Ghost after theme changes** |
+| Email | Mailpit at :8025, nothing really sent | Mailgun SMTP (own SMTP user), real emails | Mailgun, real emails |
+| Analytics | – | – | Tinybird Cloud (EU), profile `analytics` |
+| Stripe | mock, or `sk_test_…` in `.env` | `sk_test_…` (sandbox) | **live** key |
+| Content | seed, or a copy of prod | copy of prod without members | **source of truth**: the association edits here |
 
-**Deploying a change (server runs `prod`):**
+### Code: `main` → `staging` → `prod`
+Every commit is made on `main`. Releasing is a fast-forward of the next branch, so `staging` and `prod` are always a point on `main`'s history and never have commits of their own:
 ```sh
-# locally: commit + push
-# on the server:
+scripts/release.sh staging   # main → staging: lepusprime deploys it within a minute, the team reviews it
+scripts/release.sh prod      # staging → prod: then on the production server ↓
+```
+On the production server:
+```sh
 git pull
 docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d          # picks up compose/.env changes
 docker compose -f docker-compose.yml -f docker-compose.prod.yml restart ghost  # picks up theme / routes.yaml changes
 ```
-Changes to `theme/package.json` (theme settings) or `ghost/routes.yaml` always need a Ghost restart, even locally.
+Changes to `theme/package.json` (theme settings) or `ghost/routes.yaml` always need a Ghost restart, even locally (staging's deploy does it by itself).
+
+### Content: down by default, up on purpose
+Ghost content (pages, posts, settings, theme settings, uploaded images) lives in each site's database and `content/` volume, not in git.
+- **Down** (prod → staging → local): a full copy without members, see "Backups and copying production to staging" below. Do this before starting work that touches content, so you work on what's live.
+- **Up** (local → staging → prod): only the items we changed on purpose, with `scripts/promote.mjs`. It copies pages/posts (text, tags, feature image, settings), theme settings and allowed site settings, plus every image/PDF/media file they use. It also rewrites links to the source site. It shows a dry run first, writes only with `--apply`, and skips an item that was edited on the target after the source (someone changed it there; `--force` overrides). `donate_api_url`, Stripe, Mailgun and member settings are never copied.
+```sh
+node scripts/promote.mjs staging prod page:tamogatas post:<slug> theme:hero_image setting:navigation          # dry run
+node scripts/promote.mjs staging prod page:tamogatas post:<slug> theme:hero_image setting:navigation --apply
+```
+  Keys go in your local `.env`: `STAGING_ADMIN_API_KEY`, `PROD_ADMIN_API_KEY` (Ghost Admin → Settings → Integrations → Add custom integration "Promote" → Admin API key). `local` logs in with the seed's owner account.
+- **Photos:** originals (full-size camera files) are kept outside git, in the shared Drive. Locally they can sit in `UjKepek/` (git-ignored). Resize to at most 2400 px, upload into Ghost on local or staging, and promote the page/setting that uses them. The promote script carries the files along.
 
 ## Backups and copying production to staging
 - `scripts/backup.sh` (on a server, in the repo folder): database dump (`utf8mb4`) + uploaded images, PDFs and media → `backups/vf-<date>-db.sql.gz` and `…-content.tar.gz`. Contains members' personal data: `backups/` is git-ignored, keep the files private.
@@ -162,7 +180,7 @@ scp prod:vf_2.0/backups/vf-<date>-* staging:vf_2.0/backups/
 # staging server
 scripts/restore-staging.sh backups/vf-<date>-db.sql.gz backups/vf-<date>-content.tar.gz
 ```
-Staff logins are the same as on production afterwards. Run it again whenever staging should catch up with live content.
+On lepusprime the stack isn't the prod compose: run it with `DC="docker compose -p vf-staging -f docker-compose.yml -f <override from the Nix module>"` (see `docker compose ls` for the exact files). Staff logins are the same as on production afterwards. Run it again whenever staging should catch up with live content.
 
 ## How to test
 
