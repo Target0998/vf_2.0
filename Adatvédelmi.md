@@ -85,6 +85,12 @@ Adatfeldolgozó: az e-mail-szolgáltatást a Google Ireland Limited (Gordon Hous
 
 ## Külső tartalmak és hivatkozások
 A Tevékenységünk oldalon beágyazott YouTube-videó található, amelyet a YouTube adatvédelmi módjában (youtube-nocookie.com) jelenítünk meg: az oldal betöltésekor a videó előnézete miatt az IP-címed a Google-hoz kerül, sütiket azonban csak a videó elindításakor helyez el a YouTube. Szolgáltató: Google Ireland Limited.
+A Futás kampány oldalán (/futas/) térkép látható. A térképet az OpenStreetMap Alapítvány (OpenStreetMap Foundation, St John's Innovation Centre, Cowley Road, Cambridge, CB4 0WS, Egyesült Királyság) szervereiről töltjük be, csak akkor, amikor a térképhez görgetsz. Ekkor az IP-címed és a böngésződ adatai az OpenStreetMap Alapítványhoz kerülnek. Sütit nem helyez el. Adatkezelési tájékoztatója: [osmfoundation.org/wiki/Privacy_Policy](https://osmfoundation.org/wiki/Privacy_Policy)
+
+### A váltófutás élő követése
+2026. október 16-án a futás útvonalán egy, a futók között kézről kézre adott telefon helyzetét mutatjuk a /futas/ oldalon, néhány perces késéssel. A telefon a helyzetét (földrajzi koordináták, időpont, akkumulátor-töltöttség) a saját szerverünkre küldi, harmadik félhez nem kerül. A helyzetet nem kapcsoljuk a futók nevéhez. Jogalap: az Egyesület jogos érdeke a kampány bemutatásához (GDPR 6. cikk (1) f) pont); a futók erről előre tájékoztatást kapnak. A pontos helyzetadatokat a futás után 30 nappal töröljük, csak a megtett távot és az útvonalat őrizzük meg.
+<!-- TODO: the association confirms this paragraph (VF-080 sign-off) and that the runners are told beforehand. Delete donate-api's track volume file by 2026-11-15. -->
+
 A weboldalon a Facebook-oldalunkra és a Google Térképre mutató egyszerű hivatkozások vannak; ezek nem töltenek be külső tartalmat, adat csak akkor kerül az adott szolgáltatóhoz, ha a linkre kattintasz.
 
 ## Sütik (cookie-k)

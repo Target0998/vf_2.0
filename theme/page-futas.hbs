@@ -4,6 +4,7 @@
       Kiemelt kép = kép a történet mellett (és a Facebook-megosztás képe)
       Összegyűlt összeg = rejtett „futas-gyujtes” oldal CÍME (ami nem kártyával jött: átutalások, kézzel)
                         + a kártyás adományok, élőben a Stripe-ból (donate-api /campaign/futas, percenként frissül)
+      Élő térkép (#elo) = a stafétabot-telefon helyzete (donate-api /track/futas, félpercenként; útvonal: donate-api/routes/futas.gpx)
       Színvariáns: „piros” (a .camp változói lent, screen.css „Campaign: Futás”) --}}
 {{#post}}
 <div class="camp">
@@ -12,6 +13,7 @@
     <section class="camp-hero" id="main">
         <div class="camp-copy">
             <span class="camp-kicker">ADOMÁNYGYŰJTŐ VÁLTÓFUTÁS · 2026. OKTÓBER 16.</span>
+            <a class="camp-live-chip" href="#elo" data-live-chip hidden></a>
             <h1 class="camp-title">{{title}}</h1>{{> "hl"}}
             {{#if custom_excerpt}}<p class="camp-sub">{{custom_excerpt}}</p>{{/if}}
 
@@ -46,6 +48,20 @@
             <div><span class="camp-stat-num">okt. 16.</span><span>kora reggeltől</span></div>
         </div>
     </div>
+</section>
+
+<section class="camp-live" id="elo" aria-labelledby="live-title" data-track="{{@custom.donate_api_url}}" data-campaign="futas"
+    data-leaflet-js="{{asset "vendor/leaflet/leaflet.js"}}" data-leaflet-css="{{asset "vendor/leaflet/leaflet.css"}}" hidden>
+    <div class="camp-live-head">
+        <div class="camp-live-copy">
+            <span class="camp-live-badge" data-live-badge></span>
+            <h2 id="live-title">Kövesd a futást élőben</h2>
+            <p data-live-text></p>
+        </div>
+        <div class="camp-live-km"><span class="camp-live-km-num" data-live-km>0</span><span data-live-total></span></div>
+    </div>
+    <div class="camp-live-bar" aria-hidden="true"><i></i></div>
+    <div class="camp-live-map" data-live-map role="region" aria-label="Térkép: a futás útvonala és a stafétabot helyzete"></div>
 </section>
 
 <section class="camp-story">

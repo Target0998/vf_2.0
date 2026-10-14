@@ -81,7 +81,7 @@ docs/                     this file + TRACKER.md
 | `/tamogatas/` | `page-tamogatas.hbs` | Page `tamogatas` + FAQ pages tagged `#gyik` + theme settings |
 | `/rolunk/` | `page-rolunk.hbs` | Page `rolunk` + `#idovonal`, `#ertek`, `rolunk-kuldetes` block pages |
 | `/koszonjuk/` | `page-koszonjuk.hbs` | Page `koszonjuk` (excerpt = fallback text) |
-| `/futas/` | `page-futas.hbs` | Futás campaign (design `design/2026-10-futas-kampany/`). Page `futas`: title (`*…*` highlighted), excerpt = subtitle, content = story (first paragraph large, `##` = highlighted sentence), feature image = photo + share image. **Raised amount = title of the hidden page `futas-gyujtes` (by hand: bank transfers and other confirmed non-card amounts) + card donations live from Stripe** (`donate-api` `GET /campaign/futas`, refreshed every minute). Donations are tagged `campaign=futas` in Stripe; cancel returns to `/futas/` |
+| `/futas/` | `page-futas.hbs` | Futás campaign (design `design/2026-10-futas-kampany/`). Page `futas`: title (`*…*` highlighted), excerpt = subtitle, content = story (first paragraph large, `##` = highlighted sentence), feature image = photo + share image. **Raised amount = title of the hidden page `futas-gyujtes` (by hand: bank transfers and other confirmed non-card amounts) + card donations live from Stripe** (`donate-api` `GET /campaign/futas`, refreshed every minute). Donations are tagged `campaign=futas` in Stripe; cancel returns to `/futas/`. **Live map** (`#elo`): see "Live run map" below |
 | `/tevekenysegunk/`, `/galeria/`, `/kapcsolat/`, `/atlathatosag/`, `/adatvedelem/`, `/top-plusz/` | `page.hbs` | The page itself (filled by `scripts/content.mjs` from the old site; not designed yet). All content and PDFs are hosted by Ghost (uploaded by the script). New documents: add a Ghost file card or a row in the table. `/adatvedelem/` is generated from `Adatvédelmi.md` |
 | `/en/` | – | **Doesn't exist yet**; the HU/EN switch is hidden |
 
@@ -121,6 +121,25 @@ Setup per environment (once):
 ### Newsletter / members
 - Ticking "Feliratkozom" on /tamogatas/ signs the visitor up as a free Ghost member. Ghost emails a magic link through Mailgun SMTP. The signup can't block the payment.
 - Newsletters are sent from Ghost Admin and go out through the Mailgun **API**.
+
+### Live run map (Futás relay)
+The relay's "baton" is a phone running **Traccar Client** (free, iOS/Android). It sends its position every 30 s to `POST /api/donate/track/futas` → `donate-api/track.js`, which matches it to the planned route (`donate-api/routes/futas.gpx`) to get the km done and saves the positions to the `track` volume. The `#elo` section on `/futas/` polls `GET /api/donate/track/futas` every 30 s and draws the route, the part already run and the phone's last position (Leaflet from `theme/assets/vendor/`, OpenStreetMap tiles, loaded only when the visitor scrolls to the map). The section stays hidden if the API doesn't answer; during the run a "Élőben: x km" chip appears in the hero.
+
+- **Public view:** ignores positions before `TRACK_START` (default 2026-10-16 00:00, so test runs don't show) and lags `TRACK_DELAY_MIN` (default 5) minutes behind. Status: `before` → `live` → `paused` (no fix for 10 min: handover, no signal) → `finished` (within 300 m of the end).
+- **Organisers' view:** `https://vilagitanifogok.hu/api/donate/track/futas?token=<TRACK_TOKEN>`: all positions, no delay, phone battery, last raw fix. Use it to check the phone works before and during the run.
+- **Progress** only moves forward, and only for fixes within 250 m of the route that are reachable at ≤ 43 km/h from the last progress (or right on the route, ≤ 100 m, after a long gap). A detour or a ride in the support car doesn't count, and the dot still shows where the phone is.
+
+**Setting up the phone (once):**
+1. `.env` on the server: `TRACK_TOKEN=` a long random string (`openssl rand -hex 16`), then `docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d donate-api`.
+2. Install **Traccar Client**. Settings: *Device identifier* = the `TRACK_TOKEN`; *Server URL* = `https://vilagitanifogok.hu/api/donate/track/futas`; *Location accuracy* = high; *Frequency* = 30 s; *Distance* = 0; *Offline buffering* = on. Turn on tracking.
+3. Allow location access **always** (iOS: "Always"; Android: "Allow all the time", and switch battery optimisation off for the app).
+4. Walk around for a few minutes, then open the organisers' view: `points` should grow and `last_fix` should be you.
+
+**On the day:** full battery plus a power bank in the runners' belt, swapped at the longer breaks. Check the organisers' view now and then. Point the notice bar to `/futas/#elo`. Tracking can stay on during handovers: positions off the route don't move the km.
+
+**Changing the route:** replace `donate-api/routes/futas.gpx` (a GPX with a track, e.g. exported from BRouter), commit, deploy, restart donate-api. Saved positions are re-matched to the new route on start.
+
+**Test locally:** `TRACK_TOKEN=test TRACK_START= TRACK_DELAY_MIN=0 docker compose up -d donate-api`, then send a fix: `curl -X POST "localhost:8787/track/futas?id=test&lat=47.5005&lon=19.0825"`. Clear local positions: `docker compose exec donate-api rm /data/futas.jsonl` and restart donate-api.
 
 ### Staff login
 - `/ghost/`. In production, logging in from a new device needs an email code (`staffDeviceVerification`), so Mailgun must be working.

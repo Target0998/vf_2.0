@@ -70,8 +70,15 @@ services:
       GHOST_ADMIN_API_KEY: ${GHOST_ADMIN_API_KEY:-}
       GHOST_API_URL: http://ghost:2368
       DONOR_REPORT_NEWSLETTER: ${DONOR_REPORT_NEWSLETTER:-beszamolo-tamogatoknak}
+      # live run map (track.js): TRACK_TOKEN = the "device identifier" in the phone's Traccar Client; empty = off.
+      # The public map ignores fixes before TRACK_START (empty = show all) and shows them TRACK_DELAY_MIN late.
+      TRACK_TOKEN: ${TRACK_TOKEN:-}
+      TRACK_DIR: /data
+      TRACK_START: ${TRACK_START-2026-10-16T00:00:00+02:00}
+      TRACK_DELAY_MIN: ${TRACK_DELAY_MIN:-5}
     volumes:
       - ./donate-api:/app:ro
+      - track:/data
 
   mailpit:
     image: axllent/mailpit:latest
@@ -82,3 +89,4 @@ services:
 volumes:
   db:
   ghost:
+  track:

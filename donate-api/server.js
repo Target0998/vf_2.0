@@ -2,11 +2,13 @@
 //   POST /checkout  { amount, frequency, email?, name?, campaign?, return_path? } → { url }
 //   GET  /campaign/<slug>  → { total, donations, updated }  live card total of a campaign (see campaign.js)
 //   POST /webhook  Stripe events → donor as Ghost member (see donors.js)
+//   GET|POST /track/<slug>  live position of a campaign run (see track.js)
 //   GET  /health
 import http from 'node:http';
 import { createCheckout } from './checkout.js';
 import { campaignTotal, recordMock } from './campaign.js';
 import { verifyEvent, donorFromSession, syncDonor } from './donors.js';
+import { trackConfig, isToken, parseFixes, addFixes, trackStatus, hasRoute } from './track.js';
 
 const PORT = Number(process.env.PORT || 8787);
 const env = {
@@ -17,6 +19,7 @@ const env = {
     GHOST_API_URL: process.env.GHOST_API_URL || '',
     DONOR_REPORT_NEWSLETTER: process.env.DONOR_REPORT_NEWSLETTER || ''
 };
+const track = trackConfig();
 const allowed = (process.env.ALLOWED_ORIGINS || env.SITE_URL).split(',').map((s) => s.trim().replace(/\/$/, ''));
 
 function send(res, status, body, origin, extra = {}) {
@@ -48,6 +51,8 @@ const server = http.createServer(async (req, res) => {
             return send(res, err.status || 500, { error: err.message }, origin);
         }
     }
+    const run = pathname.match(/^\/track\/([a-z0-9-]{1,40})\/?$/);
+    if (run) return trackRoute(req, res, run[1], origin);
     if (req.method === 'POST' && pathname === '/webhook') return webhook(req, res);
     if (req.method !== 'POST' || pathname !== '/checkout') return send(res, 404, { error: 'Not found' }, origin);
     if (origin && !allowed.includes(origin)) return send(res, 403, { error: 'Origin not allowed' }, origin);
@@ -68,6 +73,32 @@ const server = http.createServer(async (req, res) => {
         if (!err.status) console.error(err);
     }
 });
+
+// Phone (Traccar Client) → POST; the /futas/ map → GET. See track.js.
+async function trackRoute(req, res, slug, origin) {
+    if (!hasRoute(slug)) return send(res, 404, { error: 'Not found' }, origin);
+    const query = new URL(req.url, 'http://x').searchParams;
+    if (req.method === 'GET') {
+        const full = isToken(query.get('token'), track.token);
+        return send(res, 200, trackStatus(slug, track, { full, withRoute: query.get('route') === '1' }), origin, { 'Cache-Control': 'no-cache' });
+    }
+    if (req.method !== 'POST' || !track.token) return send(res, 404, { error: 'Not found' });
+    let raw = '';
+    for await (const chunk of req) {
+        raw += chunk;
+        if (raw.length > 200_000) return send(res, 413, { error: 'Too large' });
+    }
+    try {
+        const { id, fixes } = parseFixes(query, raw, req.headers['content-type']);
+        if (!isToken(id, track.token) && !isToken(query.get('token'), track.token)) return send(res, 403, { error: 'Unknown device' });
+        const n = addFixes(slug, fixes, track);
+        if (n) console.log(`[track] ${slug}: +${n}`);
+        send(res, 200, { ok: true, added: n });
+    } catch (err) {
+        console.warn('[track] bad request:', err.message);
+        send(res, 400, { error: 'Bad request' });
+    }
+}
 
 // Stripe → here (no Origin, no CORS). Answers 500 when Ghost fails, so Stripe retries later.
 async function webhook(req, res) {
@@ -107,5 +138,5 @@ async function webhook(req, res) {
 }
 
 server.listen(PORT, () => {
-    console.log(`vf-donate-api listening on :${PORT} (stripe: ${env.STRIPE_SECRET_KEY ? 'on' : 'MOCK – no STRIPE_SECRET_KEY'}, webhook: ${env.STRIPE_WEBHOOK_SECRET ? 'on' : 'off'}), allowed origins: ${allowed.join(', ')}`);
+    console.log(`vf-donate-api listening on :${PORT} (stripe: ${env.STRIPE_SECRET_KEY ? 'on' : 'MOCK – no STRIPE_SECRET_KEY'}, webhook: ${env.STRIPE_WEBHOOK_SECRET ? 'on' : 'off'}, track: ${track.token ? 'on' : 'off'}), allowed origins: ${allowed.join(', ')}`);
 });
