@@ -30,7 +30,7 @@ It's built on **Ghost 6** with a custom theme. Editors change content in Ghost A
 |---|---|---|
 | **Ghost** | CMS: pages, posts, members, newsletters, admin UI | `ghost:6-alpine` image |
 | **Theme** | All HTML, CSS and JS of the public site | `theme/` |
-| **donate-api** | Small Node service, no dependencies. Turns {amount, frequency} into a Stripe Checkout Session URL; `GET /campaign/<slug>` sums a campaign's card donations from Stripe (cached 1 min) | `donate-api/` |
+| **donate-api** | Small Node service, no dependencies. Turns {amount, frequency} into a Stripe Checkout Session URL; `GET /campaign/<slug>` sums a campaign's card donations from Stripe (cached 1 min); `POST /webhook` saves each donor as a Ghost member (`donors.js`) | `donate-api/` |
 | **MySQL** | Ghost's database: content, settings, members, staff accounts | Docker volume `db` |
 | **Caddy** | HTTPS (automatic Let's Encrypt) and reverse proxy. Staging/prod only | `Caddyfile` |
 | **traffic-analytics** | Ghost's analytics proxy: page views → Tinybird Cloud (EU), IP removed. Staging/prod, profile `analytics` | `docker-compose.prod.yml`, `tinybird/` |
@@ -54,12 +54,13 @@ theme/                    the Ghost theme "vilagitani-fogok"
   assets/images/          logos (vf/), photos (webp 800/1600 + jpg), partner logos
   package.json            theme metadata + **custom theme settings** (what editors see in Design → Theme settings)
 ghost/routes.yaml         URL structure: / uses home.hbs, posts live under /naplo/
-donate-api/               server.js (HTTP wrapper) + checkout.js (Stripe logic, portable)
+donate-api/               server.js (HTTP wrapper) + checkout.js (Stripe logic, portable) + donors.js (webhook → Ghost member) + backfill.js
 scripts/seed.mjs          sets up a fresh Ghost: owner, theme, nav, tags, pages, content blocks, sample posts
 scripts/content.mjs       launch content for a live Ghost via Admin API key (see README → Deploy)
 content/                  files content.mjs uploads into Ghost: dokumentumok/ (Átláthatóság PDFs), galeria/, Közlemény image
 Adatvédelmi.md            privacy policy source; content.mjs renders it as /adatvedelem/ (edit here, not in Ghost)
 scripts/e2e.mjs           browser test: donate box + newsletter signup
+scripts/webhook-test.mjs  signed fake Stripe events → checks the donor's Ghost member
 scripts/screenshots.mjs   full-page desktop (1440) + mobile (390) screenshots → screenshots/
 scripts/backup.sh         database + uploads backup;  scripts/restore-staging.sh  copy of production → staging, without members
 scripts/release.sh        code: main → staging → prod (fast-forward);  scripts/promote.mjs  content: pages/posts/settings + their images one stage up
@@ -99,7 +100,23 @@ docs/                     this file + TRACKER.md
 4. The browser goes to Stripe's hosted checkout. On success Stripe sends it back to `/koszonjuk/?a=<amount>&f=<once|monthly>&session_id=…`, and `main.js` writes the thank-you text from those parameters.
 5. With no `STRIPE_SECRET_KEY`, **mock mode** skips Stripe and goes straight to `/koszonjuk/…&mock=1`.
 
-Donations are recorded **only in Stripe**. There are no webhooks yet, so the site itself doesn't know who donated. The campaign counter reads totals from Stripe's Search API instead (`donate-api/campaign.js`); search results can lag about a minute behind a payment.
+Money is recorded **only in Stripe**. The campaign counter reads totals from Stripe's Search API (`donate-api/campaign.js`); search results can lag about a minute behind a payment.
+
+### Donor records (Stripe webhook → Ghost Members)
+Stripe keeps the money, **Ghost Members keeps the people**. After a paid checkout Stripe calls `POST /api/donate/webhook`. `donate-api/donors.js` checks the signature and creates or updates the donor as a Ghost member (no email is sent):
+- **Labels:** `Támogató`, `Egyszeri támogató` / `Havi támogató`, `Kampány: <slug>` (e.g. `Kampány: futas`), `Beszámolót kér`. Labels and newsletters are only ever added, never removed.
+- **Note:** one line per donation: date · amount · once/monthly · campaign · Checkout Session id. The id makes Stripe's retries harmless.
+- **Newsletters only with consent.** Stripe's checkout page asks "Elküldjük, mire fordítottuk az adományod?" (optional dropdown, `custom_fields` in `checkout.js`). "Igen" → newsletter **Beszámoló támogatóknak** (slug `beszamolo-tamogatoknak`, not subscribed on normal sign-up). Ticking "Feliratkozom" in the donate box → the Napló newsletter too. Anyone else gets labels only and can't be emailed.
+- **End of a campaign:** write a post → Publish → newsletter *Beszámoló támogatóknak* → recipients: label `Kampány: <slug>`.
+- **Past donations:** `docker compose exec donate-api node backfill.js [--campaign=futas] [--since=2026-09-01]` is a dry run; add `--apply` to write. Old sessions have no consent answer, so it adds labels and notes only. Bank transfers aren't in Stripe: import them as a CSV in Ghost Admin → Members, with labels.
+- **Ghost's "unsubscribed" filter** also lists donors without a newsletter. Exclude the `Támogató` label when cleaning up members (VF-065).
+- Monthly renewals and cancellations aren't tracked in Ghost (Stripe has them).
+
+Setup per environment (once):
+1. Ghost Admin → Settings → Newsletters → **Add newsletter** "Beszámoló támogatóknak", slug `beszamolo-tamogatoknak`, "Subscribe new members on sign-up" **off**. (Locally `npm run seed` does steps 1–2.)
+2. Ghost Admin → Settings → Integrations → **Add custom integration** "Donate API" → copy the Admin API key into `.env` as `GHOST_ADMIN_API_KEY`.
+3. Stripe Dashboard (test mode on staging, live on prod) → Developers → Webhooks → **Add endpoint** `https://<domain>/api/donate/webhook`, events `checkout.session.completed` and `checkout.session.async_payment_succeeded` → copy the signing secret into `.env` as `STRIPE_WEBHOOK_SECRET`.
+4. `docker compose … up -d donate-api`. The log line says `webhook: on`. Make a test donation; `docker compose logs donate-api` shows `[webhook] donor created`.
 
 ### Newsletter / members
 - Ticking "Feliratkozom" on /tamogatas/ signs the visitor up as a free Ghost member. Ghost emails a magic link through Mailgun SMTP. The signup can't block the payment.
@@ -192,6 +209,7 @@ On lepusprime the stack isn't the prod compose: run it with `DC="docker compose"
 ### Automated (local)
 - `npm run theme:test`: gscan, Ghost's theme validator. Run it before deploying theme changes.
 - `npm run e2e`: browser test of the donate box and newsletter signup.
+- `node scripts/webhook-test.mjs`: donor webhook → Ghost member, without Stripe (needs `STRIPE_WEBHOOK_SECRET`, any text locally, and `GHOST_ADMIN_API_KEY` in `.env`).
 - `npm run screenshots`: full-page desktop and mobile PNGs of every main page in `screenshots/`. It also warns about horizontal overflow on mobile.
 
 ### Manual checklist (staging)
@@ -202,6 +220,7 @@ On lepusprime the stack isn't the prod compose: run it with `DC="docker compose"
 - [ ] 3D Secure card `4000 0027 6000 3184` → authentication popup → success
 - [ ] Declined card `4000 0000 0000 0002` → error shown on Stripe's page, nothing charged
 - [ ] Cancel on Stripe's page → back to /tamogatas/
+- [ ] Donation with "Elküldjük…" = Igen → Ghost Admin → Members: labels `Támogató`, `Kampány: …`, `Beszámolót kér`, newsletter Beszámoló támogatóknak; without answer → labels only, no newsletter
 - [ ] Receipt email: Stripe doesn't send receipts automatically in sandbox. Preview it from the payment in the Dashboard ("Send receipt") and check the wording
 - [ ] Monthly cancellation through the Customer Portal link (once the portal is set up)
 

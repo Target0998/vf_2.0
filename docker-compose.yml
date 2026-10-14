@@ -65,6 +65,11 @@ services:
       ALLOWED_ORIGINS: ${GHOST_URL:-http://localhost:2368},http://127.0.0.1:2368
       # empty = mock mode (redirects straight to /koszonjuk/). Put a Stripe *test* key in .env to try real Checkout.
       STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
+      # donor records (donors.js): Stripe webhook → Ghost member. Empty secret = /webhook off
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
+      GHOST_ADMIN_API_KEY: ${GHOST_ADMIN_API_KEY:-}
+      GHOST_API_URL: http://ghost:2368
+      DONOR_REPORT_NEWSLETTER: ${DONOR_REPORT_NEWSLETTER:-beszamolo-tamogatoknak}
     volumes:
       - ./donate-api:/app:ro
 

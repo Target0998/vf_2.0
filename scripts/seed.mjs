@@ -319,6 +319,26 @@ async function removeDefaults() {
     }
 }
 
+// Donor records (donate-api/donors.js): the report newsletter and an Admin API key for donate-api.
+async function donors() {
+    const { newsletters } = await api('GET', '/newsletters/?limit=all');
+    if (!newsletters.some((n) => n.slug === 'beszamolo-tamogatoknak')) {
+        await api('POST', '/newsletters/', {
+            newsletters: [{ name: 'Beszámoló támogatóknak', slug: 'beszamolo-tamogatoknak', subscribe_on_signup: false,
+                description: 'Mire fordítottuk az adományokat – csak a támogatóinknak, akik kérték.' }]
+        });
+        log('newsletter created: Beszámoló támogatóknak');
+    }
+    const { integrations } = await api('GET', '/integrations/?include=api_keys&limit=all');
+    let donateApi = integrations.find((i) => i.name === 'Donate API');
+    if (!donateApi) {
+        donateApi = (await api('POST', '/integrations/?include=api_keys', { integrations: [{ name: 'Donate API' }] })).integrations[0];
+        log('integration created: Donate API');
+    }
+    const key = donateApi.api_keys.find((k) => k.type === 'admin').secret; // already "id:secret"
+    if (process.env.GHOST_ADMIN_API_KEY !== key) log(`put this in .env, then \`docker compose up -d donate-api\`:\n     GHOST_ADMIN_API_KEY=${key}`);
+}
+
 // --- run ---------------------------------------------------------------------------------------
 try {
     await waitForGhost();
@@ -329,6 +349,7 @@ try {
     console.log('Tags');     await tags();
     console.log('Pages');    await pages();
     console.log('Posts');    await posts();
+    console.log('Donors');   await donors();
     console.log(`\nDone ✓  Site: ${URL_}   Admin: ${URL_}/ghost/  (${EMAIL} / ${PASSWORD})`);
 } catch (e) {
     console.error('\n✗', e.message);

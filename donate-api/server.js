@@ -1,15 +1,21 @@
 // Minimal HTTP wrapper around createCheckout (no dependencies).
 //   POST /checkout  { amount, frequency, email?, name?, campaign?, return_path? } → { url }
 //   GET  /campaign/<slug>  → { total, donations, updated }  live card total of a campaign (see campaign.js)
+//   POST /webhook  Stripe events → donor as Ghost member (see donors.js)
 //   GET  /health
 import http from 'node:http';
 import { createCheckout } from './checkout.js';
 import { campaignTotal, recordMock } from './campaign.js';
+import { verifyEvent, donorFromSession, syncDonor } from './donors.js';
 
 const PORT = Number(process.env.PORT || 8787);
 const env = {
     STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY || '',
-    SITE_URL: process.env.SITE_URL || 'http://localhost:2368'
+    SITE_URL: process.env.SITE_URL || 'http://localhost:2368',
+    STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET || '',
+    GHOST_ADMIN_API_KEY: process.env.GHOST_ADMIN_API_KEY || '',
+    GHOST_API_URL: process.env.GHOST_API_URL || '',
+    DONOR_REPORT_NEWSLETTER: process.env.DONOR_REPORT_NEWSLETTER || ''
 };
 const allowed = (process.env.ALLOWED_ORIGINS || env.SITE_URL).split(',').map((s) => s.trim().replace(/\/$/, ''));
 
@@ -42,6 +48,7 @@ const server = http.createServer(async (req, res) => {
             return send(res, err.status || 500, { error: err.message }, origin);
         }
     }
+    if (req.method === 'POST' && pathname === '/webhook') return webhook(req, res);
     if (req.method !== 'POST' || pathname !== '/checkout') return send(res, 404, { error: 'Not found' }, origin);
     if (origin && !allowed.includes(origin)) return send(res, 403, { error: 'Origin not allowed' }, origin);
 
@@ -62,6 +69,43 @@ const server = http.createServer(async (req, res) => {
     }
 });
 
+// Stripe → here (no Origin, no CORS). Answers 500 when Ghost fails, so Stripe retries later.
+async function webhook(req, res) {
+    if (!env.STRIPE_WEBHOOK_SECRET) return send(res, 404, { error: 'Not found' });
+    // bytes, not string chunks: a multi-byte character split between chunks would break the signature
+    const chunks = [];
+    let size = 0;
+    for await (const chunk of req) {
+        chunks.push(chunk);
+        if ((size += chunk.length) > 500_000) return send(res, 413, { error: 'Too large' });
+    }
+    const raw = Buffer.concat(chunks).toString('utf8');
+    let event;
+    try {
+        event = verifyEvent(raw, req.headers['stripe-signature'], env.STRIPE_WEBHOOK_SECRET);
+    } catch (err) {
+        console.warn('[webhook] rejected:', err.message);
+        return send(res, 400, { error: err.message });
+    }
+    if (event.type !== 'checkout.session.completed' && event.type !== 'checkout.session.async_payment_succeeded') {
+        return send(res, 200, { ignored: event.type });
+    }
+    const donor = donorFromSession(event.data?.object);
+    if (!donor) return send(res, 200, { ignored: 'not a paid donation' });
+    if (!env.GHOST_ADMIN_API_KEY) {
+        console.warn('[webhook] GHOST_ADMIN_API_KEY not set – donor not saved', donor.session);
+        return send(res, 200, { ignored: 'ghost not configured' });
+    }
+    try {
+        const result = await syncDonor(donor, env);
+        console.log(`[webhook] donor ${result}: ${donor.monthly ? 'monthly' : 'once'} ${donor.amount} Ft${donor.campaign ? ` [${donor.campaign}]` : ''}${donor.report ? ' +report' : ''}${donor.newsletter ? ' +napló' : ''}`);
+        send(res, 200, { donor: result });
+    } catch (err) {
+        console.error('[webhook]', donor.session, err.message);
+        send(res, 500, { error: 'Ghost sync failed' });
+    }
+}
+
 server.listen(PORT, () => {
-    console.log(`vf-donate-api listening on :${PORT} (stripe: ${env.STRIPE_SECRET_KEY ? 'on' : 'MOCK – no STRIPE_SECRET_KEY'}), allowed origins: ${allowed.join(', ')}`);
+    console.log(`vf-donate-api listening on :${PORT} (stripe: ${env.STRIPE_SECRET_KEY ? 'on' : 'MOCK – no STRIPE_SECRET_KEY'}, webhook: ${env.STRIPE_WEBHOOK_SECRET ? 'on' : 'off'}), allowed origins: ${allowed.join(', ')}`);
 });

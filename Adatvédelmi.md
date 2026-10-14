@@ -26,6 +26,8 @@ Adatvédelmi tisztviselő kinevezésére az Adatkezelő nem köteles, ilyet nem 
 | Weboldal látogatása | technikai adatok (IP-cím, böngésző) | jogos érdek | a látogatás idejére |
 | Látogatottsági statisztika | megtekintett oldal, hivatkozó oldal, böngésző és eszköz típusa, ország, napi álnevesített munkamenet-azonosító; bejelentkezett feliratkozónál a feliratkozói azonosító | jogos érdek | 2 évig |
 | Online adományozás | név, e-mail, összeg, fizetési adatok | szerződés, jogi kötelezettség | 8 év (számviteli kötelezettség) |
+| Támogatói nyilvántartás | név, e-mail, adományaid időpontja, összege, gyakorisága, kampánya | jogos érdek | az utolsó adománytól 5 évig |
+| Beszámoló az adomány felhasználásáról | e-mail, név, megnyitások, kattintások | hozzájárulás | visszavonásig |
 | Hírlevél (Napló) | e-mail, név, megnyitások, kattintások | hozzájárulás | leiratkozásig |
 | Kapcsolatfelvétel e-mailben | e-mail, név, az üzenet tartalma | jogos érdek | az ügy lezárásától 1 évig |
 
@@ -56,13 +58,22 @@ Időtartam: a számviteli bizonylatokhoz kapcsolódó adatokat 8 évig őrizzük
 Adatfeldolgozó: Stripe Payments Europe, Limited (1 Grand Canal Street Lower, Grand Canal Dock, Dublin, D02 H210, Írország). A csalásmegelőzéshez és a pénzügyi szabályok betartásához szükséges adatkezelések tekintetében a Stripe önálló adatkezelő. A Stripe egyes adatokat az Amerikai Egyesült Államokba is továbbíthat; ennek alapja az EU–USA adatvédelmi keretrendszer és az Európai Bizottság által elfogadott általános szerződési feltételek. A Stripe adatkezelési tájékoztatója: [stripe.com/privacy](https://stripe.com/privacy)
 Ha cégként adókedvezményre jogosító igazolást kérsz, az igazolás kiállításához szükséges adatokat (cégnév, cím, adószám, az adomány összege) jogi kötelezettség alapján, 8 évig kezeljük.
 
+### Támogatói nyilvántartás és beszámoló
+<!-- TODO VF-080: the 5-year retention and the legitimate-interest basis are a proposal; the association decides. -->
+A weboldalon adományozók adatait (név, e-mail-cím, az adományok időpontja, összege, gyakorisága és – ha egy kampány oldalán adományoztál – a kampány neve) a Stripe-tól átvesszük a saját, Hetzner szerveren futó Ghost tartalomkezelőnkbe, és ott támogatóként nyilvántartjuk. Kártyaadatok ide nem kerülnek.
+Cél: a támogatóink nyilvántartása, a beérkezett adományok kampányonkénti áttekintése, és ha kéred, beszámoló küldése.
+Jogalap: az Adatkezelő jogos érdeke a támogatói kapcsolatok nyilvántartásához (GDPR 6. cikk (1) f) pont). A nyilvántartás ellen az info@vilagitanifogok.hu címen tiltakozhatsz; ekkor töröljük az adataidat ebből a nyilvántartásból (a számviteli adatokat a Stripe-nál a fenti ideig ettől függetlenül megőrizzük).
+Időtartam: az utolsó adományodtól számított 5 évig.
+**Beszámoló:** a Stripe fizetési oldalán megkérdezzük, elküldjük-e e-mailben, mire fordítottuk az adományodat. Csak akkor küldünk ilyen levelet, ha igennel válaszoltál. Jogalap: hozzájárulásod (GDPR 6. cikk (1) a) pont), amelyet bármikor visszavonhatsz a levelek alján található leiratkozó linkkel vagy az info@vilagitanifogok.hu címen. A beszámolók kiküldésére és a megnyitások mérésére ugyanazok a szabályok és adatfeldolgozók vonatkoznak, mint a hírlevélre (lásd lent).
+Ha adományozáskor a hírlevél-feliratkozást is bejelölöd, a hírlevélre is feliratkoztatunk.
+
 ## Hírlevél (Napló)
 A Támogatás oldalon vagy a weboldalon feliratkozhatsz a hírlevelünkre, amelyben beszámolunk a munkánkról. A feliratkozást a megadott e-mail-címre küldött megerősítő linkkel kell jóváhagynod.
 Kezelt adatok: e-mail-cím, név (ha megadod), a feliratkozás időpontja és helye, a választott hírlevelek, valamint az, hogy a kiküldött leveleket megnyitottad-e, és mely linkekre kattintottál.
 Cél: a hírlevél kiküldése; a megnyitások és kattintások mérésével azt vizsgáljuk, mely tartalmak érdeklik az olvasókat.
 Jogalap: hozzájárulásod (GDPR 6. cikk (1) a) pont), amelyet bármikor visszavonhatsz: minden levél alján található leiratkozó link, vagy írj az info@vilagitanifogok.hu címre. A visszavonás nem érinti a korábbi adatkezelés jogszerűségét.
 Időtartam: a leiratkozásig vagy a hozzájárulás visszavonásáig. Leiratkozás után a hírleveleket nem küldjük tovább, és az adataidat legkésőbb 30 napon belül töröljük.
-<!-- TODO: this 30-day promise needs someone to delete unsubscribed members in Ghost Admin → Members (filter: unsubscribed) every month. Change the wording if that won't happen. -->
+<!-- TODO: this 30-day promise needs someone to delete unsubscribed members in Ghost Admin → Members (filter: unsubscribed) every month. Change the wording if that won't happen. Donors without a newsletter also show as unsubscribed: exclude the label "Támogató" from that clean-up (VF-065). -->
 Adatfeldolgozók: a hírlevélküldést a Ghost tartalomkezelő végzi a saját (Hetzner) szerverünkön; a leveleket a Mailgun Technologies, Inc. (112 E Pecan St. #1135, San Antonio, TX 78205, USA) kézbesíti, az Európai Unióban található adatközpontból. Mivel a Mailgun amerikai vállalat, az adattovábbítás alapja az EU–USA adatvédelmi keretrendszer és az általános szerződési feltételek. A Mailgun adatkezelési tájékoztatója: [mailgun.com/legal/privacy-policy](https://www.mailgun.com/legal/privacy-policy/)
 A weboldalra történő bejelentkezéshez (feliratkozói fiók) szükséges egyszer használatos belépőlinkeket szintén a Mailgun kézbesíti.
 

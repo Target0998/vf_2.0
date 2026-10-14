@@ -9,7 +9,7 @@ export const MAX_AMOUNT = 5_000_000; // Ft – sanity cap
 const CAMPAIGNS = { futas: 'Futás kampány' };
 
 /**
- * @param {object} input  { amount: number (Ft), frequency: 'once'|'monthly', email?, name?, campaign?, return_path? }
+ * @param {object} input  { amount: number (Ft), frequency: 'once'|'monthly', email?, name?, newsletter?, campaign?, return_path? }
  *                         campaign: slug tagged on the Stripe objects (e.g. 'futas'); return_path: where Cancel goes
  * @param {object} env    { STRIPE_SECRET_KEY, SITE_URL }
  * @returns {Promise<{url: string}>}
@@ -52,7 +52,19 @@ export async function createCheckout(input, env) {
         'line_items[0][price_data][product_data][name]': label,
         'metadata[source]': 'vf-ghost-donate-box',
         'metadata[frequency]': monthly ? 'monthly' : 'once',
-        'metadata[name]': input.name ? String(input.name).slice(0, 200) : ''
+        'metadata[name]': input.name ? String(input.name).slice(0, 200) : '',
+        // ticked "Feliratkozom" → the webhook subscribes the donor to the Napló newsletter (donors.js)
+        'metadata[newsletter]': input.newsletter === true ? '1' : '',
+        // asked on Stripe's page, so every donate box gets it; opt-in → report newsletter (donors.js)
+        'custom_fields[0][key]': 'beszamolo',
+        'custom_fields[0][type]': 'dropdown',
+        'custom_fields[0][optional]': 'true',
+        'custom_fields[0][label][type]': 'custom',
+        'custom_fields[0][label][custom]': 'Elküldjük, mire fordítottuk az adományod?',
+        'custom_fields[0][dropdown][options][0][label]': 'Igen, kérem e-mailben',
+        'custom_fields[0][dropdown][options][0][value]': 'igen',
+        'custom_fields[0][dropdown][options][1][label]': 'Nem kérem',
+        'custom_fields[0][dropdown][options][1][value]': 'nem'
     };
     if (monthly) {
         params['line_items[0][price_data][recurring][interval]'] = 'month';
