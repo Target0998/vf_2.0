@@ -127,6 +127,7 @@ The relay's "baton" is a phone running **Traccar Client** (free, iOS/Android). I
 
 - **Public view:** ignores positions before `TRACK_START` (default 2026-10-16 00:00, so test runs don't show) and lags `TRACK_DELAY_MIN` (default 5) minutes behind. Status: `before` → `live` → `paused` (no fix for 10 min: handover, no signal) → `finished` (within 300 m of the end).
 - **Organisers' view:** `https://vilagitanifogok.hu/api/donate/track/futas?token=<TRACK_TOKEN>`: all positions, no delay, phone battery, last raw fix. Use it to check the phone works before and during the run.
+- **GPX export:** `https://vilagitanifogok.hu/api/donate/track/futas.gpx?token=<TRACK_TOKEN>` downloads the whole run (times, elevation) from `TRACK_START`, one segment per stretch without a 10-minute gap; add `&all=1` for the test positions too. Every position is saved as it arrives (`futas.jsonl` in the `track` volume), so the export can be taken any time, also during the run. Take it before the raw positions are deleted (see `Adatvédelmi.md`).
 - **Progress** only moves forward, and only for fixes within 250 m of the route that are reachable at ≤ 43 km/h from the last progress (or right on the route, ≤ 100 m, after a long gap). A detour or a ride in the support car doesn't count, and the dot still shows where the phone is.
 
 **Setting up the phone (once):**

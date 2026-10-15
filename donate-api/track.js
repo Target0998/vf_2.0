@@ -4,6 +4,8 @@
 //   GET  /track/<slug>[?route=1]  public: progress along the planned route (+ the route itself with route=1).
 //                                 Only positions after TRACK_START, shown TRACK_DELAY_MIN minutes late.
 //   GET  /track/<slug>?token=…    organisers: the same without start filter or delay, plus battery and raw fixes.
+//   GET  /track/<slug>.gpx?token=…  organisers: the run as a GPX track (times, elevation) from TRACK_START;
+//                                 &all=1 includes the test positions before it.
 // Planned route = routes/<slug>.gpx (replace the file and restart to change it). Positions are kept in memory
 // and appended to TRACK_DIR/<slug>.jsonl, so a restart keeps them. No database, no dependencies.
 import fs from 'node:fs';
@@ -38,13 +40,13 @@ export function parseFixes(query, raw, contentType) {
         const body = JSON.parse(raw || '{}');
         const list = [].concat(body.location || body.locations || []);
         return { id: body.device_id || query.get('id') || query.get('deviceid'), fixes: list.map((l) => ({
-            t: l.timestamp, lat: l.coords?.latitude, lon: l.coords?.longitude, acc: l.coords?.accuracy,
+            t: l.timestamp, lat: l.coords?.latitude, lon: l.coords?.longitude, acc: l.coords?.accuracy, alt: l.coords?.altitude,
             batt: l.battery?.level >= 0 ? Math.round(l.battery.level * 100) : undefined, mock: l.mock
         })) };
     }
     const p = [...query].length ? query : new URLSearchParams(raw || '');
     const [lat, lon] = p.get('location') ? p.get('location').split(',') : [p.get('lat'), p.get('lon')];
-    return { id: p.get('id') || p.get('deviceid'), fixes: [{ t: p.get('timestamp'), lat, lon, acc: p.get('accuracy'), batt: p.get('batt') }] };
+    return { id: p.get('id') || p.get('deviceid'), fixes: [{ t: p.get('timestamp'), lat, lon, acc: p.get('accuracy'), alt: p.get('altitude'), batt: p.get('batt') }] };
 }
 
 /** @returns {number} how many fixes were stored */
@@ -57,6 +59,7 @@ export function addFixes(slug, fixes, cfg) {
             t: parseTime(f.t) ?? now,
             lat: Number(f.lat), lon: Number(f.lon),
             acc: f.acc == null || f.acc === '' ? undefined : Number(f.acc),
+            alt: f.alt == null || f.alt === '' || !Number.isFinite(Number(f.alt)) ? undefined : Math.round(Number(f.alt) * 10) / 10,
             batt: f.batt == null || f.batt === '' ? undefined : Number(f.batt)
         };
         if (f.mock || !(Math.abs(fix.lat) <= 90 && Math.abs(fix.lon) <= 180) || (!fix.lat && !fix.lon)) continue;
@@ -108,6 +111,26 @@ export function trackStatus(slug, cfg, { full = false, withRoute = false } = {})
     }
     if (withRoute) out.route = run.route.pts.map(([lat, lon]) => [round(lat, 5), round(lon, 5)]);
     return out;
+}
+
+/** The run as GPX 1.1: one track, a new segment after every gap of 10+ minutes (handover, no signal). */
+export function trackGpx(slug, cfg, { all = false } = {}) {
+    const run = load(slug, cfg);
+    const pts = all ? run.points : run.points.filter((p) => p.t >= cfg.start);
+    const segs = [];
+    pts.forEach((p, i) => {
+        if (!i || p.t - pts[i - 1].t >= LIVE_MS) segs.push([]);
+        segs.at(-1).push(`      <trkpt lat="${p.lat.toFixed(6)}" lon="${p.lon.toFixed(6)}">${p.alt != null ? `<ele>${p.alt}</ele>` : ''}<time>${new Date(p.t).toISOString()}</time></trkpt>`);
+    });
+    return `<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="vilagitanifogok.hu donate-api" xmlns="http://www.topografix.com/GPX/1/1">
+  <metadata><name>Világítani Fogok – ${slug}</name>${pts.length ? `<time>${new Date(pts[0].t).toISOString()}</time>` : ''}</metadata>
+  <trk>
+    <name>Világítani Fogok – ${slug}</name>
+${segs.map((s) => `    <trkseg>\n${s.join('\n')}\n    </trkseg>`).join('\n')}
+  </trk>
+</gpx>
+`;
 }
 
 export function hasRoute(slug) {

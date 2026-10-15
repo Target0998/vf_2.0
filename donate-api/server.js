@@ -2,13 +2,13 @@
 //   POST /checkout  { amount, frequency, email?, name?, campaign?, return_path? } → { url }
 //   GET  /campaign/<slug>  → { total, donations, updated }  live card total of a campaign (see campaign.js)
 //   POST /webhook  Stripe events → donor as Ghost member (see donors.js)
-//   GET|POST /track/<slug>  live position of a campaign run (see track.js)
+//   GET|POST /track/<slug>  live position of a campaign run;  GET /track/<slug>.gpx?token=…  the run as GPX (see track.js)
 //   GET  /health
 import http from 'node:http';
 import { createCheckout } from './checkout.js';
 import { campaignTotal, recordMock } from './campaign.js';
 import { verifyEvent, donorFromSession, syncDonor } from './donors.js';
-import { trackConfig, isToken, parseFixes, addFixes, trackStatus, hasRoute } from './track.js';
+import { trackConfig, isToken, parseFixes, addFixes, trackStatus, trackGpx, hasRoute } from './track.js';
 
 const PORT = Number(process.env.PORT || 8787);
 const env = {
@@ -53,6 +53,13 @@ const server = http.createServer(async (req, res) => {
     }
     const run = pathname.match(/^\/track\/([a-z0-9-]{1,40})\/?$/);
     if (run) return trackRoute(req, res, run[1], origin);
+    const gpx = pathname.match(/^\/track\/([a-z0-9-]{1,40})\.gpx$/);
+    if (gpx && req.method === 'GET' && hasRoute(gpx[1])) {
+        const query = new URL(req.url, 'http://x').searchParams;
+        if (!isToken(query.get('token'), track.token)) return send(res, 403, { error: 'Forbidden' });
+        res.writeHead(200, { 'Content-Type': 'application/gpx+xml; charset=utf-8', 'Content-Disposition': `attachment; filename="${gpx[1]}.gpx"`, 'Cache-Control': 'no-store' });
+        return res.end(trackGpx(gpx[1], track, { all: query.get('all') === '1' }));
+    }
     if (req.method === 'POST' && pathname === '/webhook') return webhook(req, res);
     if (req.method !== 'POST' || pathname !== '/checkout') return send(res, 404, { error: 'Not found' }, origin);
     if (origin && !allowed.includes(origin)) return send(res, 403, { error: 'Origin not allowed' }, origin);

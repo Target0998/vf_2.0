@@ -332,11 +332,11 @@
         function show(d) {
             data = d;
             var len = Math.round(d.length_km);
-            var late = d.delay_min ? ' (' + d.delay_min + ' perc késéssel mutatjuk)' : '';
+            var late = d.delay_min ? ' (' + d.delay_min + ' perc késéssel)' : '';
             var texts = {
-                before: ['Október 16.', 'Október 16-án kora reggel indulunk Budapestről. A stafétabot egy telefon: itt követheted élőben, merre jár éppen.'],
-                live: ['Élőben', 'A stafétabot most itt jár. Utolsó jel: ' + (d.last && time(d.last.t)) + late + '.'],
-                paused: ['Szünet', 'Épp nincs friss jel (utolsó: ' + (d.last && time(d.last.t)) + '): lehet, hogy a telefon gazdát cserél, vagy nincs térerő. Hamarosan folytatjuk!'],
+                before: ['Október 16.', 'Október 16-án kora reggel indulunk Budapestről. Kövesd a futást élőben!'],
+                live: ['Élőben', 'Most épp erre járunk. Utolsó jel: ' + (d.last && time(d.last.t)) + late + '.'],
+                paused: ['Jelre várunk', 'A jel egy időre elveszett (utolsó: ' + (d.last && time(d.last.t)) + '), de hamarosan újra jelentkezünk!'],
                 finished: ['Célba értünk', 'Beértünk Kerecsendre! Köszönjük mindenkinek, aki futott, szurkolt vagy támogatott.']
             }[d.status] || ['', ''];
             var badge = el.querySelector('[data-live-badge]');
