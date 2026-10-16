@@ -331,7 +331,7 @@
 
         function show(d) {
             data = d;
-            var len = Math.round(d.length_km);
+            var len = Number(el.getAttribute('data-distance')) || Math.round(d.length_km); // the official distance, shown as the total
             var late = d.delay_min ? ' (' + d.delay_min + ' perc késéssel)' : '';
             var texts = {
                 before: ['Október 16.', 'Október 16-án kora reggel indulunk Budapestről. Kövesd a futást élőben!'],
