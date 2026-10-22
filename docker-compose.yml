@@ -78,6 +78,8 @@ services:
       TRACK_DELAY_MIN: ${TRACK_DELAY_MIN:-5}
       # organisers' donation list at /api/donate/admin/ (admin.js); empty = off
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+      # optional: Stripe key only for that list (e.g. a read-only live key on staging); empty = STRIPE_SECRET_KEY
+      STRIPE_READ_KEY: ${STRIPE_READ_KEY:-}
     volumes:
       - ./donate-api:/app:ro
       - track:/data

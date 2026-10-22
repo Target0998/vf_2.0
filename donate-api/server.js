@@ -20,7 +20,8 @@ const env = {
     GHOST_ADMIN_API_KEY: process.env.GHOST_ADMIN_API_KEY || '',
     GHOST_API_URL: process.env.GHOST_API_URL || '',
     DONOR_REPORT_NEWSLETTER: process.env.DONOR_REPORT_NEWSLETTER || '',
-    ADMIN_PASSWORD: process.env.ADMIN_PASSWORD || ''
+    ADMIN_PASSWORD: process.env.ADMIN_PASSWORD || '',
+    STRIPE_READ_KEY: process.env.STRIPE_READ_KEY || ''
 };
 const track = trackConfig();
 const allowed = (process.env.ALLOWED_ORIGINS || env.SITE_URL).split(',').map((s) => s.trim().replace(/\/$/, ''));

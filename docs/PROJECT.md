@@ -109,6 +109,7 @@ Stripe's Dashboard can't filter payments by our tags, so `donate-api` has its ow
 - Read straight from Stripe (list API, no lag; cached 1 min, "Frissítés" reloads). Bank transfers aren't in Stripe, so they're not here either.
 - Shows donors' names and e-mails: share the password only with the people who handle donations.
 - Setup: `ADMIN_PASSWORD=` a long random string (`openssl rand -base64 18`) in the server's `.env`, then `docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d donate-api`. The log line says `admin: on`.
+- **Staging with live data:** put a *restricted, read-only* live key (`rk_live_…`; Stripe → Developers → API keys → Create restricted key, Read on PaymentIntents, Charges, Invoices, Subscriptions) into `STRIPE_READ_KEY`, not `STRIPE_SECRET_KEY`: the list then shows live payments while staging's donate box keeps charging only test cards.
 
 ### Donor records (Stripe webhook → Ghost Members)
 Stripe keeps the money, **Ghost Members keeps the people**. After a paid checkout Stripe calls `POST /api/donate/webhook`. `donate-api/donors.js` checks the signature and creates or updates the donor as a Ghost member (no email is sent):
