@@ -3,11 +3,13 @@
 //   GET  /campaign/<slug>  → { total, donations, updated }  live card total of a campaign (see campaign.js)
 //   POST /webhook  Stripe events → donor as Ghost member (see donors.js)
 //   GET|POST /track/<slug>  live position of a campaign run;  GET /track/<slug>.gpx?token=…  the run as GPX (see track.js)
+//   GET  /admin/  organisers' list of all card donations, filterable; password ADMIN_PASSWORD (see admin.js)
 //   GET  /health
 import http from 'node:http';
 import { createCheckout } from './checkout.js';
 import { campaignTotal, recordMock } from './campaign.js';
 import { verifyEvent, donorFromSession, syncDonor } from './donors.js';
+import { adminRoute } from './admin.js';
 import { trackConfig, isToken, parseFixes, addFixes, trackStatus, trackGpx, hasRoute } from './track.js';
 
 const PORT = Number(process.env.PORT || 8787);
@@ -17,7 +19,8 @@ const env = {
     STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET || '',
     GHOST_ADMIN_API_KEY: process.env.GHOST_ADMIN_API_KEY || '',
     GHOST_API_URL: process.env.GHOST_API_URL || '',
-    DONOR_REPORT_NEWSLETTER: process.env.DONOR_REPORT_NEWSLETTER || ''
+    DONOR_REPORT_NEWSLETTER: process.env.DONOR_REPORT_NEWSLETTER || '',
+    ADMIN_PASSWORD: process.env.ADMIN_PASSWORD || ''
 };
 const track = trackConfig();
 const allowed = (process.env.ALLOWED_ORIGINS || env.SITE_URL).split(',').map((s) => s.trim().replace(/\/$/, ''));
@@ -60,6 +63,7 @@ const server = http.createServer(async (req, res) => {
         res.writeHead(200, { 'Content-Type': 'application/gpx+xml; charset=utf-8', 'Content-Disposition': `attachment; filename="${gpx[1]}.gpx"`, 'Cache-Control': 'no-store' });
         return res.end(trackGpx(gpx[1], track, { all: query.get('all') === '1' }));
     }
+    if (pathname === '/admin' || pathname.startsWith('/admin/')) return adminRoute(req, res, pathname, env);
     if (req.method === 'POST' && pathname === '/webhook') return webhook(req, res);
     if (req.method !== 'POST' || pathname !== '/checkout') return send(res, 404, { error: 'Not found' }, origin);
     if (origin && !allowed.includes(origin)) return send(res, 403, { error: 'Origin not allowed' }, origin);
@@ -145,5 +149,5 @@ async function webhook(req, res) {
 }
 
 server.listen(PORT, () => {
-    console.log(`vf-donate-api listening on :${PORT} (stripe: ${env.STRIPE_SECRET_KEY ? 'on' : 'MOCK – no STRIPE_SECRET_KEY'}, webhook: ${env.STRIPE_WEBHOOK_SECRET ? 'on' : 'off'}, track: ${track.token ? 'on' : 'off'}), allowed origins: ${allowed.join(', ')}`);
+    console.log(`vf-donate-api listening on :${PORT} (stripe: ${env.STRIPE_SECRET_KEY ? 'on' : 'MOCK – no STRIPE_SECRET_KEY'}, webhook: ${env.STRIPE_WEBHOOK_SECRET ? 'on' : 'off'}, track: ${track.token ? 'on' : 'off'}, admin: ${env.ADMIN_PASSWORD ? 'on' : 'off'}), allowed origins: ${allowed.join(', ')}`);
 });

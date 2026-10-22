@@ -76,6 +76,8 @@ services:
       TRACK_DIR: /data
       TRACK_START: ${TRACK_START-2026-10-16T00:00:00+02:00}
       TRACK_DELAY_MIN: ${TRACK_DELAY_MIN:-5}
+      # organisers' donation list at /api/donate/admin/ (admin.js); empty = off
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
     volumes:
       - ./donate-api:/app:ro
       - track:/data

@@ -30,7 +30,7 @@ It's built on **Ghost 6** with a custom theme. Editors change content in Ghost A
 |---|---|---|
 | **Ghost** | CMS: pages, posts, members, newsletters, admin UI | `ghost:6-alpine` image |
 | **Theme** | All HTML, CSS and JS of the public site | `theme/` |
-| **donate-api** | Small Node service, no dependencies. Turns {amount, frequency} into a Stripe Checkout Session URL; `GET /campaign/<slug>` sums a campaign's card donations from Stripe (cached 1 min); `POST /webhook` saves each donor as a Ghost member (`donors.js`) | `donate-api/` |
+| **donate-api** | Small Node service, no dependencies. Turns {amount, frequency} into a Stripe Checkout Session URL; `GET /campaign/<slug>` sums a campaign's card donations from Stripe (cached 1 min); `POST /webhook` saves each donor as a Ghost member (`donors.js`); `/admin/` password-protected list of all card donations (`admin.js`) | `donate-api/` |
 | **MySQL** | Ghost's database: content, settings, members, staff accounts | Docker volume `db` |
 | **Caddy** | HTTPS (automatic Let's Encrypt) and reverse proxy. Staging/prod only | `Caddyfile` |
 | **traffic-analytics** | Ghost's analytics proxy: page views → Tinybird Cloud (EU), IP removed. Staging/prod, profile `analytics` | `docker-compose.prod.yml`, `tinybird/` |
@@ -55,6 +55,7 @@ theme/                    the Ghost theme "vilagitani-fogok"
   package.json            theme metadata + **custom theme settings** (what editors see in Design → Theme settings)
 ghost/routes.yaml         URL structure: / uses home.hbs, posts live under /naplo/
 donate-api/               server.js (HTTP wrapper) + checkout.js (Stripe logic, portable) + donors.js (webhook → Ghost member) + backfill.js
+                          + admin.js / donations.js (organisers' donation list) + campaign.js (counter) + track.js (run map)
 scripts/seed.mjs          sets up a fresh Ghost: owner, theme, nav, tags, pages, content blocks, sample posts
 scripts/content.mjs       launch content for a live Ghost via Admin API key (see README → Deploy)
 content/                  files content.mjs uploads into Ghost: dokumentumok/ (Átláthatóság PDFs), galeria/, Közlemény image
@@ -101,6 +102,13 @@ docs/                     this file + TRACKER.md
 5. With no `STRIPE_SECRET_KEY`, **mock mode** skips Stripe and goes straight to `/koszonjuk/…&mock=1`.
 
 Money is recorded **only in Stripe**. The campaign counter reads totals from Stripe's Search API (`donate-api/campaign.js`); search results can lag about a minute behind a payment.
+
+### Donation list for organisers
+Stripe's Dashboard can't filter payments by our tags, so `donate-api` has its own page: **https://vilagitanifogok.hu/api/donate/admin/**. The browser asks for a password (`ADMIN_PASSWORD` in `.env`, any user name; empty = page off). It lists every succeeded card payment from Stripe with date, amount, refund, name, e-mail and a link to the payment in the Dashboard, and filters by date, campaign (tick boxes, "nincs kampány" = untagged), source (the site's donate box or anything else) and frequency. Totals and a breakdown follow the filters; "CSV letöltése" exports the filtered rows. Filters are kept in the URL, so a view can be bookmarked.
+- One row per payment: a monthly donor appears once per paid month, tagged with their subscription's campaign and source. This is the same money the Futás counter counts.
+- Read straight from Stripe (list API, no lag; cached 1 min, "Frissítés" reloads). Bank transfers aren't in Stripe, so they're not here either.
+- Shows donors' names and e-mails: share the password only with the people who handle donations.
+- Setup: `ADMIN_PASSWORD=` a long random string (`openssl rand -base64 18`) in the server's `.env`, then `docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d donate-api`. The log line says `admin: on`.
 
 ### Donor records (Stripe webhook → Ghost Members)
 Stripe keeps the money, **Ghost Members keeps the people**. After a paid checkout Stripe calls `POST /api/donate/webhook`. `donate-api/donors.js` checks the signature and creates or updates the donor as a Ghost member (no email is sent):
