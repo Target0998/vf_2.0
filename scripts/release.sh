@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 # Moves CODE one stage up. Fast-forward only, so staging and prod are always a point on main's history:
-#     scripts/release.sh staging      main    → staging  (then git pull + compose on lepusprime)
+#     scripts/release.sh staging      main    → staging  (then git pull + compose in /srv/vf-staging/repo)
 #     scripts/release.sh prod         staging → prod     (then pull + restart on the production server)
 # Every commit is made on main. Never commit on staging or prod directly – the next release would refuse.
 # Content (Ghost pages, posts, theme settings, images) is not in git: see scripts/promote.mjs.
@@ -37,13 +37,12 @@ echo "✓ $TO = $(git rev-parse --short "origin/$FROM")"
 
 if [ "$TO" = prod ]; then
     echo
-    echo "On the production server, in the repo folder:"
-    echo "  git pull"
-    echo "  docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d"
-    echo "  docker compose -f docker-compose.yml -f docker-compose.prod.yml restart ghost   # theme changes (prod caches templates)"
+    echo "On the server (.env sets COMPOSE_FILE, so no -f flags):"
+    echo "  cd /srv/vf-prod/repo && git pull && docker compose up -d"
+    echo "  docker compose restart ghost   # theme changes (prod caches templates)"
 else
     echo
-    echo "On lepusprime:"
+    echo "On the server:"
     echo "  cd /srv/vf-staging/repo && git pull && docker compose up -d"
     echo "  docker compose restart ghost   # if theme/package.json or ghost/routes.yaml changed"
 fi

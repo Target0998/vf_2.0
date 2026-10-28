@@ -46,6 +46,8 @@ cp .env.example .env        # fill in the "Csak szerveren" block
 docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 ```
 
+On our own server (Azure, production and staging side by side) the `.env` sets `COMPOSE_FILE`, so there it's plain `docker compose …`: see docs/PROJECT.md → The server.
+
 Then in Ghost Admin:
 - Settings → Design → Theme settings → **donate_api_url** = `https://<domain>/api/donate/checkout`
 - Settings → Newsletters → Mailgun: domain, API key, EU region (for newsletters).

@@ -14,7 +14,7 @@ It's built on **Ghost 6** with a custom theme. Editors change content in Ghost A
 ## Architecture
 
 ```
-                      ┌──────────────────────── Hetzner server (docker compose) ────────────────────────┐
+                      ┌─────────────────────────── Azure VM (docker compose) ───────────────────────────┐
  browser ──HTTPS──▶   │  Caddy :80/:443 ──/api/donate/*──▶ donate-api :8787 ──▶ Stripe API (Checkout)   │
                       │        │                                                                         │
                       │        └──── everything else ──▶ Ghost :2368 ──▶ MySQL 8 (volume "db")           │
@@ -181,30 +181,32 @@ Three stages. **Code** moves up through git branches, **content** mostly moves d
 |---|---|---|---|
 | Purpose | development: experiments, breaking changes | review by the team before going live | the live site |
 | URL | http://localhost:2368 | https://staging.vilagitanifogok.hu | https://vilagitanifogok.hu |
-| Runs on | your laptop | lepusprime (Benedek's server): checkout in `/srv/vf-staging/repo`, Caddy vhost in nixos-dotfiles | Hetzner server |
-| Start / deploy | `npm run up` (+ `npm run seed` on a fresh DB) | by hand: `git pull && docker compose up -d` | `git pull` + compose, see below |
+| Runs on | your laptop | Azure VM, same host as prod: `/srv/vf-staging/repo` (see "The server") | Azure VM: `/srv/vf-prod/repo` |
+| Start / deploy | `npm run up` (+ `npm run seed` on a fresh DB) | by hand: `git pull && docker compose up -d` | by hand: `git pull && docker compose up -d` |
 | Ghost mode | development: theme edits show on reload | development | production: templates cached, **restart Ghost after theme changes** |
 | Email | Mailpit at :8025, nothing really sent | Mailgun SMTP (own SMTP user), real emails | Mailgun, real emails |
 | Analytics | – | – | Tinybird Cloud (EU), profile `analytics` |
 | Stripe | mock, or `sk_test_…` in `.env` | `sk_test_…` (sandbox) | **live** key |
 | Content | seed, or a copy of prod | copy of prod without members | **source of truth**: the association edits here |
 
+### The server
+Since 2026-10-28 production and staging share one Azure VM: `VFHost`, **51.116.177.87**, Germany West Central (Frankfurt), Standard_D2ds_v7 (2 vCPU, 8 GB), Ubuntu 24.04. SSH as `ben` with the VF key (sudo). Before that: production on Hetzner (2.28.137.208), staging on lepusprime.
+- `/srv/vf-prod/repo`: branch `prod`, compose project `vf`. Its `.env` starts with `COMPOSE_FILE=docker-compose.yml:docker-compose.prod.yml:docker-compose.server.yml`, so here it's **plain `docker compose …`, no `-f` flags**: with them the server file is skipped and staging loses its vhost the next time Caddy is recreated.
+- `/srv/vf-staging/repo`: branch `staging`, project `vf-staging`. The dev compose plus an untracked `docker-compose.override.yml` (Mailgun SMTP; Ghost :2368 and donate-api :8787 published on 127.0.0.1 and on the docker bridge 172.17.0.1 only). Don't use `docker-compose.prod.yml` here: it would start a second Caddy on 80/443.
+- **One Caddy, prod's, serves both domains.** The untracked `docker-compose.server.yml` + `Caddyfile.server` in the prod checkout import the repo `Caddyfile` and add the `staging.` vhost (`noindex`), proxied to `host.docker.internal` (= 172.17.0.1). Don't attach Caddy to staging's docker network instead: the repo Caddyfile's `ghost` / `donate-api` names would then resolve to either stack's containers.
+- Untracked server files are listed in each checkout's `.git/info/exclude`. Only 22, 80 and 443 are reachable from outside (Azure network security group; ufw is off, and Docker would bypass it anyway).
+
 ### Code: `main` → `staging` → `prod`
 Every commit is made on `main`. Releasing is a fast-forward of the next branch, so `staging` and `prod` are always a point on `main`'s history and never have commits of their own:
 ```sh
-scripts/release.sh staging   # main → staging, then deploy on lepusprime ↓, the team reviews it
+scripts/release.sh staging   # main → staging, then deploy on the server ↓, the team reviews it
 scripts/release.sh prod      # staging → prod: then on the production server ↓
 ```
-On lepusprime (staging) – never commit there, fixes go on `main` and come back with the next release:
+On the server, never commit in either checkout: fixes go on `main` and come back with the next release.
 ```sh
-cd /srv/vf-staging/repo && git pull && docker compose up -d   # docker-compose.override.yml (untracked) adds Mailgun + loopback ports
-docker compose restart ghost                                  # after theme/package.json or ghost/routes.yaml changes
-```
-On the production server:
-```sh
-git pull
-docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d          # picks up compose/.env changes
-docker compose -f docker-compose.yml -f docker-compose.prod.yml restart ghost  # picks up theme / routes.yaml changes
+cd /srv/vf-staging/repo && git pull && docker compose up -d   # staging; docker-compose.override.yml (untracked) adds Mailgun + ports
+cd /srv/vf-prod/repo && git pull && docker compose up -d      # production; .env sets COMPOSE_FILE, so no -f flags
+docker compose restart ghost                                  # in that checkout, after theme / package.json / routes.yaml changes
 ```
 Changes to `theme/package.json` (theme settings) or `ghost/routes.yaml` always need a Ghost restart, even locally.
 
@@ -220,7 +222,7 @@ node scripts/promote.mjs staging prod page:tamogatas post:<slug> theme:hero_imag
 - **Photos:** originals (full-size camera files) are kept outside git, in the shared Drive. Locally they can sit in `UjKepek/` (git-ignored). Resize to at most 2400 px, upload into Ghost on local or staging, and promote the page/setting that uses them. The promote script carries the files along.
 
 ## Backups and copying production to staging
-- `scripts/backup.sh` (on a server, in the repo folder): database dump (`utf8mb4`) + uploaded images, PDFs and media → `backups/vf-<date>-db.sql.gz` and `…-content.tar.gz`. Contains members' personal data: `backups/` is git-ignored, keep the files private.
+- `scripts/backup.sh` (on a server, in the repo folder): database dump (`utf8mb4`) + uploaded images, PDFs and media → `backups/vf-<date>-db.sql.gz` and `…-content.tar.gz`. Contains members' personal data: `backups/` is git-ignored, keep the files private. Not included: `.env` and the run map's positions (`track` volume): `docker compose exec -T donate-api tar czf - -C /data . > backups/track.tar.gz`.
 - `scripts/restore-staging.sh <db.sql.gz> <content.tar.gz>` (on the **staging** server): replaces staging with that copy, then **deletes all members and their e-mail/payment history**, removes the Mailgun and Ghost-Stripe keys (staging can't send newsletters), points `donate_api_url` at staging and turns on **private site** (prints the password). Refuses to run if `.env` has the production `GHOST_URL`.
 
 ```sh
@@ -231,7 +233,7 @@ scp prod:vf_2.0/backups/vf-<date>-* staging:vf_2.0/backups/
 # staging server
 scripts/restore-staging.sh backups/vf-<date>-db.sql.gz backups/vf-<date>-content.tar.gz
 ```
-On lepusprime the stack isn't the prod compose: run it with `DC="docker compose"` (the checkout's `.env` and `docker-compose.override.yml` do the rest). Staff logins are the same as on production afterwards. Run it again whenever staging should catch up with live content.
+The staging stack isn't the prod compose: in `/srv/vf-staging/repo` run it with `DC="docker compose"` (the checkout's `.env` and `docker-compose.override.yml` do the rest). Both stacks are on the same server, so the "copy across" step is a plain `cp` from `/srv/vf-prod/repo/backups/`. Staff logins are the same as on production afterwards. Run it again whenever staging should catch up with live content.
 
 ## How to test
 
