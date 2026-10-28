@@ -1,7 +1,7 @@
 <!-- Source of /adatvedelem/. Edit here, then run scripts/content.mjs (it rebuilds the page when the text changes). -->
 <!-- Markdown: ## heading, ### subheading, - list, | table |, **bold**, [text](url). Every line is its own paragraph. Lines like this one are not published. -->
 **A Világítani Fogok Egyesület adatkezelési tájékoztatója a vilagitanifogok.hu weboldalhoz**
-Hatályos: 2026. október 5-től visszavonásig.
+Hatályos: 2026. október 28-tól visszavonásig.
 
 ## Bevezetés
 A Világítani Fogok Egyesület (a továbbiakban: Adatkezelő) kiemelten fontosnak tartja támogatói, partnerei és a weboldal látogatói információs önrendelkezési jogának tiszteletben tartását. A személyes adatokat bizalmasan, a hatályos európai uniós és hazai jogszabályoknak, valamint a releváns adatvédelmi hatósági gyakorlatnak megfelelően kezeljük, és megteszünk minden olyan biztonsági és szervezési intézkedést, amely az adatok biztonságát, bizalmasságát, sértetlenségét és rendelkezésre állását biztosítja.
@@ -33,7 +33,7 @@ Adatvédelmi tisztviselő kinevezésére az Adatkezelő nem köteles, ilyet nem 
 
 ## A weboldal látogatása
 A weboldal megtekintésekor a böngésző technikai adatokat küld a szervernek (IP-cím, a kért oldal címe, a böngésző típusa, időpont). Ezek a weboldal működéséhez és biztonságához szükségesek; látogatói naplót (access log) nem vezetünk.
-A weboldalt saját szerveren üzemeltetjük, amelyet a Hetzner Online GmbH (Industriestr. 25, 91710 Gunzenhausen, Németország) biztosít, németországi adatközpontban. A Hetzner adatfeldolgozóként tárolja a weboldal adatbázisát (a hírlevél-feliratkozók adataival együtt), az adatokhoz nem fér hozzá.
+A weboldalt saját virtuális szerveren üzemeltetjük, amelyet a Microsoft Ireland Operations Limited (One Microsoft Place, South County Business Park, Leopardstown, Dublin 18, D18 P521, Írország) biztosít a Microsoft Azure szolgáltatás keretében, az Európai Unióban (Frankfurt, Németország) található adatközpontban. A Microsoft adatfeldolgozóként tárolja a weboldal adatbázisát (a hírlevél-feliratkozók és a támogatók adataival együtt); az adatokat nem használja saját céljaira. Mivel a Microsoft anyavállalata amerikai, az esetleges adattovábbítás alapja az EU–USA adatvédelmi keretrendszer és az általános szerződési feltételek. Adatkezelési tájékoztatója: [privacy.microsoft.com](https://privacy.microsoft.com/hu-hu/privacystatement)
 A weboldal betűtípusait saját szerverünkről töltjük be, így azok betöltésekor nem kerül adat harmadik félhez.
 <!-- TODO VF-063: until Portal and search are self-hosted, Ghost loads them from cdn.jsdelivr.net. Delete the next line once that is done. -->
 A weboldal egyes kiegészítő programjai (feliratkozási és kereső felület) a jsDelivr tartalomszolgáltató hálózatról töltődnek be; ennek során a látogató IP-címe a jsDelivr szervereihez kerül. A jsDelivr sütiket nem helyez el. Adatkezelési tájékoztatója: [jsdelivr.com/terms/privacy-policy-jsdelivr-net](https://www.jsdelivr.com/terms/privacy-policy-jsdelivr-net)
@@ -60,7 +60,7 @@ Ha cégként adókedvezményre jogosító igazolást kérsz, az igazolás kiáll
 
 ### Támogatói nyilvántartás és beszámoló
 <!-- TODO VF-080: the 5-year retention and the legitimate-interest basis are a proposal; the association decides. -->
-A weboldalon adományozók adatait (név, e-mail-cím, az adományok időpontja, összege, gyakorisága és – ha egy kampány oldalán adományoztál – a kampány neve) a Stripe-tól átvesszük a saját, Hetzner szerveren futó Ghost tartalomkezelőnkbe, és ott támogatóként nyilvántartjuk. Kártyaadatok ide nem kerülnek.
+A weboldalon adományozók adatait (név, e-mail-cím, az adományok időpontja, összege, gyakorisága és – ha egy kampány oldalán adományoztál – a kampány neve) a Stripe-tól átvesszük a saját, Microsoft Azure szerveren futó Ghost tartalomkezelőnkbe, és ott támogatóként nyilvántartjuk. Kártyaadatok ide nem kerülnek.
 Cél: a támogatóink nyilvántartása, a beérkezett adományok kampányonkénti áttekintése, és ha kéred, beszámoló küldése.
 Jogalap: az Adatkezelő jogos érdeke a támogatói kapcsolatok nyilvántartásához (GDPR 6. cikk (1) f) pont). A nyilvántartás ellen az info@vilagitanifogok.hu címen tiltakozhatsz; ekkor töröljük az adataidat ebből a nyilvántartásból (a számviteli adatokat a Stripe-nál a fenti ideig ettől függetlenül megőrizzük).
 Időtartam: az utolsó adományodtól számított 5 évig.
@@ -74,7 +74,7 @@ Cél: a hírlevél kiküldése; a megnyitások és kattintások mérésével azt
 Jogalap: hozzájárulásod (GDPR 6. cikk (1) a) pont), amelyet bármikor visszavonhatsz: minden levél alján található leiratkozó link, vagy írj az info@vilagitanifogok.hu címre. A visszavonás nem érinti a korábbi adatkezelés jogszerűségét.
 Időtartam: a leiratkozásig vagy a hozzájárulás visszavonásáig. Leiratkozás után a hírleveleket nem küldjük tovább, és az adataidat legkésőbb 30 napon belül töröljük.
 <!-- TODO: this 30-day promise needs someone to delete unsubscribed members in Ghost Admin → Members (filter: unsubscribed) every month. Change the wording if that won't happen. Donors without a newsletter also show as unsubscribed: exclude the label "Támogató" from that clean-up (VF-065). -->
-Adatfeldolgozók: a hírlevélküldést a Ghost tartalomkezelő végzi a saját (Hetzner) szerverünkön; a leveleket a Mailgun Technologies, Inc. (112 E Pecan St. #1135, San Antonio, TX 78205, USA) kézbesíti, az Európai Unióban található adatközpontból. Mivel a Mailgun amerikai vállalat, az adattovábbítás alapja az EU–USA adatvédelmi keretrendszer és az általános szerződési feltételek. A Mailgun adatkezelési tájékoztatója: [mailgun.com/legal/privacy-policy](https://www.mailgun.com/legal/privacy-policy/)
+Adatfeldolgozók: a hírlevélküldést a Ghost tartalomkezelő végzi a saját (Microsoft Azure) szerverünkön; a leveleket a Mailgun Technologies, Inc. (112 E Pecan St. #1135, San Antonio, TX 78205, USA) kézbesíti, az Európai Unióban található adatközpontból. Mivel a Mailgun amerikai vállalat, az adattovábbítás alapja az EU–USA adatvédelmi keretrendszer és az általános szerződési feltételek. A Mailgun adatkezelési tájékoztatója: [mailgun.com/legal/privacy-policy](https://www.mailgun.com/legal/privacy-policy/)
 A weboldalra történő bejelentkezéshez (feliratkozói fiók) szükséges egyszer használatos belépőlinkeket szintén a Mailgun kézbesíti.
 
 ## Kapcsolatfelvétel e-mailben
