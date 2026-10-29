@@ -343,7 +343,7 @@ button { font: inherit; cursor: pointer; }
 .partner-row a:hover img, .partner-row a:focus-visible img { filter: none; opacity: 1; }
 .partner-name { display: flex; flex-direction: column; font: 800 22px/1 var(--font-heading); letter-spacing: .02em; color: var(--color-text); opacity: .7; }
 .partner-name small { font: 600 12px/1.3 var(--font-body); letter-spacing: .04em; color: var(--color-muted); }
-.partner-eu { align-self: flex-start; }
+.partner-row-2 { display: flex; justify-content: center; align-items: center; gap: 24px 64px; flex-wrap: wrap; }
 .partner-eu img { width: 375px; max-width: 100%; height: auto; }
 
 /* — Napló (3b) — */
