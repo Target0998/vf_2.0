@@ -10,7 +10,7 @@ set -eu
 
 DB_DUMP="${1:?usage: restore-staging.sh <db.sql.gz> <content.tar.gz>}"
 CONTENT="${2:?usage: restore-staging.sh <db.sql.gz> <content.tar.gz>}"
-DC="${DC:-docker compose -f docker-compose.yml -f docker-compose.prod.yml}"   # override only for testing
+DC="${DC:-docker compose}"   # staging = dev compose + docker-compose.override.yml; override only for testing
 
 GHOST_URL="${GHOST_URL:-$(sed -n 's/^GHOST_URL=//p' .env | tail -1 | tr -d '"' | sed 's:/*$::')}"
 case "$GHOST_URL" in

@@ -7,7 +7,7 @@
 # Restore on staging: scripts/restore-staging.sh. Contains personal data (members) – keep it private.
 set -eu
 
-DC="${DC:-docker compose -f docker-compose.yml -f docker-compose.prod.yml}"   # override only for testing
+DC="${DC:-docker compose}"   # on our server .env sets COMPOSE_FILE; elsewhere pass DC="docker compose -f … -f …"
 DIR="${1:-backups}"
 STAMP="$(date +%Y-%m-%d-%H%M)"
 mkdir -p "$DIR"

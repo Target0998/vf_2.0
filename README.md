@@ -61,7 +61,7 @@ GHOST_URL=https://<domain> GHOST_ADMIN_API_KEY=<id:secret> node scripts/content.
 
 It only replaces pages that still contain placeholder text, and skips anything edited by hand (`--force` overrides). Seed sample posts become drafts. `/adatvedelem/` is the exception: it is always rebuilt from `Adatvédelmi.md` when the text changed (Markdown: `##` headings, `-` lists, `|` tables).
 
-In production Ghost caches templates, so after pulling theme changes run `docker compose -f docker-compose.yml -f docker-compose.prod.yml restart ghost`.
+In production Ghost caches templates, so after pulling theme changes restart Ghost (on our server: `cd /srv/vf-prod/repo && docker compose restart ghost`).
 
 ## Donations / Stripe
 

@@ -6,7 +6,7 @@
 //   docker compose exec donate-api node backfill.js                      dry run: prints what would change
 //   docker compose exec donate-api node backfill.js --apply              writes to Ghost
 //   options: --campaign=futas   --since=2026-09-01
-// (on a server add -f docker-compose.yml -f docker-compose.prod.yml)
+// (on our server run it in /srv/vf-prod/repo: .env sets COMPOSE_FILE, so no -f flags)
 import { donorFromSession, syncDonor } from './donors.js';
 
 const args = Object.fromEntries(process.argv.slice(2).map((a) => {

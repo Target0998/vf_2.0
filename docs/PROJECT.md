@@ -65,6 +65,7 @@ scripts/webhook-test.mjs  signed fake Stripe events → checks the donor's Ghost
 scripts/screenshots.mjs   full-page desktop (1440) + mobile (390) screenshots → screenshots/
 scripts/backup.sh         database + uploads backup;  scripts/restore-staging.sh  copy of production → staging, without members
 scripts/release.sh        code: main → staging → prod (fast-forward);  scripts/promote.mjs  content: pages/posts/settings + their images one stage up
+scripts/node.sh           runs any of the .mjs scripts in a node:22-alpine container (the server has no Node)
 docker-compose.yml        local stack           docker-compose.prod.yml  staging/prod override
 Caddyfile                 HTTPS + routing for staging/prod, www → bare domain, redirects from old Mobirise URLs, /.ghost/analytics
 tinybird/                 helper image for the one-time Tinybird setup (from TryGhost/ghost-docker, MIT)
@@ -108,7 +109,7 @@ Stripe's Dashboard can't filter payments by our tags, so `donate-api` has its ow
 - One row per payment: a monthly donor appears once per paid month, tagged with their subscription's campaign and source. This is the same money the Futás counter counts.
 - Read straight from Stripe (list API, no lag; cached 1 min, "Frissítés" reloads). Bank transfers aren't in Stripe, so they're not here either.
 - Shows donors' names and e-mails: share the password only with the people who handle donations.
-- Setup: `ADMIN_PASSWORD=` a long random string (`openssl rand -base64 18`) in the server's `.env`, then `docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d donate-api`. The log line says `admin: on`.
+- Setup: `ADMIN_PASSWORD=` a long random string (`openssl rand -base64 18`) in the server's `.env`, then `docker compose up -d donate-api` in that checkout. The log line says `admin: on`.
 - **Staging with live data:** put a *restricted, read-only* live key (`rk_live_…`; Stripe → Developers → API keys → Create restricted key, Read on PaymentIntents, Charges, Invoices, Subscriptions) into `STRIPE_READ_KEY`, not `STRIPE_SECRET_KEY`: the list then shows live payments while staging's donate box keeps charging only test cards.
 
 ### Donor records (Stripe webhook → Ghost Members)
@@ -140,7 +141,7 @@ The relay's "baton" is a phone running **Traccar Client** (free, iOS/Android). I
 - **Progress** only moves forward, and only for fixes within 250 m of the route that are reachable at ≤ 43 km/h from the last progress (or right on the route, ≤ 100 m, after a long gap). A detour or a ride in the support car doesn't count, and the dot still shows where the phone is.
 
 **Setting up the phone (once):**
-1. `.env` on the server: `TRACK_TOKEN=` a long random string (`openssl rand -hex 16`), then `docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d donate-api`.
+1. `.env` on the server: `TRACK_TOKEN=` a long random string (`openssl rand -hex 16`), then `docker compose up -d donate-api` in `/srv/vf-prod/repo`.
 2. Install **Traccar Client**. Settings: *Device identifier* = the `TRACK_TOKEN`; *Server URL* = `https://vilagitanifogok.hu/api/donate/track/futas`; *Location accuracy* = high; *Frequency* = 30 s; *Distance* = 0; *Offline buffering* = on. Turn on tracking.
 3. Allow location access **always** (iOS: "Always"; Android: "Allow all the time", and switch battery optimisation off for the app).
 4. Walk around for a few minutes, then open the organisers' view: `points` should grow and `last_fix` should be you.
@@ -159,17 +160,17 @@ Ghost 6's built-in, cookieless statistics (Admin → Analytics). Page views go f
 
 What reaches Tinybird per page view: page URL, referrer, utm parameters, browser user agent / device type, language, country, the salted session id and, **for logged-in newsletter subscribers, their Ghost member id and status**. No IP address, no cookies. Covered in `Adatvédelmi.md`.
 
-One-time setup on the server (needs a free account at tinybird.co; pick **Europe (Frankfurt)**):
+One-time setup on the server, in `/srv/vf-prod/repo` (needs a free account at tinybird.co; pick **Europe (Frankfurt)**):
 ```sh
-C="docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile analytics"
+C="docker compose --profile analytics"
 $C build tinybird-login
 $C run --rm tinybird-login              # prints a code + URL: open it, log in, choose the workspace
 $C run --rm tinybird-sync               # "Tinybird files synced into shared volume."
 $C run --rm tinybird-deploy             # wait for "Deployment #1 is live!"
 $C run --rm tinybird-login get-tokens   # prints 4 lines → paste them into .env
 # in .env also: COMPOSE_PROFILES=analytics
-docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
-docker compose -f docker-compose.yml -f docker-compose.prod.yml restart ghost caddy
+docker compose up -d
+docker compose restart ghost caddy
 ```
 Then Ghost Admin → Settings → Analytics → turn on **Web analytics**, open the home page in a private window, and check that a visit appears on the Analytics page within a minute or two. After a Ghost upgrade that changes the analytics schema, re-run `tinybird-sync` and `tinybird-deploy`.
 
@@ -193,7 +194,9 @@ Three stages. **Code** moves up through git branches, **content** mostly moves d
 Since 2026-10-28 production and staging share one Azure VM: `VFHost`, **51.116.177.87**, Germany West Central (Frankfurt), Standard_D2ds_v7 (2 vCPU, 8 GB), Ubuntu 24.04. SSH as `ben` with the VF key (sudo). Before that: production on Hetzner (2.28.137.208), staging on lepusprime.
 - `/srv/vf-prod/repo`: branch `prod`, compose project `vf`. Its `.env` starts with `COMPOSE_FILE=docker-compose.yml:docker-compose.prod.yml:docker-compose.server.yml`, so here it's **plain `docker compose …`, no `-f` flags**: with them the server file is skipped and staging loses its vhost the next time Caddy is recreated.
 - `/srv/vf-staging/repo`: branch `staging`, project `vf-staging`. The dev compose plus an untracked `docker-compose.override.yml` (Mailgun SMTP; Ghost :2368 and donate-api :8787 published on 127.0.0.1 and on the docker bridge 172.17.0.1 only). Don't use `docker-compose.prod.yml` here: it would start a second Caddy on 80/443.
-- **One Caddy, prod's, serves both domains.** The untracked `docker-compose.server.yml` + `Caddyfile.server` in the prod checkout import the repo `Caddyfile` and add the `staging.` vhost (`noindex`), proxied to `host.docker.internal` (= 172.17.0.1). Don't attach Caddy to staging's docker network instead: the repo Caddyfile's `ghost` / `donate-api` names would then resolve to either stack's containers.
+- **One Caddy, prod's, serves all domains on the VM.** The untracked `docker-compose.server.yml` + `Caddyfile.server` in the prod checkout import the repo `Caddyfile` and add the `staging.` and `crm.` vhosts (`noindex`), proxied to `host.docker.internal` (= 172.17.0.1). If prod's Caddy is down, staging and the CRM are down too. Don't attach Caddy to staging's docker network instead: the repo Caddyfile's `ghost` / `donate-api` names would then resolve to either stack's containers.
+- `/opt/twenty`: **Twenty CRM** (https://crm.vilagitanifogok.hu), its own compose project `twenty`, published on 127.0.0.1 / 172.17.0.1 :3000. Not connected to the site yet. Its README there covers upgrades, nightly backups (`twenty-backup.timer` → `/var/backups/twenty/`) and restore.
+- `~/vf_2.0` (user `ben`): a clone of `main` for work on the server: commits, `scripts/release.sh` (GitHub login via `gh auth login`), and the Node scripts through `scripts/node.sh` (the server has no Node). Its own `.env` holds only `STAGING_ADMIN_API_KEY` / `PROD_ADMIN_API_KEY` for `promote.mjs`.
 - Untracked server files are listed in each checkout's `.git/info/exclude`. Only 22, 80 and 443 are reachable from outside (Azure network security group; ufw is off, and Docker would bypass it anyway).
 
 ### Code: `main` → `staging` → `prod`
@@ -202,7 +205,7 @@ Every commit is made on `main`. Releasing is a fast-forward of the next branch, 
 scripts/release.sh staging   # main → staging, then deploy on the server ↓, the team reviews it
 scripts/release.sh prod      # staging → prod: then on the production server ↓
 ```
-On the server, never commit in either checkout: fixes go on `main` and come back with the next release.
+On the server, never commit in either `/srv` checkout: fixes go on `main` (`~/vf_2.0`) and come back with the next release. `release.sh` can run from `~/vf_2.0` too.
 ```sh
 cd /srv/vf-staging/repo && git pull && docker compose up -d   # staging; docker-compose.override.yml (untracked) adds Mailgun + ports
 cd /srv/vf-prod/repo && git pull && docker compose up -d      # production; .env sets COMPOSE_FILE, so no -f flags
@@ -218,22 +221,18 @@ Ghost content (pages, posts, settings, theme settings, uploaded images) lives in
 node scripts/promote.mjs staging prod page:tamogatas post:<slug> theme:hero_image setting:navigation          # dry run
 node scripts/promote.mjs staging prod page:tamogatas post:<slug> theme:hero_image setting:navigation --apply
 ```
-  Keys go in your local `.env`: `STAGING_ADMIN_API_KEY`, `PROD_ADMIN_API_KEY`. A custom integration's Admin API key (Settings → Integrations → "Promote") covers pages, posts and site settings. **Theme settings** (e.g. `hero_image`) need a **staff access token** instead (Ghost Admin → your profile → Staff access token; same format, acts as you). `local` logs in with the seed's owner account.
+  On the server run it from `~/vf_2.0` as `scripts/node.sh scripts/promote.mjs …` (no Node installed). Keys go in that folder's (or your laptop's) `.env`: `STAGING_ADMIN_API_KEY`, `PROD_ADMIN_API_KEY`. A custom integration's Admin API key (Settings → Integrations → "Promote") covers pages, posts and site settings. **Theme settings** (e.g. `hero_image`) need a **staff access token** instead (Ghost Admin → your profile → Staff access token; same format, acts as you). `local` logs in with the seed's owner account.
 - **Photos:** originals (full-size camera files) are kept outside git, in the shared Drive. Locally they can sit in `UjKepek/` (git-ignored). Resize to at most 2400 px, upload into Ghost on local or staging, and promote the page/setting that uses them. The promote script carries the files along.
 
 ## Backups and copying production to staging
 - `scripts/backup.sh` (on a server, in the repo folder): database dump (`utf8mb4`) + uploaded images, PDFs and media → `backups/vf-<date>-db.sql.gz` and `…-content.tar.gz`. Contains members' personal data: `backups/` is git-ignored, keep the files private. Not included: `.env` and the run map's positions (`track` volume): `docker compose exec -T donate-api tar czf - -C /data . > backups/track.tar.gz`.
-- `scripts/restore-staging.sh <db.sql.gz> <content.tar.gz>` (on the **staging** server): replaces staging with that copy, then **deletes all members and their e-mail/payment history**, removes the Mailgun and Ghost-Stripe keys (staging can't send newsletters), points `donate_api_url` at staging and turns on **private site** (prints the password). Refuses to run if `.env` has the production `GHOST_URL`.
+- `scripts/restore-staging.sh <db.sql.gz> <content.tar.gz>` (in `/srv/vf-staging/repo`): replaces staging with that copy, then **deletes all members and their e-mail/payment history**, removes the Mailgun and Ghost-Stripe keys (staging can't send newsletters), points `donate_api_url` at staging and turns on **private site** (prints the password). Refuses to run if `.env` has the production `GHOST_URL`.
 
 ```sh
-# production server
-scripts/backup.sh
-# laptop: copy the two files across
-scp prod:vf_2.0/backups/vf-<date>-* staging:vf_2.0/backups/
-# staging server
-scripts/restore-staging.sh backups/vf-<date>-db.sql.gz backups/vf-<date>-content.tar.gz
+cd /srv/vf-prod/repo && scripts/backup.sh
+cd /srv/vf-staging/repo && scripts/restore-staging.sh /srv/vf-prod/repo/backups/vf-<date>-db.sql.gz /srv/vf-prod/repo/backups/vf-<date>-content.tar.gz
 ```
-The staging stack isn't the prod compose: in `/srv/vf-staging/repo` run it with `DC="docker compose"` (the checkout's `.env` and `docker-compose.override.yml` do the rest). Both stacks are on the same server, so the "copy across" step is a plain `cp` from `/srv/vf-prod/repo/backups/`. Staff logins are the same as on production afterwards. Run it again whenever staging should catch up with live content.
+Both scripts use plain `docker compose`: in each checkout `.env` (prod: `COMPOSE_FILE`) and `docker-compose.override.yml` (staging) pick the right files. Elsewhere pass `DC="docker compose -f … -f …"`. Staff logins are the same as on production afterwards. Run it again whenever staging should catch up with live content.
 
 ## How to test
 
